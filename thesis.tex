@@ -41,8 +41,10 @@
 %4. 如果想生成盲评，传递anon即可，仍需修改个人成果部分
 % \documentclass[master,otf,anon]{nudtpaper}
 %
-\documentclass[master,otf]{nudtpaper}
+\documentclass[doctor,twoside,ttf]{nudtpaper}
 \usepackage{mynudt}
+%\usepackage{ctex}
+
 
 \classification{TP957}
 \serialno{0123456}
@@ -60,12 +62,13 @@
 \ensubject{Information and Communication Engineering}
 \researchfield{自动目标识别与模糊工程}
 \supervisor{李四\quad{}教授}
-\cosupervisor{王五\quad{}副教授} % 没有就空着
+%\cosupervisor{王五\quad{}副教授} % 没有就空着
 \ensupervisor{Prof. LI Si}
 \encosupervisor{}
 \papertype{工学}
 \enpapertype{Engineering}
 % 加入makenomenclature命令可用nomencl制作符号列表。
+\makenomenclature
 
 \begin{document}
 \graphicspath{{figures/}}
@@ -80,9 +83,13 @@
 \listoftables
 \listoffigures
 
+\cleardoublepage
+\printnomenclature
+
 \midmatter
 \input{data/abstract}
-\input{data/denotation}
+%\input{data/denotation}
+
 
 %书写正文，可以根据需要增添章节; 正文还包括致谢，参考文献与成果
 \mainmatter

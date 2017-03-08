@@ -1,0 +1,38 @@
+\begin{thenomenclature} 
+
+ \nomgroup{A}
+{$\dot{Q}$}&\begingroup heat flux\endgroup &\begingroup \endgroup &\begingroup 
+		\nompageref{16} \\
+{$A$}&\begingroup area\endgroup &\begingroup \endgroup &\begingroup 
+		\nompageref{16} \\
+{$k$}&\begingroup overall heat transfer coefficient,式\eqref{eq:ohtc}\endgroup &\begingroup \endgroup &\begingroup 
+		\nompageref{16} \\
+{$L$}&\begingroup length\endgroup &\begingroup \endgroup &\begingroup 
+		\nompageref{16} \\
+{$\Delta T$}&\begingroup temperature difference测\endgroup &\begingroup \endgroup &\begingroup 
+		\nompageref{16} \\
+{$T$}&\begingroup temperature\endgroup &\begingroup \endgroup &\begingroup 
+		\nompageref{16} \\
+
+
+ \nomgroup{G}
+{$\alpha$}&\begingroup convection heat transfer coefficient\endgroup &\begingroup \endgroup &\begingroup 
+		\nompageref{16} \\
+{$\lambda$}&\begingroup thermal conductivity\endgroup &\begingroup \endgroup &\begingroup 
+		\nompageref{16} \\
+{$\gamma$}&\begingroup 中文测试, 以及一句很长的物理意义，很有可能超过当前栏的宽度，主要目的是看一看会不会出现某些异常情况。\endgroup &\begingroup \endgroup &\begingroup 
+		\nompageref{16} \\
+
+
+ \nomgroup{Z}
+{a}&\begingroup out\endgroup &\begingroup \endgroup &\begingroup 
+		\nompageref{16} \\
+{i}&\begingroup in\endgroup &\begingroup \endgroup &\begingroup 
+		\nompageref{16} \\
+{$j$}&\begingroup running parameter\endgroup &\begingroup \endgroup &\begingroup 
+		\nompageref{16} \\
+{$n$}&\begingroup number of walls\endgroup &\begingroup \endgroup &\begingroup 
+		\nompageref{16} \\
+
+
+\end{thenomenclature}
