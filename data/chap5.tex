@@ -1,0 +1,26 @@
+%*********************第五章******************
+\chapter{GPU特定OpenCL Kernel程序的性能移植性提升}
+\section{引言}
+当前异构平台上的两大类设备（CPU（MIC）、GPU），异构平台上实现高性能跟踪器可用的编程模型，用OpenCL的好处，但是OpenCL编程模型更适合GPU（不考虑数据重组和传输），有性能移植性问题；本章的解决方案，并分点介绍本章讲什么
+
+\section{相关工作}
+翻译fitee论文的related work
+
+\section{数组访问的线性描述式}
+用线性方程组+约束 描述数组访问
+
+\section{基于分析的Kernel折叠}
+以下均翻译fitee论文
+\subsection{消除冗余的局部存储数组}
+\subsection{依赖性分析和同步语句消除}
+
+\section{适应体系结构的后继优化}
+如果前面过长，以下翻译europar论文
+\subsection{向量化}
+\subsection{局域性重开发}
+
+\section{运行时调度}
+
+\section{性能评测}
+
+\section{小结}
