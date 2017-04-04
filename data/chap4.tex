@@ -673,7 +673,12 @@ __kernel void GetPositiveSample( __global float* overlaps, int current_top_BB_id
 至此，整个TLD算法基于OpenCL的高性能实现已介绍完毕。
 
 \section{实验评测与分析}
-本章的实验评测将对比原始OpenTLD版本进行。
+本章的实验评测主要是与原始OpenTLD版本进行性能对比。
+测试视频序列选用\textit{Car}。
+实验的硬件平台为典型桌面异构计算平台：CPU为Intel i7-5500U，采用Broadwell架构，双核四线程，2.4GHz，关闭睿频；
+GPU为Nvidia GTX 960M，采用Maxwell一代架构，CUDA计算能力5.0，包含640个流处理器，处理器频率1096MHz，显存带宽80GB/s；
+主存为16GB DDR3-1600 SDRAM，双通道，理论峰值带宽为25.6GB/s。
+
 
 
 \subsection{Kernel性能评测与分析}
