@@ -348,6 +348,7 @@ Fern特征向量数组即是\ref{featureextsec}节的Kernel程序输出，因此
 因为每10个连续工作项计算同一个边界框的10个叶节点权值，所以它们中的第一个工作项负责将权值累加，计算出响应值（第13$\sim$17行）。
 
 \subsection{与跟踪器重叠执行}
+\label{detecttrackoverlapsec}
 LK光流跟踪和Fern随机森林分类是完全独立的，可以重叠执行。
 表\ref{lkferncode}为将光流跟踪和随机森林分类重叠执行的OpenCL宿主程序片段。
 由于在每一帧中，经过方差过滤后的边界框数目（\texttt{BB\_num}）是不同的，
@@ -442,11 +443,11 @@ OpenTLD中，最邻近分类器的模型中的图像块大小为$15\times15$，�
 \begin{figure}[htb]
   \centering
   \includegraphics[width=9cm]{nccfig}
-  \caption{NCC计算的OpenCL索引空间（注：图中的两组图像块是分别连续存储在两个一维数组中的，这里为了显示清晰将各个图像块分开展示）}
+  \caption{NCC计算的OpenCL索引空间}
   \label{nccfig}
 \end{figure}
 
-NCC计算的OpenCL实现使用三维索引空间，如图\ref{nccfig}所示。
+NCC计算的OpenCL实现使用三维索引空间，如图\ref{nccfig}所示（注：图中的两组图像块是分别连续存储在两个一维数组中的，这里为了显示清晰将各个图像块分开展示）。
 一个工作组负责计算一个边界框对应图像块和一个样本图像块的NCC，因此工作组在$\{x, y, z\}$三个维度上的数目设置为$\{1, $边界框数目$, $样本图像块数目$\}$。
 %其中$patch\_num$为边界框数目，$p\_n\_sample\_num$为样本图像块数目。
 每个工作项负责一个像素位置，即计算两个图像块中同一位置处的灰度值平方和乘积，因此一个工作组内的工作项数目为$\{225, 1, 1\}$。
@@ -673,20 +674,173 @@ __kernel void GetPositiveSample( __global float* overlaps, int current_top_BB_id
 至此，整个TLD算法基于OpenCL的高性能实现已介绍完毕。
 
 \section{实验评测与分析}
-本章的实验评测主要是与原始OpenTLD版本进行性能对比。
-测试视频序列选用\textit{Car}。
+本章TLD算法高性能实现的部分可视化运行结果如图\ref{tldvisualsample}所示。
+图\ref{tldvisualsample}中，从上至下，选用的视频序列依次为\textit{Car}、\textit{Jumping}、\textit{David}和\textit{Panda}。
+序列\textit{Car}显示了TLD算法在目标离开视野、遮挡这两类情况下，仍然能够准确跟踪目标。
+序列\textit{Jumping}主要展示了TLD对于目标快速移动和运动模糊的适应力。
+\textit{David}序列中，光照变化剧烈，TLD算法展现了很高的鲁棒性。
+\textit{Panda}序列主要突出了TLD算法对于目标物体非刚性形变的适应能力。
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=13cm]{tldvisualsample}
+  \caption{TLD算法高性能实现的部分运行结果}
+  \label{tldvisualsample}
+\end{figure}
+
+作为高性能实现的评测，本章的实验将主要针对运行效率。
+对比基准选用OpenTLD，输入测试序列选用\textit{Car}。
 实验的硬件平台为典型桌面异构计算平台：CPU为Intel i7-5500U，采用Broadwell架构，双核四线程，2.4GHz，关闭睿频；
-GPU为Nvidia GTX 960M，采用Maxwell一代架构，CUDA计算能力5.0，包含640个流处理器，处理器频率1096MHz，显存带宽80GB/s；
+GPU为Nvidia GTX 960M，采用Maxwell一代架构，CUDA计算能力5.0，包含640个流处理器，处理器频率1096MHz，显存2GB，带宽80GB/s；
 主存为16GB DDR3-1600 SDRAM，双通道，理论峰值带宽为25.6GB/s。
-
-
+实验的软件环境采用Linux操作系统，发行版本为Ubuntu 16.04，内核版本为4.4，编译器为gcc/g++ 4.8。
+CPU的OpenCL驱动和运行时采用Intel OpenCL 1.2 Driver\upcite{intelocl}，所支持的OpenCL版本为2.0；
+GPU的OpenCL驱动和运行时包含在CUDA工具中，CUDA驱动版本为8.0，运行时版本为7.5，所支持的OpenCL版本为1.2。
+因此，为了保证OpenCL实现的可移植性，本章的OpenCL代码均按照OpenCL 1.2标准编写。
+整个TLD实现还依赖OpenCV库，版本为2.4.13。
 
 \subsection{Kernel性能评测与分析}
-在CPU、GPU上，纯Kernel的执行时间；性能移植性问题
+本节首先评测各个Kernel的运行效率。
+使用OpenCL进行高性能实现的Kernel一共有5个，分别是：
+Fern特征提取（FernFeatureExtract），Fern随机森林分类过程（FernClassify），
+最邻近分类过程的NCC计算（NCC），学习过程的重叠率计算和负样本提取（GetOverlapAndNegativeSample），
+以及正样本提取（GetPositiveSample）。
 
-算上数据重组、传输等额外开销的执行时间
+由于OpenCL的移植性，上述Kernel可正确运行在多种设备上，且宿主程序可在运行时为各个Kernel指定计算设备。
+通过将\textit{Car}作为输入序列，并指定所有Kernel在CPU上运行，可统计出各个Kernel在CPU上的时间开销。
+为了保证时间测量准确，这里利用OpenCL命令队列的事件（Event）机制来记录Kernel的执行时间。
+该执行时间仅为执行过程所需时间，不包括数据传输、Kernel启动等额外开销。
+由于输入的视频序列含有大量帧图像，且Kernel一次执行的时间与图像内容有关，本节将Kernel在所有帧中的执行时间进行累加，
+得到各Kernel在跟踪过程中的总执行时间，作为其时间开销。
+整个TLD跟踪过程共运行3次，各个Kernel的最终时间开销为3次统计的平均值。
+同理，使用相同输入序列，且指定所有Kernel在GPU上运行，可获得各个Kernel在GPU上的时间开销。
+作为对比基准，本节还提取了OpenTLD中对应于各个Kernel的代码段，并同样按照上述方法统计了这些代码段的时间开销。
+
+\begin{table}[htb]
+\centering
+\begin{minipage}[t]{0.81\linewidth}
+\caption{各Kernel的时间开销对比}
+\label{tldkerneltime}
+\begin{tabular*}{\linewidth}{|l|c|c|c|c|c|}
+\hline
+\backslashbox{计算设备}{Kernel}  & FFE\footnote{FernFeatureExtract} & FC\footnote{FernClassify} & NCC     & GONS\footnote{GetOverlapAndNegativeSample} & GPS\footnote{GetPositiveSample} \\ \hline
+GPU\_OCL & 502.16             & 25.08        & 78.38   & 15.53                       & 173.01            \\ \hline
+CPU\_OCL & 3735.66            & 281.53       & 400.39  & 96.86                       & 990.07            \\ \hline
+ORG      & 24925.70           & 6664.20      & 7660.12 & 569.38                      & 17189.30          \\ \hline
+\end{tabular*} \\[2pt]
+\footnotesize 单位：毫秒
+\end{minipage}
+\end{table}
+
+\begin{table}[htb]
+\centering
+\begin{minipage}[t]{0.94\linewidth}
+\caption{各Kernel的加速比对比}
+\label{tldkernelspeedup}
+\begin{tabular*}{\linewidth}{|l|c|c|c|c|c|}
+\hline
+\backslashbox{\footnotesize 计算设备\kern-0.5cm}{\kern-0.5cm Kernel}  & FFE & FC & NCC     & GONS & GPS \\ \hline
+GPU\_OCL & 49.64 (7.44)       & 265.74 (11.23) & 97.73 (5.11) & 36.65 (6.24)                & 99.35 (5.72)      \\ \hline
+CPU\_OCL & 6.67               & 23.67          & 19.13        & 5.88                        & 17.36             \\ \hline
+ORG      & 1.00               & 1.00           & 1.00         & 1.00                        & 1.00              \\ \hline
+\end{tabular*}
+\end{minipage}
+\end{table}
+
+表\ref{tldkerneltime}给出了5个Kernel在不同设备上的时间开销。
+其中GPU\_OCL和CPU\_OCL分别代表GPU和CPU上的各OpenCL Kernel总执行时间。
+ORG代表OpenTLD中对应于各Kernel的代码段的总执行时间。
+与表\ref{tldkerneltime}对应的，以OpenTLD为基准的加速比如表\ref{tldkernelspeedup}所示，其中括号内的加速比为GPU\_OCL相对于CPU\_OCL的加速比。
+可以看出，通过本章基于OpenCL的并行化实现，无论在CPU还是GPU上，各个Kernel均取得了令人满意的性能提升。
+性能提升较低的两个Kernel是GetOverlapAndNegativeSample和FernFeatureExtract。
+在执行GetOverlapAndNegativeSample的过程中，绝大部分的边界框由于与$currentBB$不相交（\texttt{overlap==0}），
+不会进入表\ref{overlapcode}的16$\sim$21行的重叠率计算。
+因此并行化版本相比原OpenTLD版本的优势有所降低。
+FernFeatureExtract的计算量很小，仅为像素灰度对比和移位，
+但访存却较为复杂，需3次不规则的间接访存（图\ref{fernext}，通过边界框索引访问网格数组，通过采样模式和网格数组访问帧图像中两个像素）。
+因此并行化实现不能充分地利用计算资源和访存带宽。
+
+此外，还可以看出，Kernel在GPU上的执行时间明显短于在CPU上，加速比基本在6倍左右。
+GPU相对于CPU加速比最低的Kernel为NCC，原因在于Kernel的主要部分为树形归约（表\ref{ncccode}第23$\sim$32行），
+而GPU体系结构不适于归约操作。归约过程中循环的次数越多，同时参与计算的流处理器越少。
+直至最后一次循环时，仅有一个工作项负责最后两个元素的累加。
+GPU相对于CPU加速比最高的Kernel为FernClassify，主要原因在于输入的边界框数量较大，而每个边界框就有10个Fern特征向量需要分类，
+导致工作项数量庞大，适于用GPU的大量流处理器进行并行处理。
+除了CPU和GPU本身的计算能力差别，以及Kernel计算负载自身的特点，导致CPU和GPU上Kernel性能差别的另一主要因素就是实现的优化。
+因为GPU体系结构与OpenCL平台模型最为相似，本章的Kernel在实现时主要考虑了GPU平台，而没有针对CPU的体系结构特点。
+这就导致了OpenCL的性能移植性问题，下一章将针对该问题进行专门探讨。
+
+使用OpenCL进行并行化，在带来计算效率的显著提高的同时，势必会引入额外的时间开销。
+最为显著的额外开销是数据的重组和传输。
+例如，在执行Kernel NCC之前，需要将所有边界框对应的图像块，和所有正负样本图像块，分别连续地转存在两个一维数组之中。
+由于这两个一维数组在跟踪过程中长度不断变化，还需要为它们重新创建OpenCL存储对象，并传输到计算设备。
+此外，额外开销还包括命令队列的维护、Kernel的启动开销等。
+
+为了更加公平地评测本章TLD实现的Kernel性能，这里考虑所有的额外开销，将TLD算法的3个部分的执行时间进行对比。
+这3个部分分别是：
+\begin{compactitem}
+\item Fern随机森林分类：包含了Fern特征提取和分类过程的两个Kernel及前后数据处理、传输；
+\item 最邻近分类：包含了NCC计算Kernel、置信度计算和数据重组、传输；
+\item 学习过程中的正负样本提取：包含了重叠率计算和正负样本提取的两个Kernel，Kernel循环调用，以及数据传输。
+\end{compactitem}
+3个部分中，有的部分包含两个Kernel。这样划分的原因是，两个Kernel间有数据共享或者是生产者—消费者关系，难以确定额外开销属于哪个Kernel。
+与之前的对比类似，这里指定3个部分中的Kernel全部在GPU或CPU上运行，并统计时间开销。
+值得注意的是，当Kernel在CPU上运行时，由于计算设备就是宿主处理器，所以无需真正传输或者拷贝数据，数据传输开销可以忽略。
+同样地，OpenTLD中对应于这3个部分的代码段也被提取出来，以统计时间开销，作为对比基准。
+3部分在不同计算设备上的执行时间对比如图\ref{tldparttime}所示。
+可以看出，考虑所有额外开销后，无论在CPU还是GPU上，各部分仍然有令人满意的加速。
+同时，相比单纯的Kernel执行时间，加速比出现下降。
+这说明使用OpenCL并行化必然引入的额外开销较多，但是不会抵消并行化带来的巨大性能提升。
+对于Fern随机森林分类，使用GPU执行Kernel的性能优于使用CPU。
+然而对于最邻近分类，GPU上的性能远低于CPU。原因主要有两点，一是仅考虑NCC Kernel的执行时间，
+GPU对于CPU有着最低的加速比（表\ref{tldkernelspeedup}）；
+二是GPU上的NCC Kernel需要传输大量数据，即所有边界框对应的图像块和正负样本图像块，此外还需传回所有计算出的NCC，
+但CPU不需要这些额外的数据传输。
+由于相同的原因，对于正负样本提取，在GPU上执行Kernel的性能略低于在CPU上执行。
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=14cm]{tldparttime}
+  \caption{TLD算法各部分的时间开销对比}
+  \label{tldparttime}
+\end{figure}
 
 \subsection{整体性能评测与分析}
-全部Kernel在CPU上执行；全部Kernel在GPU上执行（可重叠）；各Kernel在适合的设备上执行（最优性能）
+由于本章实现的是一个完整的应用，因此本节将评测整个应用的性能。
+类似上节，本节仍然以\textit{Car}作为输入序列，并统计处理完整个序列所需的时间。
+不同的是，通过上一节对TLD算法3个部分的性能评测，已经得出了各部分所适用的计算设备；
+并且作为完整应用，可以如\ref{detecttrackoverlapsec}节所述，将光流跟踪和Fern随机森林分类进行重叠执行。
+因此，这里将评测4个版本的整体性能：
+\begin{compactitem}
+\item 指定本章实现的所有Kernel在CPU上执行，光流跟踪在GPU上与Fern随机森林分类重叠执行（记为CPU版本）；
+\item 指定本章实现的所有Kernel在GPU上执行，光流跟踪在CPU上与Fern随机森林分类重叠执行（记为GPU版本）；
+\item 指定Fern随机森林分类的两个Kernel在GPU上执行，最邻近分类和正负样本提取的3个Kernel在CPU上执行，光流跟踪在CPU上与Fern随机森林分类重叠执行（记为CPU/GPU版本）；
+\item 原始OpenTLD版本，作为对比基准（记为ORG版本）。
+\end{compactitem}
+不同的实现版本在整个序列中完成跟踪所需的时间如图\ref{tldwholetime}所示。
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=10.5cm]{tldwholetime}
+  \caption{整个应用的时间开销对比}
+  \label{tldwholetime}
+\end{figure}
+
+从图\ref{tldwholetime}中可以看出，所有Kernel均在CPU上执行时的整体性能略高于均在GPU上执行时。
+这与上一节的实验结果一致，即GPU在Fern随机森林分类上的优势，被最邻近分类和正负样本提取所抵消。
+CPU/GPU版本中，各个Kernel运行在适合的设备上，取得了最佳的整体性能，因此它将作为本章最终的TLD算法高性能实现。
+相比OpenTLD，其加速比达到了3.92倍，跟踪速度达到了52.9 FPS，完全满足实时在线跟踪的需求。
 
 \section{小结}
+面对跟踪器日益复杂的结构和不断增加的计算负载，高性能的跟踪算法实现变得十分必要。
+因此，本章在异构计算平台上，基于可移植的并行编程模型OpenCL，对TLD跟踪算法进行了高性能的实现。
+高性能实现中，本章并行化了TLD算法的计算密集部分和瓶颈部分，包括Fern随机森林的特征提取和分类过程，
+最邻近分类的NCC计算过程，以及学习过程中的重叠率计算和正负样本提取。
+此外，还将Fern随机森林的处理和LK光流跟踪在不同计算设备上进行了重叠执行。
+通过实验分析，本章发现OpenCL并行化所引入的额外开销不可忽视，且存在性能移植性问题，
+因此高性能实现中，各个Kernel程序将运行在各自适合的计算设备上。
+最终的高性能实现取得了令人满意的整体加速比，完全满足实时处理的需求。
+但不可否认，本章的高性能实现还远没有达到最佳性能。
+未来进一步的工作包括：1. 重构代码：通过调整中间数据的存储方式，减少数据重组的时间开销；
+2. 计算和传输重叠：通过在进行计算的同时传输Kernel所需的数据，隐藏数据传输的时间开销；
+3. 更精细的并行优化：通过针对不同计算设备的体系结构特点，编写更为特定、高效的Kernel程序。
