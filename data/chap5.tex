@@ -634,12 +634,173 @@ Knights Corner架构中有32个。因此向量寄存器的重用率将对Kernel�
 其它用于实现OpenCL宿主程序API的模块保持不变。
 对于CPU和MIC，均使用Intel C++ Compiler v13.0.0编译转换后的Kernel代码。
 在面向Sandy Bridge架构的CPU进行编译时，主要的编译选项为\texttt{-O3 -xHost}。
-而对于Knights Corner架构的MIC，将在编译前需要为转换后的Kernel代码加上``offload''指导语句，使得整个Kernel程序在MIC上执行。
+而对于Knights Corner架构的MIC，将在编译前需要为转换后的Kernel代码加上``offload''指导语句，使得整个Kernel程序可以在MIC上执行。
 值得注意的是，由于本节在MIC上执行Kernel时使用的是卸载（Offload）模式，MIC的最后一个物理核将被保留，不可用于计算。
 至此，包含GPU特定Kernel的OpenCL程序，将能够借助本章的新OpenCL运行时，在多核/众核CPU上高效地运行。
 
 \section{性能评测}
 \label{kernelexperimentsec}
+本节将在两个硬件平台上进行实验和性能评测：
+(1) 两个Intel Xeon E5-2650 8核CPU，共有16个物理核，作为经典的多核CPU平台；
+(2) 一个Intel Xeon Phi 5110p MIC协处理器，共有60个物理核，作为新兴的众核CPU平台。
+Xeon E5 CPU同时也作为宿主处理器，其上的操作系统为Red Hat Enterprise Linux 6.2，内核版本2.6.32-220。
+本章提出的加入了Kernel转换工具链和运行时调度器的新OpenCL运行时（记作OurOCL），
+将与Intel官方提供的OpenCL运行时（记作IntelOCL）进行对比。
+Intel的官方OpenCL运行时来自Intel SDK for OpenCL Applications 2013\upcite{intelsdk}。
+
+一共6个GPU特定的OpenCL Kernel程序组成了本节的测试集。
+如表\ref{benchmarks}所示，前5个Kernel程序均针对GPU体系结构进行了高性能优化，
+其中Stencil2D来自SHOC\upcite{shoc}，其它4个来自Nvidia GPU Computing SDK。
+第6个Kernel程序NaiveMatrixMul来自\cite{oclprogrammingguide}，即\ref{localityreexploresec}节中介绍过的``基本矩阵乘法Kernel''。
+它的数据局部性没有得到任何优化，将作为本节评测的基准。
+
+\begin{table}[htb]
+	\caption{用于性能评测的6个Kernel程序}
+	\centering
+	\scalebox{0.9} {
+	\begin{tabular}{ p{2.7cm} p{3.7cm} p{2cm} p{6cm} }
+		\toprule[1pt]
+		Kernel名 & 数据规模 & 工作组大小      & 功能介绍\\
+		\midrule[0.5pt]
+		oclMatrixMul & $8000\times8000$ & $16\times16$ & 分块矩阵乘法\\
+		%\hline
+		\multirow{2}{*}{oclFDTD3d} & $320\times320\times320$,  & \multirow{2}{*}{$32\times32$} & \multirow{2}{*}{有限差分时域演化，三维模板计算}\\
+		& Radius=16, Timestep=5	 &				&  \\
+		%\hline
+		\multirow{2}{*}{Stencil2D} & $4096\times4096$,  & \multirow{2}{*}{$16\times16$} & \multirow{2}{*}{标准的二维9点模板计算}\\
+		& $1000$次迭代  &			  &		\\
+		%\hline
+		oclDCT8x8 & $10240\times10240$ & $32\times2$ &$8\times8$的离散余弦变换（DCT）\\
+		%\hline
+		oclNbody & $327680$ & $256$ & 327680个个体的引力模拟\\
+		%\hline
+		$*$NaiveMatrixMul & $8000\times8000$ & $16\times16$ & 未使用分块和局部存储的矩阵乘法\\
+		\bottomrule[1pt]
+	\end{tabular}
+	}
+	\label{benchmarks}
+\end{table}
+
+在Intel的产品平台上，IntelOCL通常是最为高效的OpenCL运行时。
+一个Kernel依靠IntelOCL获得的性能通常也是最优的，即代表了``官方提供''的性能移植性。
+因此通过对比同一Kernel在OurOCL和IntelOCL下的性能，即可评价两个运行时所提供的性能移植性。
+上述的GPU特定Kernel程序在OurOCL下运行时，会先经过Kernel转换工具链的转换，然后被调度器调度运行。
+同样的Kernel将在IntelOCL下再次运行，并对比两次运行所需的时间。
+当运行Kernel程序时，本节仅记录Kernel执行的时间，而忽略其它开销。
+通过Kernel的执行时间计算出的相对性能如表\ref{tointelocl}所示，
+表中的所有相对性能都是相对于CPU+IntelOCL的性能比值。
+此外，Kernel的绝对执行时间也显示在了括号里。
+可以看出，在多核CPU平台上，GPU特定Kernel程序在OurOCL下的平均性能达到了IntelOCL下的3.24倍（不包括NaiveMatrixMul）。
+而在众核MIC平台上，该平均性能比也达到了2.00倍。
+
+\begin{table}[htb]
+	\caption{与Intel OpenCL运行时和OpenMP的性能对比}
+	\centering
+	\scalebox{0.9}{
+		\begin{tabular}{ p{0.9in} p{1in}<{\centering} p{1in}<{\centering} p{1in}<{\centering}  }
+			\toprule[1.5pt]
+			\multirow{2}{*}{Kernel}  & \multicolumn{3}{c}{相对性能 (执行时间)}\\ \cmidrule[1pt]{2-4}
+			                      & CPU+IntelOCL& CPU+OurOCL& CPU+OMP\\
+			\midrule[0.5pt]
+			oclMatrixMul & 1 (23.30 s) & 3.02 (7.71 s) & 0.37 (62.98 s)\\
+			%\hline
+			oclFDTD3d & 1 (0.80 s) & 6.15 (0.13 s) & 2.16 (0.37 s)\\
+			%\hline
+			Stencil2D & 1 (20.65 s) & 2.53 (8.16 s) & 1.16 (17.80 s)\\
+			%\hline
+			oclDCT8x8 & 1 (75.96 ms) & 3.42 (22.20 ms) & 2.27 (33.46 ms)\\
+			%\hline
+			oclNbody & 1 (10.63 s) & 1.20 (8.82 s) & 0.74 (14.36 s)\\
+			%\hline
+			$*$NaiveMatrixMul & 1 (258.16 s) & 33.44 (7.72 s) & 4.10 (62.98 s)\\
+			\bottomrule[1pt]
+		\end{tabular}		
+	}
+		
+	\hspace{0.005in} \scalebox{0.9}{
+		\begin{tabular}{ p{0.9in} p{1in}<{\centering} p{1in}<{\centering} p{1in}<{\centering} }
+			Kernel &  MIC+IntelOCL&	MIC+OurOCL&	MIC+OMP\\
+			\midrule[0.5pt]
+			oclMatrixMul &  1.94 (12.03 s) & 3.93 (5.93 s) & 3.74 (6.23 s)\\
+			%\hline
+			oclFDTD3d & 2.22 (0.36 s) & 5.71 (0.14 s) & 4.21 (0.19 s)\\
+			%\hline
+			Stencil2D & 1.83 (11.26 s) & 2.42 (8.53 s) & 1.95 (10.59 s)\\
+			%\hline
+			oclDCT8x8 &  1.43 (53.22 ms) & 4.18 (18.19 ms) & 4.52 (16.81 ms)\\
+			%\hline
+			oclNbody &  1.13 (9.44 s) & 1.24 (8.59 s) & 1.38 (7.70 s)\\
+			%\hline
+			$*$NaiveMatrixMul & 4.55 (56.73 s) & 43.76 (5.90 s) & 41.44 (6.23 s)\\
+			\bottomrule[1.5pt]
+		\end{tabular}			
+	}
+	\label{tointelocl}
+\end{table} 
+
+通过开发工作组间和工作项间的并行性，IntelOCL对于多处理器核和核内SIMD单元的利用非常高效。
+但通过实验发现，它处理同步的开销处在分区域方法和Twin Peaks方法之间\upcite{TReporthIllinois}。
+因此，OurOCL相比IntelOCL的性能提升应当主要来源于去除局部存储和同步，部分来源于对数据局部性的重开发。
+Kernel程序oclNbody在两个硬件平台上的性能提升都是最小的，原因在于它的计算是最为密集的，
+局部存储和同步导致的开销只占了执行时间的很小一部分。
+两个模板计算Kernel（oclFDTD3d和Stencil2D）在MIC上的性能提升远低于在CPU上。
+这是由于它们是高度访存密集的，只有少部分时间用于计算，而大部分时间用于访存，
+因此MIC难以体现出并行计算能力的优势。
+同样是由于访存过于密集，并且没有针对MIC的环状Cache互联进行优化，这两个Kernel在MIC上的性能（MIC+OurOCL）甚至低于它们在CPU上的性能（CPU+OurOCL）。
+此外，因为多种开销的消除和数据局部性的大幅提升，NaiveMatrixMul在两个平台上均获得了可观的性能提升。
+
+为了探究OurOCL可以将Kernel性能提升到何种程度，表\ref{tointelocl}也给出了各Kernel对应的OpenMP版本的相对性能。
+这里的OpenMP版本来自于各Kernel的宿主程序中（用于检查Kernel执行结果的正确性），通过加入合适的OpenMP指导语句进行实现。
+此外，在MIC上执行OpenMP程序时使用的是本地模式（Native Mode）。
+上述的OpenMP版本并不是未优化的。一些Kernel的宿主程序，如oclDCT8x8，已经进行了CPU特定的局部性优化。
+并且由于没有了OpenCL的语义限制，{\em icc}编译器也可以更加自由地进行多种自动优化。
+从性能对比还可以看出，相比CPU，编译器为MIC进行的优化更为激进和有效。
+因此，oclDCT8x8在MIC+OMP下的性能略高于它在MIC+OurOCL下的性能。
+尽管oclNbody的OpenMP版本并没有像oclDCT8x8那样的专门优化，它在MIC下的性能仍然高于MIC+OurOCL。
+目前其原因还尚不清晰，本节估计，这是因为oclNbody有着非常简单的且利于编译优化的访存模式，
+同时MIC上OpenMP的调度方式要优于OurOCL的静态调度器。
+总的来讲，无论在CPU还是MIC上，基于OurOCL的OpenCL Kernel性能接近于甚至优于OpenMP版本的性能。
+这足以说明本章的代码转换方法和调度器可以减轻GPU特定Kernel中的负面性能要素，
+并将性能提升到接近于适度优化的CPU特定程序。
+
+图\ref{asf}显示了适应体系结构的后继优化中每一步带来的性能提升。
+图中的纵坐标轴表示的是对应于各自原GPU特定Kernel的相对性能。
+由于后继优化中的循环交换步骤只对CPU下的oclMatrixMul和NaiveMatrixMul产生了多个候选交换方案，
+因此只有上图中的这两个Kernel才显示出最后一步优化。
+其它的Kernel程序只有一种循环交换方案，因此略去了最后一步。
+从图中可以看出，有的Kernel在折叠后由于数据局部性差以及并行性未被开发，性能急剧下降（oclMatrixMul、oclFDTD3d、oclNbody），
+但是本章的后继优化将会激进地提取并行性并重开发局部性。
+对于有的Kernel来说（Stencil2D、oclDCT8x8），去除局部存储和同步带来的性能提升抵消掉了折叠带来的局部性降低，因此在折叠后有着和原GPU特定Kernel接近或者更好的性能。
+而本章的后继优化仍然能进一步提升这些Kernel的性能。
+
+\begin{figure}[htb]
+	\centering
+ 	\includegraphics[width=11cm]{table3.jpg}
+ 	\caption{后继优化中各步骤带来的性能提升}
+ 	\label{asf}
+ \end{figure}
+
+根据图\ref{asf}，向量化为oclMatrixMul和oclFDTD3d带来了巨大的性能提升，一些提升甚至超过了CPU的SIMD宽度。
+原因在于向量化之前需要进行循环分布和交换，它们也会改变数据局部性，因此两种性能提升叠加在了一起。
+但是，向量化对于oclNbody来说效果不明显，这是因为oclNbody中个体的速度和位置被紧邻地存储在一起，
+即按``结构的数组''（Array of Structure）方式进行存储。
+这将严重阻碍向量化的顺利进行。
+NaiveMatrixMul的性能提升曲线和oclMatrixMul几乎一样，这是由于两者在工作项折叠后有着一样的控制流。
+NaiveMatrixMul需要进行循环分段，而在循环分段后，两者的代码将变得相同。
 
 \section{小结}
 \label{kernelconclusionsec}
+上一章中，通过在异构平台上基于OpenCL实现高性能TLD算法，OpenCL的性能移植性问题被暴露出来。
+为此，本章进行了深入的探讨和解决。
+本章提出了一套新的代码转换方法，该方法能够有效地提升GPU特定Kernel程序在多核/众核CPU上的性能移植性。
+本章的方法解决了现有方法所忽略的两个问题：
+一是在CPU上使用局部存储数组可能对性能带来的负面影响，即额外的数据拷贝和同步开销；
+二是忽视或者盲目继承GPU特定Kernel中的数据局部性特征，都可能带来的性能损失。
+借助于本章新提出的数组访问描述式，在工作项折叠过程中，所有的冗余局部存储数组和对应的同步都将被消除。
+后继优化过程中，本章不仅从原GPU特定Kernel中提取并行性和局部性特征，还会考虑目标CPU的体系结构细节，
+以进一步提升Kernel程序在CPU上的性能。
+实验显示，无论对于经典的多核CPU，还是新兴的众核协处理器MIC，包含本章方法的新OpenCL运行时都能取得超越Intel官方
+运行时的性能。
+本章的方法仍然存在诸多不足，例如无法支持间接数组访问、静态调度算法不够高效、没有考虑工作组间的优化等。
+未来将针对这些不足进行进一步的研究。
+ 
