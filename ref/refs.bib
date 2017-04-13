@@ -1158,3 +1158,45 @@ year = {2009}
   year = {2013},
   url = {http://developer.nvidia.com/gpu-computing-sdk}
 }
+
+
+
+@techreport{klt2,
+abstract = {The factorization method described in this series of reports requires an algorithm to track the motion of features in an image stream. Given the small inter-frame displacement made possible by the factorization approach, the best tracking method turns out to be the one proposed by Lucas and Kanade in 1981. The method defines the measure of match between fixed-size feature windows in the past and current frame as the sum of squared intensity differences over the windows. The displacement is then defined as the one that minimizes this sum. For small motions, a linearization of the image intensities leads to a Newton-Raphson style minimization. In this report, after rederiving the method in a physically intuitive way, we answer the crucial question of how to choose the feature windows that are best suited for tracking. Our selection criterion is based directly on the definition of the tracking algorithm, and expresses how well a feature can be tracked. As a result, the criterion is optimal by construction. We show by experiment that the performance of both the selection and the tracking algorithm are adequate for our factorization method, and we address the issue of how to detect occlusions. In the conclusion, we point out specific open questions for future research.},
+author = {Tomasi, Carlo and T. Kanade},
+booktitle = {School of Computer Science, Carnegie Mellon University},
+doi = {10.1016/S0031-3203(03)00234-6},
+isbn = {078038234X},
+issn = {00313203},
+pages = {1--22},
+title = {{Detection and Tracking of Point Features}},
+url = {http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.131.5899\&rep=rep1\&type=pdf},
+volume = {91},
+year = {1991},
+institution = {School of Computer Science, Carnegie Mellon University},
+number = {CMU-CS-91-132}
+}
+
+@inproceedings{deepimage,
+author = {Wang, Naiyan and D. Y. Yeung},
+booktitle = {Annual Conference on Neural Information Processing System},
+pages = {809--817},
+title = {{Learning a Deep Compact Image Representation for Visual Tracking}},
+year = {2013}
+}
+
+@inproceedings{deeptrack,
+abstract = {Defining hand-crafted feature representations needs expert knowledge, requires time-$\backslash$nconsuming manual adjustments, and besides, it is arguably one of the limiting factors of$\backslash$nobject tracking.$\backslash$n$\backslash$nIn this paper, we propose a novel solution to automatically relearn the most useful$\backslash$nfeature representations during the tracking process in order to accurately adapt appear-$\backslash$nance changes, pose and scale variations while preventing from drift and tracking failures.$\backslash$nWe employ a candidate pool of multiple Convolutional Neural Networks (CNNs) as a$\backslash$ndata-driven model of different instances of the target object. Individually, each CNN$\backslash$nmaintains a specific set of kernels that favourably discriminate object patches from their$\backslash$nsurrounding background using all available low-level cues. These kernels are updated$\backslash$nin an online manner at each frame after being trained with just one instance at the ini-$\backslash$ntialization of the corresponding CNN. Given a frame, the most promising CNNs in the$\backslash$npool are selected to evaluate the hypothesises for the target object. The hypothesis with$\backslash$nthe highest score is assigned as the current detection window and the selected models are$\backslash$nretrained using a warm-start back-propagation which optimizes a structural loss function.$\backslash$nIn addition to the model-free tracker, we introduce a class-specific version of the pro-$\backslash$nposed method that is tailored for tracking of a particular object class such as human faces.$\backslash$nOur experiments on a large selection of videos from the recent benchmarks demonstrate$\backslash$nthat our method outperforms the existing state-of-the-art algorithms and rarely loses the$\backslash$ntrack of the target object.$\backslash$n},
+archivePrefix = {arXiv},
+arxivId = {1503.0072},
+author = {Li, Hanxi and Li, Yi and Porikli, Fatih},
+booktitle = {British Machine Vision Conference},
+doi = {10.1109/TIP.2015.2510583},
+eprint = {1503.0072},
+issn = {1057-7149},
+pages = {1--12},
+title = {{DeepTrack: Learning Discriminative Feature Representations by Convolutional Neural Networks for Visual Tracking}},
+year = {2014}
+}
+
+
