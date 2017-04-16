@@ -53,8 +53,8 @@
 \end{figure}
 
 本章中，KCF\upcite{kcf}这一典型的基于相关滤波的跟踪器将作为跟踪器的主体框架。
-通过对输入滤波器的图像特征进行增强，以及采用更为鲁邦的目标模型更新方法，
-KCF的辨别力将变得更加鲁邦和准确，足以对灵活的目标候选进行分类。
+通过对输入滤波器的图像特征进行增强，以及采用更为鲁棒的目标模型更新方法，
+KCF的辨别力将变得更加鲁棒和准确，足以对灵活的目标候选进行分类。
 初步确定目标所在位置后，EdgeBoxes将被用于在其附近生成目标候选。
 这些候选边界框经过一个过滤步骤后，将被输入KCF进行再次辨别，以提取出最优的目标候选。
 最后，通过一个阻尼更新过程，最优候选边界框将被用于确定最终的目标位置、尺度和宽高比。
@@ -131,6 +131,7 @@ STC\upcite{stc}是一个例外，它在估计目标尺度时使用的运动模�
 因此尺度变化可以被直接计算出来而无需通过采样，但是宽高比的变化仍然无法被感知。
 
 \section{使用核化相关滤波器进行视觉跟踪}
+\label{kcfsec}
 作为本章跟踪器的主体框架和基础，核化相关滤波器KCF的主要目标是训练一个线性模型：
 \begin{equation}
 f(\mathbf{z})=\left\langle\mathbf{w}, \mathbf{z}\right\rangle ,
@@ -229,6 +230,7 @@ KCF的模型更新策略非常简单直接，就是进行线性插值。
 对于目标外观，则直接进行线性插值：
 \begin{equation}
 \overline{\mathbf{x}}=\eta\mathbf{x}_i+(1-\eta)\overline{\mathbf{x}}.
+\label{kcf_appearlearning}
 \end{equation}
 
 
@@ -255,25 +257,38 @@ $0.2989 * R + 0.5870 * G + 0.1140 * B$。随后，将每个像素的灰度值减
 将这三种特征同时用于目标描述的原因是它们之间有很好的互补性：
 亮度，顾名思义，描述的是各个像素的明亮程度，但是缺乏对不同颜色的区分度；
 梯度直方图更着重于描述图像中的轮廓和形状，但是难以区分亮度和颜色；
-颜色名是当前分类器常用的颜色特征，有着明显优于传统RGB颜色表达的性能。
+颜色名是当前物体分类常用的颜色特征，有着明显优于传统RGB颜色表达的性能。
 
+整合上述三种图像特征的方法比较直接，即对于一个图像块提取出三种特征后，将特征的各通道拼接存储。
+例如原彩色图像块的每一个像素有R、G、B三个通道，故图像块存储为高$\times$宽$\times$3的三维数组。
+提取特征并且整合后，由于三种特征共计有42个通道，图像块变为高$\times$宽$\times$42的三维数组。
+在训练参数矩阵（公式\ref{kcf_learning}）和评价候选图像块时（公式\ref{kcf-detection}），
+只需要按照公式\ref{kcf-kr}的最后一项，对特征的各个通道进行分别处理即可。
 
-To improve precision, we extend the HOG feature used in original KCF to a combination of HOG, intensity, and color naming,
-similarly to SAMF~\citep{samf} and ACT~\citep{act} but without feature compression.
-By simply concatenating the three features, the target appearance with feature integration shown in Fig.~\ref{process}(g) now has 42 channels, and can be used in training and detection
-according to Eq.~(\ref{kcf-kr}).
+如\ref{kcfsec}节所述，KCF采用简单的线性插值作为模型更新策略。
+这种更新方法已经被证明是不够理想的\upcite{act}，
+因为每次模型更新时（公式\ref{kcf_learning2}），仅考虑了当前帧中的目标物体外表图像，
+而之前帧中的目标外表的贡献，将按照学习速率$\eta$的指数级函数不断减小。
+显然，这种更新策略是不够鲁棒的。
+当跟踪出现偏移，或者目标外表突发剧烈变化时，KCF原来积累的准确模型将被迅速污染，从而很可能导致更大的跟踪偏移。
 
-The utilization of simple linear interpolation as model updating scheme in KCF is proved to be suboptimal~\citep{act},
-because only the current frame is taken into account while updating the model, and the contribution of previous frames in model
-fades out too fast exponentially.
-To make KCF more robust, our tracker adopts the robust model updating scheme presented in ACT instead (shown as the bottom arrow in Fig.~\ref{process}),
-which considers the target patches in current frame and all previous frames simultaneously. 
-Note that although previous target patches are explicitly considered, they are implicitly encoded into the scheme, so that
-the derived updating formula only requires the current target patch as follows.
-In each new frame indexed by $i$, after a patch $\mathbf{x}_i$ containing the target is detected, % using equation \ref{kcf-detection}, 
-the numerator and denominator of 
-the coefficient matrix $\hat{\boldsymbol{\alpha}}$ are updated
-separately to reproduce a new one:
+为了提高KCF的相关滤波器的鲁棒性，本节将把线性插值方法替换为ACT中的鲁棒更新方法。
+在更新模型的参数矩阵$\boldsymbol{\alpha}$时，假设当前帧为第$i$帧，则从第$1$帧到当前帧的所有目标物体图像块可记为$\{\mathbf{x}_j : j=1, ..., i\}$。
+%所有参数矩阵可记为$\{\boldsymbol{\alpha}_j : j=1, ..., i\}$。
+更新参数矩阵的过程变为最小化以下目标函数的过程：
+\begin{equation}
+\begin{aligned}
+	&\underset{\boldsymbol{\alpha}}{\min}\,\sum_{j=1}^{i}\phi_j(\Vert\mathbf{f}(\mathbf{x}_j)-\mathbf{y}\Vert^{2}+\lambda \left\langle\boldsymbol{\alpha}, \boldsymbol{\alpha}\right\rangle)=
+	\\
+	&\underset{\boldsymbol{\alpha}}{\min}\,\sum_{j=1}^{i}\phi_j(\Vert\mathcal{F}^{-1}(\hat{\mathbf{k}}^{\mathbf{x}_i\mathbf{x}_j}\cdot\hat{\boldsymbol{\alpha}})-\mathbf{y}\Vert^{2}+\lambda \left\langle\boldsymbol{\alpha}, \boldsymbol{\alpha}\right\rangle).
+	\label{act-cost}
+\end{aligned}
+\end{equation}
+该目标函数同时考虑了当前帧和所有历史帧中的目标物体图像块，
+其实质为参数矩阵$\boldsymbol{\alpha}$对于所有帧中目标物体外表的平方误差加权和。
+$\phi_j$即是权值，这里将其直接设置为学习速率$\eta$。
+
+为了能够最小化上述目标函数，经过推导（详见\cite{act}），新的参数矩阵更新公式为：
 \begin{equation}
 \begin{aligned}
 	&\hat{\boldsymbol{\alpha}_N}=\eta\hat{\mathbf{k}}^{\mathbf{x}_i \mathbf{x}_i} \cdot \hat{\mathbf{y}} + (1-\eta){\hat{\boldsymbol{\alpha}_N}};
@@ -282,17 +297,170 @@ separately to reproduce a new one:
 	\lambda) + (1-\eta){\hat{\boldsymbol{\alpha}_D}}.\label{kcfdp-updating}
 \end{aligned}
 \end{equation}
-Here $\hat{\boldsymbol{\alpha}}={{\hat{\boldsymbol{\alpha}_N}}}/{{\hat{\boldsymbol{\alpha}_D}}}$, and $\eta$ is the learning rate.
-The target appearance $\overline{\mathbf{x}}$ is still updated by linear interpolation: $\overline{\mathbf{x}}=\eta\mathbf{x}_i+(1-\eta)\overline{\mathbf{x}}$.
-For detailed rationales and derivations, please refer to \cite{act}.
-
+其中$\hat{\boldsymbol{\alpha}_N}$和$\hat{\boldsymbol{\alpha}_D}$分别为频率域$\boldsymbol{\alpha}$的分子和分母，即$\hat{\boldsymbol{\alpha}}={\hat{{\boldsymbol{\alpha}_N}}}/{\hat{{\boldsymbol{\alpha}_D}}}$。
+值得注意的是，虽然所有历史帧中的目标图像块都在公式\ref{act-cost}中显式地考虑了，
+但它们隐含在了迭代更新过程（公式\ref{kcfdp-updating}）中，因此每次更新$\boldsymbol{\alpha}$时仅需要当前帧中的目标物体图像。
+而KCF模型的另一部分，目标外观$\overline{\mathbf{x}}$，仍然按照公式\ref{kcf_appearlearning}进行线性插值式的更新。
 
 \section{将``目标候选''嵌入跟踪器中}
-bmvc论文
+原KCF跟踪器在经过特征整合和鲁棒更新的优化后，将足以胜任对目标候选的辨别。
+因此本节将把目标候选生成器EdgeBoxes嵌入优化后的KCF跟踪框架中，以同时利用目标候选的灵活性和优化后的KCF的准确辨别力。
+嵌入目标候选生成器后的整个跟踪过程可视化地展示在了图\ref{process}中。
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=15cm]{process-full.pdf}
+\caption{本章跟踪器的可视化跟踪过程}
+\label{process}
+\end{figure}
+
+在初始化时，第一帧中，记用户标注的或者目标检测得到的目标物体边界框大小为$w_1\times h_1$ ，
+中心位于$\mathbf{l}_1$。
+将该边界框扩大为$s^dw_1\times s^dh_1$，即得到了位于$\mathbf{l}_1$的上下文窗口。
+这里的$s^d$被称为尺度因子，必须大于$1$以包含一定上下文信息，且覆盖下一帧中目标物体可能出现的位置。
+为了初始化KCF的模型，此时将根据该上下文窗口提取出图像块$\mathbf{x}_1$，并用$\mathbf{x}_1$初始化参数矩阵${\boldsymbol{\alpha}}$ （公式\ref{kcf_learning}）。
+至于目标外观$\overline{\mathbf{x}}$，将其直接初始化为$\mathbf{x}_1$。
+
+跟踪过程开始后，每当新的一帧（记为第$i$帧）到来时，
+首先根据上一帧中的目标位置$\mathbf{l}_{i-1}$和目标大小$w_{i-1}\times h_{i-1}$，
+设置一个中心位于$\mathbf{l}_{i-1}$，大小为$s^dw_{i-1}\times s^dh_{i-1}$的``初步位置检测窗口''，如图\ref{process}(a)所示。
+然后根据该窗口提取图像块$\mathbf{z}^d$。
+由于跟踪过程中，检测到的目标物体大小会不断变化，因此需要利用双线性插值（Bilinear Interpolation）
+将 $\mathbf{z}^d$缩放到$s^dw_1\times s^dh_1$，才能利用无尺度适应力的KCF相关滤波器。
+将KCF应用于图像块$\mathbf{z}^d$之后（公式\ref{kcf-detection}），
+即可根据$\mathbf{f}$中最大元素的位置，判断出新的目标位置$\mathbf{l}^d_i$。
+该目标位置称作``初步位置''，其对应的$\mathbf{f}$中最大元素值记为$v$。
+
+下一步如图\ref{process}(b)所示，以初步位置$\mathbf{l}^d_i$为中心，$s^ew_{i-1}\times s^eh_{i-1}$为大小，构建一个``尺度和宽高比检测窗口''。
+$s^e$也是一个尺度因子，但是应当设置得比$s^d$小，因为目标物体尺度的变化通常小于其位移。
+根据尺度和宽高比检测窗口提取图像块$\mathbf{z}^p$后，将其输入目标候选生成器EdgeBoxes中。
+如图\ref{process}(c)所示，EdgeBoxes将会输出大量的目标候选，即大量可能包含物体的边界框。
+这些边界框已按照各自所得``分数''进行了排序，而该分数代表的就是边界框内包含物体的置信度。
+
+对于EdgeBoxes输出的边界框，本节仅提取其前$N$个，并且对它们进行过滤：
+计算每一个目标候选边界框与``初步目标物体边界框''的重叠率，如果重叠率大于0.9或者小于0.6，则将该目标候选剔除。
+这里的初步目标物体边界框位于$\mathbf{l}^d_i$，大小为$w_{i-1}\times h_{i-1}$，
+即一个位于初步位置，大小等于前一帧中目标大小的边界框。
+如图\ref{process}(h)所示，重叠率使用IoU（Intersection over Union）进行度量，
+其计算方式为将两个边界框的交集面积除以它们的并集面积。
+IoU大于0.9的边界框几乎和初步目标物体边界框相同，无需纳入考虑；
+而IoU小于0.6的边界框很有可能是错误的目标候选，或者其中包含的是非目标物体，均需要被剔除。
+
+如图\ref{process}(d)所示，通过过滤后的目标候选数目已大幅下降。
+但是，仍然需要用相关滤波器对这些目标候选进行再次辨别，才能找出图\ref{process}(e)中所示的``最可靠目标候选''。
+对于每一个经过过滤的目标候选边界框，按尺度因子$s^d$进行扩大，并从当前帧中提取出对应的图像块，记为$\mathbf{p}$。
+由于$\mathbf{p}$可能具有任意的尺度和宽高比，因此也需要将它缩放到$s^dw_1\times s^dh_1$后，才能使用相关滤波器进行辨别。
+辨别一个目标候选图像块和当前目标外观的相似度时，使用下式：
+\begin{equation}
+	f(\mathbf{p})=\text{sum}(\mathbf{k}^{\overline{\mathbf{x}}\mathbf{p}}\cdot{\boldsymbol{\alpha}}),\label{kcfdp-eval}
+\end{equation}
+这里的$\text{sum}(\cdot)$代表对矩阵中所有元素的叠加操作，
+$f()$和公式\ref{kcf-kernelmodel}中的$f()$意义相同，是一个代表着$\mathbf{p}$和$\overline{\mathbf{x}}$的相似度的标量。
+由于这里仅需要对目标候选图像块本身进行辨别，而无需辨别它的所有循环位移，因此用公式\ref{kcfdp-eval}来代替公式\ref{kcf-detection}。
+事实上，公式\ref{kcfdp-eval}就是公式\ref{kcf-detection}转换到空间域的结果。
+在辨别完所有目标候选之后，本节将找出具有最大$f$值（记为$f_{max}$）的目标候选，
+并记录其中心位置为$\mathbf{l}^{p}_i$，大小为$w^p_i\times h^p_i$。
+
+如果$f_{max}$小于$v$，说明最可靠的目标候选边界框的准确性仍然不如``初步目标物体边界框''。
+此时应放弃所有目标候选，认为初步位置$\mathbf{l}^d_i$就是当前帧中的目标位置$\mathbf{l}_i$，
+且当前目标物体大小$w_i\times h_i$不变，仍然等于$w_{i-1}\times h_{i-1}$。
+如果$f_{max}$大于$v$，则通过一个带阻尼的更新过程，将初步目标物体边界框和最可靠目标候选相结合：
+\begin{equation}
+\begin{aligned}
+	%\mathbf{l}_i=\gamma\mathbf{l}^p_i+(1-\gamma)\mathbf{l}^d_i;\ \ \ 
+	&\mathbf{l}_i=\mathbf{l}^d_i+\gamma(\mathbf{l}^p_i-\mathbf{l}^d_i);\\ 
+	%(w_i, h_i)=\gamma(w^p_i, h^p_i)+(1-\gamma)(w_{i-1},h_{i-1}).
+	&(w_i, h_i)=(w_{i-1},h_{i-1})+\gamma((w^p_i, h^p_i)-(w_{i-1},h_{i-1})). \label{kcfdp-damping}
+\end{aligned}
+\end{equation}
+上式的$\gamma$为阻尼因子，其作用如图\ref{process}(f)所示。
+用带阻尼的更新来最终确定目标的位置和大小，可以防止过于敏感的目标状态变化，同时还能降低跟踪错误或是目标候选错误带来的影响，
+从而让跟踪器更为鲁棒。
+
+在当前帧中完成跟踪后，还需要提取一个新的目标物体图像块来更新KCF的参数矩阵$\boldsymbol{\alpha}$和目标外观$\overline{\mathbf{x}}$。
+显然，该图像块位于新目标位置$\mathbf{l}_i$，大小为$s^dw_i\times s^dh_i$，可被记为$\mathbf{x}_i$。
+将$\mathbf{x}_i$输入公式\ref{kcfdp-updating}，即可鲁棒地更新KCF的参数矩阵$\boldsymbol{\alpha}$；
+而更新目标外观$\overline{\mathbf{x}}$则需要根据公式\ref{kcf_appearlearning}。
+完成模型更新后，将进入针对下一帧的循环。
+
+除了图\ref{process}所示的可视化过程，本节的跟踪过程还规范化地列在了算法\ref{algorithm}中。
+更多可视化的目标候选辨别和带阻尼更新的例子可见图\ref{rejection}。
+图\ref{rejection}还清楚地展示出了目标候选方法是如何让本章的跟踪器适应尺度和宽高比变化的。
+正是由于目标候选的极大灵活性，本章的跟踪器可以轻易地找出被遮挡的目标（图\ref{rejection}右上），
+并且还能准确地框出旋转的目标（图\ref{rejection}左下）。
+
+\begin{algorithm}[htb]
+	\begin{flushleft}
+		{{}\textbf{输入：}}{\small \par}
+		{\quad{}}{{\ } $F_i$: 图像帧}{\small \par}
+		{\quad{}}{{\ } $(\mathbf{l}_{i-1}, w_{i-1}, h_{i-1})$: 在上一帧中紧密包围目标物体的边界框}{\small \par}
+		%	 in format ``(center location, width, height)''.}{\small \par}
+		{\quad{}}{{\ } $\boldsymbol{\alpha}$, $\overline{\mathbf{x}}$: 之前的模型（参数矩阵和目标外观）}{\small \par}
+		\vspace{0.1in}
+		{{}\textbf{输出：}}{\small \par}
+		{\quad{}}{{\ } $(\mathbf{l}_{i}, w_{i}, h_{i})$: 在当前帧中紧密包围目标物体的边界框}{\small \par}
+		{\quad{}}{{\ } $\boldsymbol{\alpha}$, $\overline{\mathbf{x}}$: 更新后的模型}{\small \par}
+		\vspace{0.1in}
+		{\quad{}\ }{{} \textbf{估计初步位置：}}{\small \par}
+		{{} \ 1: \ 在$F_i$中，按照$(\mathbf{l}_{i-1}, s^dw_{i-1}, s^dh_{i-1})$提取图像块$\mathbf{z}^d$；}{\small \par}
+		{{} \ 2: \ 利用$\mathbf{z}^d$、$\boldsymbol{\alpha}$和$\overline{\mathbf{x}}$，根据公式\ref{kcf-detection}，计算出初步位置$\mathbf{l}^d_{i}$；}{\small \par}
+		\vspace{0.1in}
+		{\quad{}\ }{{} \textbf{估计尺度和宽高比：}}{\small \par}
+		{{} \ 3: \ 在$F_i$中，按照$(\mathbf{l}^d_{i}, s^ew_{i-1}, s^eh_{i-1})$提取图像块$\mathbf{z}^p$；}{\small \par}
+		{{} \ 4: \ 将$\mathbf{z}^p$输入EdgeBoxes，得到目标候选边界框集合$\mathbf{P}$；}{\small \par}
+		{{} \ 5: \ 根据重叠率对$\mathbf{P}[1,\cdots,N]$进行过滤，得到过滤后的目标候选边界框集合$\mathbf{P}'$；}{\small \par}
+		{{} \ 6: \ 利用$\boldsymbol{\alpha}$和$\overline{\mathbf{x}}$，根据公式\ref{kcfdp-eval}，对$\mathbf{P}'$中的每一个边界框进行辨别，得到具有最}{\small \par}
+		{\quad{}\ \ }{大相关滤波响应值的边界框$(\mathbf{l}^p_{i}, w^p_{i}, h^p_{i})$；}{\small \par}
+		{{} \ 7: \ 利用$(\mathbf{l}^p_{i}, w^p_{i}, h^p_{i})$、$(w_{i-1}, h_{i-1})$和$\mathbf{l}^d_{i}$，根据公式\ref{kcfdp-damping}进行带阻尼的更新，得到}{\small \par}
+		{\quad{}\ \ }{$(\mathbf{l}_{i}, w_{i}, h_{i})$；}{\small \par}
+		\vspace{0.1in}
+		{\quad{}\ }{{} \textbf{模型更新：}}{\small \par}
+		{{} \ 8: \ 在$F_i$中，按照$(\mathbf{l}_{i}, s^dw_{i}, s^dh_{i})$提取图像块$\mathbf{x}_i$；}{\small \par}
+		{{} \ 9: \ 利用$\mathbf{x}_i$，根据公式\ref{kcfdp-updating}和公式\ref{kcf_appearlearning}，更新$\boldsymbol{\alpha}$和$\overline{\mathbf{x}}$。}
+	\end{flushleft}
+	\caption{对于第$i$帧的跟踪过程}
+	\label{algorithm}
+\end{algorithm}
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=10cm]{rejection.jpg}
+	%	\vspace{-0.2in}
+	\caption{目标候选辨别和带阻尼更新的可视化例子（图例见图\ref{process}）}
+	\label{rejection}
+\end{figure}
+
 
 \section{实验结果与分析}
 \subsection{实验设置}
 \subsubsection{参数设置}
+\label{param_setup}
+In the correlation filter part of our tracker, most of the parameter settings such as $s^d=2.5$ remain the same as those in KCF,
+except the standard deviation of the regression target matrix $\mathbf{y}$ and the learning rate $\eta$ in Eq.~(\ref{kcfdp-updating}). 
+The smaller the former parameter is, the sharper the peak of $\mathbf{y}$ will be, resulting in a more strict discrimination rule.
+%However, for correlation filter with less precise feature, too small deviation will cause failure when target appearance changes abruptly.
+So we decrease it reasonably to the target size multiplied by 0.06
+to fit for our more precise integrated feature.
+The latter $\eta$ is also decreased to 0.01 since the integrated feature is of stronger invariance against appearance change. 
+We set $s^e$, the size factor of scale and aspect ratio estimation window, to 1.4, so that EdgeBoxes is performed on a patch slightly larger than the current target.
+For EdgeBoxes itself, we adopt its original parameter setup (for expected IoU of 0.7), where $stepSize=0.65$ and $\beta=0.75$, but with some modification,
+that the minimum proposal area and aspect ratio range for sliding window are set dynamically according to the current target size $(w_{i-1},h_{i-1})$:
+\begin{equation}
+\begin{aligned}
+	&minBoxArea=0.3\times w_{i-1}\times h_{i-1};\\
+	&maxAspectRatio=1.5\times \max\{\frac{w_{i-1}}{h_{i-1}},\frac{h_{i-1}}{w_{i-1}}\}.
+	\label{EBfactor}
+\end{aligned}
+\end{equation}
+Parameter settings above will accelerate EdgeBoxes dramatically and produce much less unnecessary proposals.
+The scale penalization exponent $\kappa$ in Eq.~(\ref{edgeboxes}) is decreased to 1.4 because the target commonly forms the majority of EdgeBoxes' input patch,
+and we need to alleviate the penalization on larger proposals.
+We also decrease $minScore$ conservatively to 0.0005 so that less salient proposals won't be missed.
+Through experiments, we notice that EdgeBoxes generates around 100 proposals per frame averagely (also presented in Sec.~\ref{proposal_comparison}),
+and 277 proposals at most.
+Thus $N$, the number limit of proposals to be filtered by proposal rejection, is set to 200,
+which can improve efficiency due to the fixed array size as well as capture most of the proposals.
+Lastly, the damping factor $\gamma$ in Eq.~(\ref{kcfdp-damping}) is set to 0.7 empirically.
 \subsubsection{测试集和对照组构成}
 介绍OTB50，介绍自己提取的子集
 \subsubsection{评价标准}
