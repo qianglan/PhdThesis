@@ -39,10 +39,10 @@
 尽管一些能够适应尺度变化的变型\upcite{dsst,samf,pbcf}已经出现，但是它们仍局限于预定的尺度采样方式，不够灵活。
 此外，在本章已知的范围内，除了\cite{pbcf}以外还没有相关滤波跟踪器能够解决对于目标宽高比的适应性问题。
 
-在目标检测领域，近来具有顶级性能的目标检测系统\upcite{rcnn,spp}均采用了``目标候选''方法来提取可能包含目标物体的候选区域。
+在物体检测领域，近来具有顶级性能的物体检测系统\upcite{rcnn,spp}均采用了``目标候选''方法来提取可能包含目标物体的候选区域。
 该类方法可以在没有任何先验知识的情况下，在输入图像中提取任意尺度、宽高比的候选边界框，如图\ref{detectionproposalres}所示。
 目标候选方法不仅能够避免对大量的边界框进行分类，还能预先滤除大部分错误的边界框，大幅提高检测精度\upcite{dpsurvey,dpcompare}。
-在本章中，由于具有较高的检测性能和对于跟踪任务的适应性，目标候选生成器EdgeBoxes\upcite{edgeboxes}将被融入跟踪器中，
+在本章中，目标候选生成器EdgeBoxes\upcite{edgeboxes}将被融入跟踪器中，
 以提升跟踪器对尺度和宽高比的适应力。
 
 \begin{figure}[htb]
@@ -52,8 +52,15 @@
 \label{detectionproposalres}
 \end{figure}
 
+本章选用EdgeBoxes的原因在于，在众多目标候选生成器中，它不仅具有顶级的生成精度，
+而且还具有足以应用于跟踪任务的生成速度（考虑到跟踪任务中的待检测范围远小于物体检测任务）。
+此外，由于EdgeBoxes将物体边界作为生成目标候选的唯一线索，它在跟踪任务中还具有以下优势。
+首先，它不需要任何预先学习过程，因而适用于通用的视觉跟踪器。
+其次，作为物体线索的边界，同时也是推测被跟踪目标物体的位置和大小的线索。
+最后，它包含了大量可调节的参数，使得可以针对跟踪任务进行调优。
+
 本章中，KCF\upcite{kcf}这一典型的基于相关滤波的跟踪器将作为跟踪器的主体框架。
-通过对输入滤波器的图像特征进行增强，以及采用更为鲁棒的目标模型更新方法，
+通过对输入滤波器的图像特征进行增强，以及采用更为鲁棒的跟踪器模型更新方法，
 KCF的辨别力将变得更加鲁棒和准确，足以对灵活的目标候选进行分类。
 初步确定目标所在位置后，EdgeBoxes将被用于在其附近生成目标候选。
 这些候选边界框经过一个过滤步骤后，将被输入KCF进行再次辨别，以提取出最优的目标候选。
@@ -303,6 +310,7 @@ $\phi_j$即是权值，这里将其直接设置为学习速率$\eta$。
 而KCF模型的另一部分，目标外观$\overline{\mathbf{x}}$，仍然按照公式\ref{kcf_appearlearning}进行线性插值式的更新。
 
 \section{将``目标候选''嵌入跟踪器中}
+\label{wholeprocesssec}
 原KCF跟踪器在经过特征整合和鲁棒更新的优化后，将足以胜任对目标候选的辨别。
 因此本节将把目标候选生成器EdgeBoxes嵌入优化后的KCF跟踪框架中，以同时利用目标候选的灵活性和优化后的KCF的准确辨别力。
 嵌入目标候选生成器后的整个跟踪过程可视化地展示在了图\ref{process}中。
@@ -430,21 +438,69 @@ $f()$和公式\ref{kcf-kernelmodel}中的$f()$意义相同，是一个代表着$
 	\label{rejection}
 \end{figure}
 
-
-\section{实验结果与分析}
-\subsection{实验设置}
-\subsubsection{参数设置}
+\section{参数设置}
 \label{param_setup}
-In the correlation filter part of our tracker, most of the parameter settings such as $s^d=2.5$ remain the same as those in KCF,
-except the standard deviation of the regression target matrix $\mathbf{y}$ and the learning rate $\eta$ in Eq.~(\ref{kcfdp-updating}). 
-The smaller the former parameter is, the sharper the peak of $\mathbf{y}$ will be, resulting in a more strict discrimination rule.
-%However, for correlation filter with less precise feature, too small deviation will cause failure when target appearance changes abruptly.
-So we decrease it reasonably to the target size multiplied by 0.06
-to fit for our more precise integrated feature.
-The latter $\eta$ is also decreased to 0.01 since the integrated feature is of stronger invariance against appearance change. 
-We set $s^e$, the size factor of scale and aspect ratio estimation window, to 1.4, so that EdgeBoxes is performed on a patch slightly larger than the current target.
-For EdgeBoxes itself, we adopt its original parameter setup (for expected IoU of 0.7), where $stepSize=0.65$ and $\beta=0.75$, but with some modification,
-that the minimum proposal area and aspect ratio range for sliding window are set dynamically according to the current target size $(w_{i-1},h_{i-1})$:
+从上文中可以看出，本章的跟踪算法引入了大量的参数。
+这些参数对跟踪器的性能有着极大的影响，因此参数设置也是跟踪算法设计中至关重要的步骤。
+简单粗暴地进行大范围的参数遍历，寻找能够在测试集上取得最优效果的参数组合，看似合理，但却是不可行的。
+如果参数数目较多，各参数取值范围较大，若再加上测试集较大，那么参数遍历的时间开销将不可接受。
+更重要的一点是，针对特定测试集遍历得出的参数设置很可能是过拟合的，难以适用于其它测试集或者实际场景。
+因此，本节将尽量保留原版本KCF跟踪器和目标候选生成器EdgeBoxes的参数设置。
+对于少数不适于本章算法的参数设置，则根据其实际意义进行微调。
+
+
+在本章跟踪器的原KCF部分，除了两个参数以外，其它参数设置保持与原版KCF一致，例如尺度因子$s^d=2.5$（\ref{wholeprocesssec}节）、
+高斯核函数带宽$\sigma=0.5$（公式\ref{kcf-kr}）、规则化参数$\lambda=0.0001$（公式\ref{kcf_learning}、\ref{kcfdp-updating}）。
+需要调整的两个参数分别为回归目标矩阵$\mathbf{y}$的标准方差（公式\ref{kcf_learning}、\ref{kcfdp-updating}）和学习速率$\eta$（公式\ref{kcfdp-updating}和公式\ref{kcf_appearlearning}）。
+如图\ref{regresstarget}所示，由于回归目标矩阵符合二维高斯函数，因此它的标准方差设置地越小，
+$\mathbf{y}$的峰值部分就越陡峭，相关滤波器的辨别规则就会越严格。
+如果相关滤波所使用的图像特征较为简单，那么标准方差就不宜设置地太小。
+原因在于简单特征的不变性（如旋转不变性、尺度不变性等）普遍较差，
+若辨别标准过于严格，在目标物体外观发生较大变化时就很可能无法发现目标，导致跟踪失败。
+然而本章通过使用图像特征整合，获得了不变性较强的混合特征。
+因此可以将标准方差适当减小，从``$0.1\times$图像对角线长度的平方根''，减小为``$0.06\times$图像对角线长度的平方根''。
+通过减小标准方差，在成功检测到目标的情况下，获得的目标物体边界框将更加准确。
+同样由于整合后的混合特征具有更强的不变性，学习速率$\eta$也从$0.02$下调到$0.01$，
+使得跟踪器既能不断适应变化的目标外观，又不易受到目标遮挡和偶发跟踪误差的影响。
+
+\begin{figure}[htb]
+  \centering
+  \subfloat[标准方差设置为$0.1\times$图像对角线长度的平方根]{%
+    \label{regresstarget1}
+    \includegraphics[height=4cm]{heatAfter}}\hspace{1cm}
+  \subfloat[标准方差设置为$0.2\times$图像对角线长度的平方根]{
+    \label{regresstarget2}
+    \includegraphics[height=4.05cm]{heatAfter2}}\hspace{0.2cm}
+      \subfloat{\includegraphics[height=4cm]{heatAfter3}}
+  \caption{使用不同标准方差的相关滤波器回归目标矩阵}
+  \label{regresstarget}
+\end{figure}
+
+在目标候选生成器部分，新参数$s^e$，即``尺度和宽高比检测窗口''的尺度因子，被设置为$1.4$。
+此处$1.4$为$\sqrt{2}$的近似，它限制EdgeBoxes在一个两倍于目标图像块面积的窗口内寻找目标物体。
+该参数设置即是假设：两帧间目标物体外表的面积最多扩大一倍。
+
+至于EdgeBoxes本身，本节仅作简要介绍以便于分析参数设置，更详细的分析和优化将在下一章进行。
+对于输入的图像，EdgeBoxes首先利用``结构化边界（Structured Edge）提取器\upcite{structurededge}''进行边界提取，
+并计算出每个像素的边界响应值（属于物体边界的置信度）。
+然后它以``滑动窗口''的形式遍历整幅输入图像，并对每一个窗口进行评分。
+控制滑动窗口的参数有$stepSize$、$maxAspectRatio$和$minBoxArea$等。
+$stepSize$是滑动窗口时，两个相邻窗口的IoU，用于控制采样密度。
+所有窗口的宽高比均被限制在$1/maxAspectRatio$到$maxAspectRatio$之间，
+而最小窗口的面积被限制为$minBoxArea$，因此这两个参数被用于控制目标候选可能的形状和大小。
+对于每一个窗口，EdgeBoxes的评分函数为：
+\begin{equation}
+	h_b = \frac{\sum_{i\in b}w_{i}m_i}{2(b_w+b_h)^\kappa} - \frac{\sum_{p\in b^{in}}m_p}{2(b_w+b_h)^\kappa}. \label{edgeboxes}
+\end{equation}
+式中，$i$代表一个像素，其边界响应值记为$m_i$。
+$b$即是待评分的窗口对应的图像块，其宽度和高度分别为$b_w$和$b_h$。
+$b^{in}$是$b$的中心部分，大小为 ${b_w}/{2}\times {b_h}/{2}$。
+$w_{i}\in [0,1]$是一个权值，代表着$i$所在的物体边界完全包含在$b$中的可能性。
+显然$b$的尺度越大，其中包含的物体边界就越多，因此$\kappa$用于惩罚较大的窗口。
+完成所有窗口的评分后，EdgeBoxes将对得分高于$minScore$的窗口进行进一步的细化和过滤，然后作为目标候选输出。
+
+设置EdgeBoxes自身的参数时，本节基本保留其默认设置（以0.7为期望IoU），如$stepSize=0.65$。
+但是，参数$minBoxArea$和$maxAspectRatio$将根据上一帧中目标物体边界框的大小，不断更新：
 \begin{equation}
 \begin{aligned}
 	&minBoxArea=0.3\times w_{i-1}\times h_{i-1};\\
@@ -452,20 +508,90 @@ that the minimum proposal area and aspect ratio range for sliding window are set
 	\label{EBfactor}
 \end{aligned}
 \end{equation}
-Parameter settings above will accelerate EdgeBoxes dramatically and produce much less unnecessary proposals.
-The scale penalization exponent $\kappa$ in Eq.~(\ref{edgeboxes}) is decreased to 1.4 because the target commonly forms the majority of EdgeBoxes' input patch,
-and we need to alleviate the penalization on larger proposals.
-We also decrease $minScore$ conservatively to 0.0005 so that less salient proposals won't be missed.
-Through experiments, we notice that EdgeBoxes generates around 100 proposals per frame averagely (also presented in Sec.~\ref{proposal_comparison}),
-and 277 proposals at most.
-Thus $N$, the number limit of proposals to be filtered by proposal rejection, is set to 200,
-which can improve efficiency due to the fixed array size as well as capture most of the proposals.
-Lastly, the damping factor $\gamma$ in Eq.~(\ref{kcfdp-damping}) is set to 0.7 empirically.
+通过用上式控制滑动窗口的大小和形状，EdgeBoxes生成目标候选的速度将大大加快，并且避免了大量无用目标候选的产生。
+此外，公式\ref{edgeboxes}中的$\kappa$从$1.5$轻微下调至$1.4$。
+原因在于，物体检测任务中的物体可能位于任意位置、具有任意大小；但是在跟踪任务中，仅需要找出目标物体，
+且目标物体通常占据了输入图像块的大部分面积。
+因此$\kappa$需要适度减小，以减轻对于较大目标候选的惩罚。
+本节对得分阈值$minScore$的修改较大，从$0.01$减小到了$0.0005$。
+这是一种较为保守的参数设置，目的在于确保跟踪目标所在的目标候选不被滤除。
+通过实际验证，EdgeBoxes在每一帧中平均生成约100个目标候选（最多时生成了277个）。
+因此进入目标候选过滤的最大边界框数量，即算法\ref{algorithm}第5行的$N$，设置为200。
+该参数设置既能保证获取到绝大部分目标候选，还能将它们用定长矩阵进行存储，提高计算效率。
+最后，作为一个经验参数，公式\ref{kcfdp-damping}中的阻尼因子$\gamma$设置为0.7。
+
+\section{实验结果与分析}
+\subsection{实验设置}
+为了表述方便，这里将本章提出的，融合了相关滤波器和目标候选生成器的新跟踪器命名为``KCFDP''（``Kernelized Correlation Filter with Detection Proposals''，即``加入了目标候选的核化相关滤波器''）。
+实验将在著名的OTB（Object Tracking Benchmark）\upcite{50seqs, otbweb}测试集以及它的两个子集上进行，
+结果评价标准采用通用的精确度图和成功率图，
+用于对比的跟踪器共计达到了34个。
+开放的大型测试集、通用的评价标准、以及庞大的对照组将共同保证本章实验的充分性和完备性。
+
 \subsubsection{测试集和对照组构成}
-介绍OTB50，介绍自己提取的子集
+本章的测试集来自著名的OTB，它包括了50个极具挑战性的视频序列（共计51个跟踪目标），其概览如图\ref{otb50}所示。
+OTB还为每一个视频序列注明了其主要包含的跟踪障碍，例如``快速运动''、``遮挡''、``尺度变化''、``光照变化''等共计11种，
+且一个视频序列可能包含多种跟踪障碍。
+因此，将具有相同跟踪障碍的序列组成OTB的一个子集，即可用于测试跟踪器对该障碍的适应力和鲁棒性。
+OTB提供的跟踪障碍中已有``尺度变化''，且共计有28个序列包含该障碍，因此这28个序列组成的子集将被用于评测KCFDP对于尺度的适应力。
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=14.5cm]{otb50.jpg}
+	\caption{本章所使用的OTB\upcite{50seqs}测试集}
+	\label{otb50}
+\end{figure}
+
+但是，OTB并没有标注``宽高比变化''这一障碍，因此本节将根据OTB给出的正确跟踪结果（Ground Truth），
+即每一帧中紧密包围目标物体的边界框真值，自行进行提取。
+判断一个视频序列包含``宽高比变化''障碍的标准如下。
+如图\ref{aspseqs}所示，对于该视频的每一帧，将该帧的目标物体边界框和它的前30帧的目标物体边界框一一进行宽高比对比。
+如果某次对比中，宽高比的比值超过了$[1/\sqrt{2}, \sqrt{2} ]$这一区间，则认为当前帧``正在经历宽高比变化''。
+如果该视频序列有10\%以上的帧``正在经历宽高比变化''，则认为该序列中包含```宽高比变化''这一跟踪障碍。
+根据该标准，一共有14个序列包含``宽高比变化''障碍，它们是：
+\textit{Soccer}、\textit{Matrix}、\textit{Ironman}、\textit{Skating1}、\textit{Shaking}、\textit{Couple}、\textit{Girl}、
+\textit{Walking2}、 \textit{Walking}、\textit{Freeman3}、\textit{Freeman4}、\textit{Skiing}、\textit{MotorRolling}和\textit{Woman}。
+这些序列共有4560帧，其中1017帧``正在经历宽高比变化''。
+它们组成的子集将被用于评测KCFDP对于宽高比变化的适应力。
+
+\begin{figure}[htb]
+	\centering
+		\includegraphics[width=8cm]{aspseqs.jpg}
+	\caption{判断视频序列包含``宽高比变化''的过程}
+	\label{aspseqs}
+\end{figure}
+
+OTB测试集除了提供了50个视频序列和正确的跟踪结果，还额外提供了29个跟踪器在它之上的运行结果。
+这29个跟踪器中不乏
+SCM\upcite{scm}、Struck\upcite{struck}、TLD\upcite{tld}、VTD\upcite{vtd}和ALSA\upcite{asla}等当前最为先进的跟踪器。
+本节将直接利用这些跟踪器的运行结果，与KCFDP的结果进行对比评测。
+此外，还有5个基于相关滤波的跟踪器被包含在对照组中，
+即KCF\upcite{kcf}、DSST\upcite{dsst}、ACT\upcite{act}、SAMF\upcite{samf}和CKCF。
+其中CKCF就是去除了目标候选生成器的KCFDP，也即是加入了图像特征整合和鲁邦更新的KCF。
+综上，对照组中将共有34个跟踪器。
+
 \subsubsection{评价标准}
-介绍CLE和IoU，介绍精确度图和成功率图
+在一些早期的工作中，通常使用平均中心位置误差（Averaged CLE）或者平均重叠率（Averaged IoU）来评价跟踪器的准确性。
+平均中心位置误差即是在视频序列的所有帧中，计算跟踪器结果和正确跟踪结果中心间的距离，并进行平均。
+显然，中心位置误差无法反映出尺度和宽高比是否准确。
+平均重叠率进了一步，它用跟踪器结果和正确跟踪结果的IoU来替代中心位置误差。
+但是，这两者最大的问题在于，当跟踪器丢失目标时，会对跟踪结果进行随机的惩罚，从而都无法准确反映跟踪器的准确性。
+
+因此，本节将沿用\cite{50seqs}中提出的准确性评价标准，即使用准确率图（Precision Plot）和成功率图（Success Plot）。
+要得到准确率图，需要先计算距离精度（Distance Precision）。距离精度的定义为：视频序列中中心位置误差小于某个阈值的帧所占的比例。
+而成功率图则依赖于重叠精度（Overlap Precision），其定义为：视频序列中IoU大于某个阈值的帧所占的比例。
+准确率图展示的是，在不同的中心位置误差阈值下（沿横坐标），跟踪器在所有序列上的平均距离精度（沿纵坐标）。
+类似的，成功率图展示的是在不同的IoU阈值下（沿横坐标），跟踪器在所有序列上的平均重叠精度（沿纵坐标）。
+对于准确率图，跟踪器将按照以20像素为阈值时的距离精度进行排名。
+而对于成功率图，跟踪器将按照``曲线下方面积''（Area Under Curve，AUC）进行排名。
+
 \subsection{尺度和宽高比适应力评测}
+Resultant Precision Plots and Success Plots are shown in Fig.\ref{result-scale&aspect}, which shows our tracker is superior in both
+scale and aspect ratio adaptability comparing to other trackers.
+% More obvious superiority can be observed in Success Plots, which
+%implies that the integration of detection proposals contributes mainly to the overlap rate between detected boxes and ground truths.
+
+
 \subsection{整体性能评测}
 
 \section{小结}
