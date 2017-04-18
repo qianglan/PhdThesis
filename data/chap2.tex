@@ -523,8 +523,12 @@ $w_{i}\in [0,1]$是一个权值，代表着$i$所在的物体边界完全包含�
 \section{实验结果与分析}
 \subsection{实验设置}
 为了表述方便，这里将本章提出的，融合了相关滤波器和目标候选生成器的新跟踪器命名为``KCFDP''（``Kernelized Correlation Filter with Detection Proposals''，即``加入了目标候选的核化相关滤波器''）。
+KCFDP的代码主要使用Matlab实现，部分功能如HOG特征提取，直接利用了PMT\upcite{PMT}中的实现。
+EdgeBoxes的实现直接采用了其开源版本（使用C++实现），并用Matlab进行了封装，以便于嵌入跟踪器中。
+硬件平台的CPU为低功耗处理器Intel i5-4278U，2.6 GHz主频；内存为8GB DDR3-1600。
+操作系统为MacOS 10.11，编译器采用GCC 4.8，Matlab版本为2014a。
 实验将在著名的OTB（Object Tracking Benchmark）\upcite{50seqs, otbweb}测试集以及它的两个子集上进行，
-结果评价标准采用通用的精确度图和成功率图，
+结果评价标准采用通用的准确率图和成功率图，
 用于对比的跟踪器共计达到了34个。
 开放的大型测试集、通用的评价标准、以及庞大的对照组将共同保证本章实验的充分性和完备性。
 
@@ -585,13 +589,103 @@ SCM\upcite{scm}、Struck\upcite{struck}、TLD\upcite{tld}、VTD\upcite{vtd}和AL
 对于准确率图，跟踪器将按照以20像素为阈值时的距离精度进行排名。
 而对于成功率图，跟踪器将按照``曲线下方面积''（Area Under Curve，AUC）进行排名。
 
-\subsection{尺度和宽高比适应力评测}
-Resultant Precision Plots and Success Plots are shown in Fig.\ref{result-scale&aspect}, which shows our tracker is superior in both
-scale and aspect ratio adaptability comparing to other trackers.
-% More obvious superiority can be observed in Success Plots, which
-%implies that the integration of detection proposals contributes mainly to the overlap rate between detected boxes and ground truths.
+\begin{figure}[htb]
+  \centering
+  \subfloat[针对尺度适应力的准确率图]{%
+    \label{result1-1}
+    \includegraphics[height=8cm,width=10cm]{result1-1.pdf}}\hspace{-2.2cm}
+  \newline
+  \subfloat[针对尺度适应力的成功率图]{
+    \label{result1-2}
+    \includegraphics[height=8cm,width=10cm]{result1-2.pdf}}
+  \caption{针对尺度适应力的实验结果}
+  \label{result1}
+\end{figure}
 
+\begin{figure}[htb]
+  \centering
+  \subfloat[针对宽高比适应力的准确率图]{%
+    \label{result2-1}
+    \includegraphics[height=8cm]{result2-1.pdf}}\hspace{-2.45cm}
+  \newline
+  \subfloat[针对宽高比适应力的成功率图]{
+    \label{result2-2}
+    \includegraphics[height=8cm]{result2-2.jpg}}
+  \caption{针对宽高比适应力的实验结果}
+  \label{result2}
+\end{figure}
+
+\subsection{尺度和宽高比适应力评测}
+为了评测本章方法的尺度适应力，本节将所有的34个跟踪器，加上KCFDP，应用于包含``尺度变化''这一跟踪障碍的28个视频序列上进行跟踪。
+得到的准确率图和成功率图见图\ref{result1}。
+同理，为了评测KCFDP的宽高比适应力，本节将所有跟踪器应用于上一节提取的，包含``宽高比变化''障碍的14个视频序列上，得到了如图\ref{result2}所示的准确率图和成功率图。
+在图\ref{result1}和图\ref{result2}中，为了显示清晰，只给出了排名前10的跟踪器的对应曲线。
+各图中，右上角的图例中的排名即是跟踪器的准确性排名，方括号内的数值是排名的依据，即以20像素为阈值时的距离精度（准确率图中），
+或者曲线下方的归一化面积（成功率图中）。
+
+从图\ref{result1}和图\ref{result2}中可以清晰地看出，无论对于尺度变化还是宽高比变化，
+本章提出的跟踪方法均具有最佳的适应力。
+此外，KCFDP在成功率图中的优势更为明显。
+这证明了目标候选方法主要提高了跟踪结果和正确结果间的重叠率，即是说，跟踪结果的尺度和宽高比更加准确了。
 
 \subsection{整体性能评测}
+为了评测KCFDP对于各种跟踪障碍的适应力和鲁棒性，以及得出其跟踪效率，本节将在完整的50个视频序列（包含51个跟踪目标）
+下对比所有的跟踪器。
+图\ref{visualization}展示了在4个较为困难的视频序列（\textit{Liquor}，\textit{Skating1}，\textit{Tiger1}和\textit{Freeman4}）上，
+排名前5的跟踪器的直观可视化对比。
+可以清楚地看出，KCFDP在准确地适应尺度和宽高比变化的同时，还能保持很高的跟踪精度。
+
+\begin{figure}
+	\centering
+		\includegraphics[width=15cm]{visualization.pdf}
+	\caption{KCFDP与4个跟踪器的可视化对比}
+	\label{visualization}
+\end{figure}
+
+\begin{figure}[htb]
+  \centering
+  \subfloat[完整的50个视频序列上的准确率图]{%
+    \label{result3-1}
+    \includegraphics[height=8cm]{result3-1.pdf}}\hspace{-2.2cm}
+  \newline
+  \subfloat[完整的50个视频序列上的成功率图]{
+    \label{result3-2}
+    \includegraphics[height=8cm]{result3-2.pdf}}
+  \caption{完整的50个视频序列上的实验结果}
+  \label{result3}
+\end{figure}
+
+将所有跟踪器运行于完整的50个视频序列上所得的准确率图和成功率图见图\ref{result3}。
+显然，在各种跟踪障碍下，KCFDP仍然超过了所有其它跟踪器和相关滤波跟踪器变型。
+更进一步地分析这两节的实验结果，可以看出在图\ref{result1}、\ref{result2}、\ref{result3}中，
+KCFDP与CKCF之间都有着明显的性能差距。
+这充分显示了在跟踪过程中加入目标候选所带来的准确性提升。
+尽管CKCF和KCF在``尺度变化''障碍下和整个测试集下的性能区别很小，
+但是对于``宽高比变化''，CKCF具有明显的性能优势。
+因此可以推断，整合后的混合特征仅在候选图像块出现密集形状变化时才具有较大优势。
+这也是本章在KCFDP中使用混合特征特原因，即用于辨别尺度和宽高比不断变化的目标候选。
+此外，相比在整个测试集和``尺度变化''子集下，KCFDP在``宽高比变化''子集下的优势明显最大。
+原因在于，每个序列都包含着多个跟踪障碍，而一些障碍会导致目标候选生成器失效或者出错，从而部分抵消掉它带来的性能提升。
+例如``运动模糊''会导致目标物体的边界变得模糊，严重影响依赖物体边界来生成目标候选的EdgeBoxes。
+并且在``尺度变化''子集下，DSST和SAMF等跟踪器也具有特定的尺度适应力优化，故KCFDP的相对优势略有降低。
+
+
+除了很高的跟踪精度以外，KCFDP的跟踪效率也令人满意，在整个测试集上达到了平均20.8 FPS的跟踪速度。
+考虑到KCFDP主要使用较低效的Matlab进行实现，且运行于低功耗处理器上，
+本节认为对实现稍作优化后，就完全可以达到实时跟踪的需求。
+作为对比，在完全相同的实验环境下，
+DSST和SAMF这两个基于相关滤波的跟踪器的跟踪速度分别为28.9 FPS和12.0 FPS，
+但是他们均不具有宽高比适应力。
+KCFDP跟踪效率较高的原因在于，相关滤波器实际上仅需要额外辨别很少量的目标候选，且经过调优后的目标候选生成过程也十分高效。
 
 \section{小结}
+本章提出了一个在视觉物体跟踪中提高尺度和宽高比适应力的全新方法。
+通过对一个``物体类别无关''的目标候选生成器进行调优，并配合目标候选过滤过程，
+本章的方法能够为相关滤波器提供不同尺度和宽高比的候选输入图像块。
+为了能够准确辨别这些目标候选，本章还利用图像特征整合和更鲁棒的模型更新策略来加强了相关滤波器。
+得益于目标候选的高度灵活性和相关滤波器的准确辨别力，
+本章得到的跟踪器在一个大型公开测试集上展现出了很强的鲁棒性和适应力，
+同时还达到了令人满意的跟踪速度。
+本章的方法是一个通用方法，在下一章中，
+该方法将用于把更多的目标候选生成器和跟踪器相结合，以深入研究目标候选在视觉物体跟踪中的作用和潜力。
+此外，本章并未对目标候选生成算法进行优化，下一章将针对跟踪任务的需求，对目标候选生成器进行深入改进。
