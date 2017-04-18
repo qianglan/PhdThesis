@@ -241,8 +241,8 @@ year = {2012}
 
 @Article{voc2007, 
 	author = "Everingham, M. and Eslami, S. M. A. and Van~Gool, L. and Williams, C. K. I. and Winn, J. and Zisserman, A.", 
-	title = "The Pascal Visual Object Classes Challenge: {a retrospective}", 
-	journal = "IJCV", 
+	title = "The Pascal Visual Object Classes Challenge: {A Retrospective}", 
+	journal = "International Journal of Computer Vision", 
 	volume = "111", 
 	year = "2015", 
 	number = "1",  
@@ -261,7 +261,7 @@ year = {2012}
 @article{selectivesearch,
 	author = {Jasper R. R. Uijlings and Koen E. A. van de Sande and Theo Gevers and Arnold W. M. Smeulders},
 	title = {Selective Search for Object Recognition},
-	journal = {IJCV},
+	journal = {International Journal of Computer Vision},
 	volume = 104, 
 	number = 2, 
 	pages = {154-171}, 
@@ -1246,5 +1246,149 @@ year = {2012}
 	year =         {2015},
 	title =        {{Visual Tracker Benchmark v1.0}},
 	url =          {http://cvlab.hanyang.ac.kr/tracker_benchmark/benchmark_v10.html}
+}
+
+@inproceedings{cfsurvey,
+abstract = {Abstract—Over these years, Correlation Filter-based Trackers (CFTs) have aroused increasing interests in the field of visual object tracking, and have achieved extremely compelling results in different competitions and benchmarks. In this paper, our goal is to review the developments of CFTs with extensive experimental results. 11 trackers are surveyed in our work, based on which a general framework is summarized. Furthermore, we investigate different training schemes for correlation filters, and also discuss various effective improvements that have been made recently. Comprehensive experiments have been conducted to evaluate the effectiveness and efficiency of the surveyed CFTs, and comparisons have been made with other competing trackers. The experimental results have shown that state-of- art performence, in terms of robustness, speed and accuracy, can be achieved by several recent CFTs, such as MUSTer and SAMF. We find that further improvements for correlation filter- based tracking can be made on estimating scales, applying part- based tracking strategy and cooperating with long-term tracking methods.},
+archivePrefix = {arXiv},
+arxivId = {arXiv:1509.05520v1},
+author = {Chen, Zhe and Hong, Zhibin and Tao, Dacheng},
+booktitle = {arXiv},
+eprint = {arXiv:1509.05520v1},
+keywords = {Visual object tracking,computer vision,correlation filters,ing evaluation,track-},
+pages = {1--13},
+title = {{An Experimental Survey on Correlation Filter-Based Tracking}},
+year = {2014},
+url = {https://arxiv.org/abs/1509.05520}
+}
+
+
+
+
+@article{slidingdetect1,
+ author = {Papageorgiou, Constantine and Poggio, Tomaso},
+ title = {A Trainable System for Object Detection},
+ journal = {International Journal of Computer Vision},
+ issue_date = {June 2000},
+ volume = {38},
+ number = {1},
+ month = jun,
+ year = {2000},
+ issn = {0920-5691},
+ pages = {15--33},
+ numpages = {19},
+ url = {http://dx.doi.org/10.1023/A:1008162616689},
+ doi = {10.1023/A:1008162616689},
+ acmid = {355341},
+ publisher = {Kluwer Academic Publishers},
+ address = {Hingham, MA, USA},
+ keywords = {computer vision, ear detection, face detection, machine learning, pattern recognition, people detection}
+} 
+
+@article{slidingdetect2,
+author = {Viola, P and Jones, M},
+journal = {International Journal of Computer Vision},
+keywords = {face detection},
+pages = {137--154},
+title = {{Robust Real-Time Face Detection}},
+volume = {57},
+year = {2004}
+}
+
+@inproceedings{coco,
+abstract = {We present a new dataset with the goal of advancing the state-of-the-art in object recognition by placing the question of object recognition in the context of the broader question of scene understanding. This is achieved by gathering images of complex everyday scenes containing common objects in their natural context. Objects are labeled using per-instance segmentations to aid in precise object localization. Our dataset contains photos of 91 objects types that would be easily recognizable by a 4 year old. With a total of 2.5 million labeled instances in 328k images, the creation of our dataset drew upon extensive crowd worker involvement via novel user interfaces for category detection, instance spotting and instance segmentation. We present a detailed statistical analysis of the dataset in comparison to PASCAL, ImageNet, and SUN. Finally, we provide baseline performance analysis for bounding box and segmentation detection results using a Deformable Parts Model.},
+archivePrefix = {arXiv},
+arxivId = {arXiv:1405.0312v1},
+author = {Lin, Tsung Yi and Maire, Michael and Belongie, Serge and Hays, James and Perona, Pietro and Ramanan, Deva and Doll{\'{a}}r, Piotr and Zitnick, C. Lawrence},
+booktitle = {European Conference on Computer Vision},
+doi = {10.1007/978-3-319-10602-1_48},
+eprint = {arXiv:1405.0312v1},
+isbn = {978-3-319-10601-4},
+issn = {16113349},
+number = {PART 5},
+pages = {740--755},
+title = {{Microsoft COCO: Common Objects in Context}},
+year = {2014}
+}
+
+@inproceedings{dpsurvey2,
+abstract = {Current top performing Pascal VOC object detectors employ detection proposals to guide the search for objects thereby avoiding exhaustive sliding window search across images. Despite the popularity of detection proposals, it is unclear which trade-offs are made when using them during object detection. We provide an in depth analysis of ten object proposal methods along with four baselines regarding ground truth annotation recall (on Pascal VOC 2007 and ImageNet 2013), repeatability, and impact on DPM detector performance. Our findings show common weaknesses of existing methods, and provide insights to choose the most adequate method for different settings.},
+archivePrefix = {arXiv},
+arxivId = {1406.6962},
+author = {Hosang, Jan and Benenson, Rodrigo and Schiele, Bernt},
+booktitle = {British Machine Vision Conference},
+doi = {10.5244/C.28.24},
+eprint = {1406.6962},
+isbn = {1-901725-52-9},
+pages = {1--25},
+title = {{How Good are Detection Proposals, Really?}},
+url = {http://arxiv.org/abs/1406.6962},
+year = {2014}
+}
+
+@inproceedings{imagenet,
+abstract = {The explosion of image data on the Internet has the potential to foster more sophisticated and robust models and algorithms to index, retrieve, organize and interact with images and multimedia data. But exactly how such data can be harnessed and organized remains a critical problem. We introduce here a new database called ldquoImageNetrdquo, a large-scale ontology of images built upon the backbone of the WordNet structure. ImageNet aims to populate the majority of the 80,000 synsets of WordNet with an average of 500-1000 clean and full resolution images. This will result in tens of millions of annotated images organized by the semantic hierarchy of WordNet. This paper offers a detailed analysis of ImageNet in its current state: 12 subtrees with 5247 synsets and 3.2 million images in total. We show that ImageNet is much larger in scale and diversity and much more accurate than the current image datasets. Constructing such a large-scale database is a challenging task. We describe the data collection scheme with Amazon Mechanical Turk. Lastly, we illustrate the usefulness of ImageNet through three simple applications in object recognition, image classification and automatic object clustering. We hope that the scale, accuracy, diversity and hierarchical structure of ImageNet can offer unparalleled opportunities to researchers in the computer vision community and beyond.},
+author = {Deng, Jia and Dong, Wei and Socher, R. and Li, Li-Jia and Li, Kai and Fei-Fei, Li},
+booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
+doi = {10.1109/CVPR.2009.5206848},
+isbn = {978-1-4244-3992-8},
+issn = {1063-6919},
+pages = {2--9},
+pmid = {21914436},
+title = {{ImageNet: A Large-Scale Hierarchical Image Database}},
+year = {2009}
+}
+
+@article{detector1,
+abstract = {Generic object detection is confronted by dealing with different degrees of variations in distinct object classes with tractable computations. This demands for descriptive and flexible object representations that are also efficient to evaluate for many locations.We propose to model an object class by a cascaded boosting classifier which integrates various types of features from competing local regions, named as regionlets. A regionlet is a base feature extraction region defined proportionally to a detection window at an arbitrary resolution (i.e., size and aspect ratio). These regionlets are organized in small groups with stable relative positions to delineate fine-grained spatial layouts inside objects. Their features are aggregated to a one-dimensional feature within one group so as to tolerate deformations. Then we evaluate the object bounding box proposals generated from segmentation cues, limiting the evaluation locations to thousands. Our approach achieves very competitive performance on popular multi-class detection benchmark datasets with a single method, without any contexts. It achieves the detection mean average precision of 41.7{\%} on the PASCAL VOC 2007 dataset, 39.7{\%} on the VOC 2010 for 20 object categories. We further develop support pixel integral images to efficiently augment regionlet features with the responses learned by deep convolutional neural networks. Our regionlet based method achieved 20.9{\%} mean average precision on 200 object categories in the ImageNet Large Scale Visual Object Recognition Challenge (ILSVRC 2013).},
+archivePrefix = {arXiv},
+arxivId = {1111.6189v1},
+author = {Wang, Xiaoyu and Yang, Ming and Zhu, Shenghuo and Lin, Yuanqing},
+doi = {10.1109/TPAMI.2015.2389830},
+eprint = {1111.6189v1},
+isbn = {9781479928392},
+issn = {01628828},
+journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+keywords = {Boosting,Deep Convolutional Neural Network,Object Detection,Object Proposals,Regionlet,Selective Search},
+number = {10},
+pages = {2071--2084},
+pmid = {26353185},
+title = {{Regionlets for Generic Object Detection}},
+volume = {37},
+year = {2015}
+}
+
+
+@article{detector2,
+abstract = {Existing deep convolutional neural networks (CNNs) require a fixed-size (e.g. 224x224) input image. This requirement is "artificial" and may hurt the recognition accuracy for the images or sub-images of an arbitrary size/scale. In this work, we equip the networks with a more principled pooling strategy, "spatial pyramid pooling", to eliminate the above requirement. The new network structure, called SPP-net, can generate a fixed-length representation regardless of image size/scale. By removing the fixed-size limitation, we can improve all CNN-based image classification methods in general. Our SPP-net achieves state-of-the-art accuracy on the datasets of ImageNet 2012, Pascal VOC 2007, and Caltech101. The power of SPP-net is more significant in object detection. Using SPP-net, we compute the feature maps from the entire image only once, and then pool features in arbitrary regions (sub-images) to generate fixed-length representations for training the detectors. This method avoids repeatedly computing the convolutional features. In processing test images, our method computes convolutional features 30-170x faster than the recent leading method R-CNN (and 24-64x faster overall), while achieving better or comparable accuracy on Pascal VOC 2007.},
+archivePrefix = {arXiv},
+arxivId = {1406.4729},
+author = {He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian},
+doi = {10.1109/TPAMI.2015.2389824},
+eprint = {1406.4729},
+isbn = {9783319105772},
+issn = {01628828},
+journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+keywords = {Convolutional Neural Networks,Image Classification,Object Detection,Spatial Pyramid Pooling},
+number = {9},
+pages = {1904--1916},
+pmid = {26353135},
+title = {{Spatial Pyramid Pooling in Deep Convolutional Networks for Visual Recognition}},
+volume = {37},
+year = {2015}
+}
+
+
+@inproceedings{detector3,
+abstract = {We present an object detection system based on the Fisher vector (FV) $\backslash$nimage representation computed over SIFT and color descriptors. For computational $\backslash$nand storage efficiency, we use a recent segmentation-based method to generate $\backslash$nclass-independent object detection hypotheses, in combination with data $\backslash$ncompression techniques. Our main contribution is a method to produce tentative $\backslash$nobject segmentation masks to suppress background clutter in the features. $\backslash$nRe-weighting the local image features based on these masks is shown to improve $\backslash$nobject detection significantly. We also exploit contextual features in the form $\backslash$nof a full-image FV descriptor, and an inter-category rescoring mechanism. Our $\backslash$nexperiments on the VOC 2007 and 2010 datasets show that our detector improves $\backslash$nover the current state-of-the-art detection results.},
+author = {Cinbis, Ramazan Gokberk and Verbeek, Jakob and Schmid, Cordelia},
+booktitle = {IEEE International Conference on Computer Vision},
+doi = {10.1109/ICCV.2013.369},
+isbn = {978-1-4799-2840-8},
+issn = {1550-5499},
+pages = {2968--2975},
+title = {{Segmentation Driven Object Detection with Fisher Vectors}},
+url = {http://ieeexplore.ieee.org/lpdocs/epic03/wrapper.htm?arnumber=6751480},
+year = {2013}
 }
 
