@@ -1464,3 +1464,76 @@ pages = {69--74},
 title = {{Adapting SVM Classifiers to Data with Shifted Distributions}},
 year = {2007}
 }
+
+@inproceedings{crackingbing,
+abstract = {Objectness proposal is an emerging field which aims to reduce candidate object windows without missing the real ones. Under the evaluation framework of DR-{\#}WIN, lots of methods report good performance in recent years, and the best is BING in CVPR 2014. BING provides good detection rates and surprising high efficiencies. But what can we benefit from it from the angle of computer vision research? In this paper, we show that the success of BING is rather in geometry than in computer vision research. The secret lies in the Achilles' heel of the DR-{\#}WIN evaluation framework: the 0.5-INT-UNION criterion. We proposed a method to construct a rather small window set to ""cover"" all legal rectangles. On images no larger than 512x512, supposing all object rectangles are not smaller than 16x16, nearly 19K windows are sufficient to cover all possible rectangles. The amount is far less than that of all sliding windows. It can be reduced further by exploiting the prior distribution of the locations and sizes of true object windows in a greedy way. We also proposed a hybrid scheme blending both greedy and stochastic results. On the VOC2007 test set, it recalls 95.68{\%} objects with 1000 proposal windows. The detection rates on the first ten windows are 13.99{\%}{\~{}}40.29{\%} higher than earlier methods in average.},
+author = {Q. Zhao and Z. Liu and B. Yin},
+booktitle = {British Machine Vision Conference},
+isbn = {9780471588900},
+issn = {9780471588900},
+pages = {1--10},
+title = {{Cracking BING and Beyond}},
+year = {2014}
+}
+
+@article{endres,
+abstract = {We propose a category-independent method to produce a bag of regions and rank them, such that top-ranked regions are likely to be good segmentations of different objects. Our key objectives are completeness and diversity: Every object should have at least one good proposed region, and a diverse set should be top-ranked. Our approach is to generate a set of segmentations by performing graph cuts based on a seed region and a learned affinity function. Then, the regions are ranked using structured learning based on various cues. Our experiments on the Berkeley Segmentation Data Set and Pascal VOC 2011 demonstrate our ability to find most objects within a small bag of proposed regions.},
+author = {Endres, Ian and Hoiem, Derek},
+doi = {10.1109/TPAMI.2013.122},
+isbn = {0162-8828 VO  - 36},
+issn = {01628828},
+journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+keywords = {Object segmentation,object recognition},
+number = {2},
+pages = {222--234},
+pmid = {24356345},
+title = {{Category-Independent Object Proposals with Diverse Ranking}},
+volume = {36},
+year = {2014}
+}
+
+@inproceedings{rahtu,
+abstract = {Cascades are a popular framework to speed up object detection systems. Here we focus on the first layers of a category independent object detection cascade in which we sample a large number of windows from an objectness prior, and then discriminatively learn to filter these candidate windows by an order of magnitude. We make a number of contributions to cascade design that substantially improve over the state of the art: (i) our novel objectness prior gives much higher recall than competing methods, (ii) we propose objectness features that give high performance with very low computational cost, and (iii) we make use of a structured output ranking approach to learn highly effective, but inexpensive linear feature combinations by directly optimizing cascade performance. Thorough evaluation on the PASCAL VOC data set shows consistent improvement over the current state of the art, and over alternative discriminative learning strategies.},
+author = {Rahtu, Esa and Kannala, Juho and Blaschko, Matthew},
+booktitle = {IEEE International Conference on Computer Vision},
+doi = {10.1109/ICCV.2011.6126351},
+isbn = {9781457711015},
+issn = {1550-5499},
+pages = {1052--1059},
+title = {{Learning a Category Independent Object Detection Cascade}},
+year = {2011}
+}
+
+@inproceedings{randomizedprim,
+abstract = {Generic object detection is the challenging task of proposing windows $\backslash$nthat localize all the objects in an image, regardless of their classes. Such $\backslash$ndetectors have recently been shown to benefit many applications such as $\backslash$nspeeding-up class-specific object detection, weakly supervised learning of $\backslash$nobject detectors and object discovery. In this paper, we introduce a novel and $\backslash$nvery efficient method for generic object detection based on a randomized version $\backslash$nof Prim's algorithm. Using the connectivity graph of an image's super pixels, $\backslash$nwith weights modelling the probability that neighbouring super pixels belong to $\backslash$nthe same object, the algorithm generates random partial spanning trees with $\backslash$nlarge expected sum of edge weights. Object localizations are proposed as $\backslash$nbounding-boxes of those partial trees. Our method has several benefits compared $\backslash$nto the state-of-the-art. Thanks to the efficiency of Prim's algorithm, it $\backslash$nsamples proposals very quickly: 1000 proposals are obtained in about 0.7s. With $\backslash$nproposals bound to super pixel boundaries yet diversified by randomization, it $\backslash$nyields very high detection rates and windows that tightly fit objects. In $\backslash$nextensive experiments on the challenging PASCAL VOC 2007 and 2012 and SUN2012 $\backslash$nbenchmark datasets, we show that our method improves over state-of-the-art $\backslash$ncompetitors for a wide range of evaluation scenarios.},
+author = {Manen, Santiago and Guillaumin, Matthieu and Gool, Luc Van},
+booktitle = {IEEE International Conference on Computer Vision},
+doi = {10.1109/ICCV.2013.315},
+isbn = {9781479928392},
+issn = {1550-5499},
+keywords = {Object Detection,Object Proposal},
+pages = {2536--2543},
+title = {{Prime Object Proposals with Randomized Prim's Algorithm}},
+year = {2013}
+}
+
+@inproceedings{rantalankila,
+abstract = {Abstract We present a method for generating object segmentation proposals from groups of superpixels. The goal is to propose accurate segmentations for all objects of an image. The proposed object hypotheses can be used as input to object detection systems and thereby ... $\backslash$n},
+author = {Rantalankila, P and Kannala, J and Rahtu, E},
+booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
+doi = {10.1109/CVPR.2014.310},
+isbn = {978-1-4799-5118-5},
+keywords = {Wsos},
+pages = {2417--2424},
+title = {{Generating Object Segmentation Proposals Using Global and Local Search}},
+url = {http://www.ee.oulu.fi/~jkannala/publications/cvpr2014.pdf%5Cnpapers3://publication/uuid/F2B0E5A1-F4FB-43A5-BABE-6889B921B8F9},
+year = {2014}
+}
+
+@inproceedings{rigor,
+author = {A. Humayun  and F. Li  and J. M. Rehg },
+title = {{Rigor: Recycling Inference in Graph Cuts for Generating Object Regions}},
+year = {2014},
+booktitle = {IEEE Conference on Computer Vision and Pattern Recognition}
+}
+
