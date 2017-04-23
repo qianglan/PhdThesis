@@ -444,17 +444,20 @@ KCFDPT的参数设置保持和上一章\ref{param_setup}节一样，但是为了
 其余部分的实现均保持不变，直接采用上一章的程序。
 硬件和软件环境也保持和上一章相同。
 
-主要测试集仍然采用上一章的OTB以及它的两个子集，即``尺度变化''子集和``宽高比变化''子集。
-此外，为了测试KCFDPT的通用性，本节还将在VOT 2014测试集上进行额外的实验。
-对照组也基本和上一章相同，只是增加了较新的``类相关滤波跟踪器''STC\upcite{stc}，
-以及嵌入了不同目标候选生成器的跟踪器。
-至于评价标准，在OTB测试集上，本节仍然沿用上一章\ref{evalcriteriasec}节的准确率图和成功率图。
-此外，除了这两类统计图，本节还将进行数值化的距离精度和重叠精度对比。
-在VOT 2014测试集上，由于它提供了自己的评价标准，故将在对应章节进行专门介绍。
-
 本节的实验评测主要分为两个部分：一部分是将嵌入了不同目标候选生成器的跟踪器进行对比，
 以分析目标候选在跟踪器中的作用，并同时证明本章对EdgeBoxes的背景抑制优化的有效性；
 另一部分是将KCFDPT和不同的跟踪器进行对比，以体现优化后的EdgeBoxes对于跟踪任务的较高适应性。
+
+在第一部分实验中，主要测试集仍然采用上一章的OTB以及它的两个子集，即``尺度变化''子集和``宽高比变化''子集。
+对照组为\ref{generatoradaptsec}节中嵌入了不同目标候选生成器的跟踪器。
+评价标准仍然沿用上一章\ref{evalcriteriasec}节的准确率图和成功率图。
+在第二部分实验中，对照组与上一章\ref{datasetcomponetsec}节相同，由34个跟踪器组成。
+由于KCFDPT的准确性优于KCFDP，它在OTB测试集及其两个子集上的准确率图和成功率图与上一章相似，
+因此这里不再基于统计图进行对比，而是将OTB测试集进一步细分，得出具有不同尺度变化速度和程度、
+以及具有不同宽高比变化速度和程度的子集。
+在这些子集上，本节将进行数值化的距离精度和重叠精度对比。
+此外，为了测试KCFDPT的通用性，本节还将在VOT 2014测试集上进行额外的实验。
+由于VOT 2014提供了自己的评价标准，故将在对应章节进行专门介绍。
 
 \subsection{跟踪器中目标候选的作用分析}
 \label{dpeffectsec}
@@ -493,7 +496,7 @@ KCFDPT的参数设置保持和上一章\ref{param_setup}节一样，但是为了
 
 \ref{generatoradaptsec}节中，通过将6个不同的目标候选生成器面向跟踪任务进行适配，并嵌入跟踪器中，得到了6个新的跟踪器。
 这里将它们用各自所包含生成器进行命名。
-此外，加上未使用目标候选的跟踪器（记为Without\_Proposal）以及KCFDPT，一共有8个跟踪器。
+此外，加上未使用目标候选的跟踪器（记为Without\_Proposal，也即是上一章的CKCF）以及KCFDPT，一共有8个跟踪器。
 这8个跟踪器在OTB的``尺度变化''子集、``宽高比变化''子集和完整测试集上的运行结果（准确率图和成功率图）
 分别如图\ref{resultdpscale}、图\ref{resultdpas}、和图\ref{resultdpall}所示。
 
@@ -521,13 +524,17 @@ KCFDPT和Without\_Proposal间的明显性能差距也显示了优化后的EdgeBo
 各个目标候选生成器在一帧中平均生成的候选数量是近似的，这保证了本节性能对比的公平性。
 而目标候选在过滤前后的巨大数量差别，充分证明了目标候选过滤步骤的有效性。
 即使是在低功耗CPU上运行，KCFDPT的平均跟踪速度也达到了20.4 FPS，足以说明其高效性。
-此外，通过对比KCFDPT和EdgeBoxes（KCFDP）的跟踪速度，可以看出背景抑制优化带来的额外时间开销几乎是可以忽略不计的。
+此外，通过对比KCFDPT和EdgeBoxes（KCFDP）的跟踪速度，可以看出背景抑制优化带来的额外时间开销几乎是可忽略不计的。
+值得注意的是，各跟踪器的跟踪速度不仅和目标候选生成速度有关，还与过滤后剩余的目标候选数目相关（需要再次进行辨别）。
+因此Bing的跟踪速度甚至超过了两个基准方法。
 
-\begin{table*}
+\begin{table}[htb]
 	\centering
+	\caption{各个跟踪器在OTB测试集上的统计数据}
+	\label{dpstat}
 	\begin{tabular}{| p{1.3in} | p{0.9in}<{\centering} | p{0.9in}<{\centering} | p{0.9in}<{\centering} |}
 		\hline
-		Tracker with detection proposal & Avg. tracking speed (FPS) & Avg. proposal \# before rejection & Avg. proposal \# after rejection \\
+		\multicolumn{1}{ |p{1.3in}<{\centering}| }{嵌入了目标候选生成器的跟踪器} & 平均跟踪速度 (FPS) & 过滤前的平均目标候选数量 & 过滤后的平均目标候选数量 \\
 		\hline
 		KCFDPT & 20.4 & 103.34  & 4.43 \\
 		\hline
@@ -546,16 +553,284 @@ KCFDPT和Without\_Proposal间的明显性能差距也显示了优化后的EdgeBo
 		Without\_Proposal & 112.2  & --  & -- \\
 		\hline
 	\end{tabular}
-	\caption{Each tracker's average tracking speed and average proposal number per frame before and after proposal rejection on the whole 50-sequence dataset. Please note that the tracking speed is affected by both proposal generation speed and proposal number after rejection.}
-	\label{dpstat}
-\end{table*}
+\end{table}
 
 \subsection{跟踪器中目标候选的优化效果评测}
-\subsubsection{统计图对比评测}
-以下均翻译ijcv论文
+本小节中，KCFDPT将与不同的跟踪器进行对比。
+对照组与上一章\ref{datasetcomponetsec}节相同，共包含34个跟踪器。
+由于KCFDPT在准确率图和成功率图中的曲线趋势与KCFDP（图\ref{resultdpscale}、\ref{resultdpas}、\ref{resultdpall}中的EdgeBoxes）十分相似，且性能全面高于KCFDP，因此如果再在OTB测试集及其两个子集上进行基于统计图的对比，将显得较为冗余。
+因此，这里将把OTB测试集进一步细分，获得具有不同尺度变化速度和程度，以及不同宽高比变化速度和程度的总共12个子集，
+并在这12个子集上进行数值化的对比评测。
+此外，为了测试KCFDPT的通用性，本小节还将在VOT 2014测试集上，进行额外的实验对比。
+
 \subsubsection{数值化对比评测}
+\label{numericalcompare}
+相比基于统计图的对比，数值化的对比将更加细致，能够对KCFDPT的性能进行更深入的分析。
+在上一章\ref{datasetcomponetsec}节中，根据一个固定的帧窗口（前30帧）和一个固定的宽高比变化阈值（$\sqrt{2}$），
+14个具有``宽高比变化''障碍的视频序列被挑选出来。
+为了进一步分析KCFDPT在不同的宽高比变化速度，以及不同的变化剧烈程度下的性能，
+本节将通过调整上述帧窗口大小和宽高比变化阈值来进一步细分``宽高比变化''子集。
+3个不同的帧窗口大小，即``$20\sim30$''、``$10\sim20$''、``$1\sim10$''，被用于将14个序列细分为慢速、中速、快速宽高比变化子集。
+这里``$x\sim y$''意指在每一帧的前$x$帧到前$y$帧中进行宽高比对比。
+类似地，3个宽高比相对变化区间，``$\sqrt{2}\sim1.5$''、``$1.5\sim1.6$''、``$1.6\sim\infty$''，被用于将
+14个序列细分为低、中、高宽高比变化程度。
+这里的``$x\sim y$''意指在某一前序帧中，相对宽高比的变化超过了$(1/x, x)$，但未超过$(1/y, y)$。
+上述对``宽高比变化''子集的细分结果如表\ref{rate_level_division}(a)所示。
+
+\begin{table}[htb]
+	\centering
+	\caption{对OTB测试集的进一步细分}
+    \label{rate_level_division}
+    \scalebox{1}{
+    \subfloat[具有不同的宽高比变化速度和剧烈程度的视频序列子集]{
+\scalebox{0.9}{
+	\begin{tabu}{|>{\raggedright}m{1.85cm}|>{\raggedright}m{1.85cm}|>{\raggedright}m{1.85cm}|>{\raggedright}m{1.85cm}|>{\raggedright}m{1.85cm}|>{\raggedright}m{1.85cm}|}
+		\hline
+		\multicolumn{3}{|c|}{宽高比变化速度}                                     & \multicolumn{3}{c|}{宽高比变化剧烈程度}                                                                     \\ \hline
+		\multicolumn{1}{|c|}{慢} & \multicolumn{1}{c|}{中} & \multicolumn{1}{c|}{快} & \multicolumn{1}{c|}{低} & \multicolumn{1}{c|}{中} & \multicolumn{1}{c|}{高} \\ \hline
+		\textit{Skating1}          & \textit{Soccer}             & \textit{Matrix}            & \textit{Skating1}        & \textit{Soccer}             & \textit{Matrix}                   \\
+		\textit{Freeman3}          & \textit{Shaking}            & \textit{Ironman}           & \textit{Shaking}         & \textit{Couple}             & \textit{Ironman}                  \\
+		\textit{Freeman4}          & \textit{Couple}             & \textit{Walking2}          & \textit{Girl}            & \textit{Walking2}           & \textit{Skiing}                   \\
+		\textit{MotorRolling}      & \textit{Girl}               & \textit{Walking}           & \textit{Freeman3}        & \textit{Walking}            & \textit{}                         \\
+		\textit{Woman}             & \textit{}                   & \textit{Skiing}            & \textit{Freeman4}        & \textit{}                   & \textit{}                         \\
+		\textit{}                  & \textit{}                   & \textit{}                  & \textit{MotorRolling}    & \textit{}                   & \textit{}                         \\
+		\textit{}                  & \textit{}                   & \textit{}                  & \textit{Woman}           & \textit{}                   & \textit{}                         \\
+		\hline
+	\end{tabu}
+	}
+}
+}
+\scalebox{1}{
+\subfloat[具有不同的尺度变化速度和剧烈程度的视频序列子集]{
+\scalebox{0.9}{
+		\begin{tabu}{|>{\raggedright}m{1.85cm}|>{\raggedright}m{1.85cm}|>{\raggedright}m{1.85cm}|>{\raggedright}m{1.85cm}|>{\raggedright}m{1.85cm}|>{\raggedright}m{1.85cm}|}
+			\hline
+			\multicolumn{3}{|c|}{尺度变化速度}                                            & \multicolumn{3}{c|}{尺度变化剧烈程度}                                         \\ \hline
+			\multicolumn{1}{|c|}{慢} & \multicolumn{1}{c|}{中} & \multicolumn{1}{c|}{快} & \multicolumn{1}{c|}{低} & \multicolumn{1}{c|}{中} & \multicolumn{1}{c|}{高} \\ \hline
+	        \textit{Crossing}         & \textit{David}              & \textit{Soccer}            & \textit{Boy}             & \textit{David}              & \textit{Soccer}           \\
+			\textit{Walking2}         & \textit{Boy}                & \textit{Matrix}            & \textit{Crossing}        & \textit{Walking}            & \textit{Matrix}           \\
+			\textit{Fleetface}        & \textit{Girl}               & \textit{Ironman}           & \textit{Walking2}        & \textit{}                   & \textit{Ironman}          \\
+		    \textit{Freeman1}         & \textit{Walking}            & \textit{Skiing}            & \textit{Fleetface}       & \textit{}                   & \textit{Girl}             \\
+			\textit{Freeman3}         & \textit{Freeman4}           & \textit{MotorRolling}      & \textit{Freeman1}        & \textit{}                   & \textit{CarScale}         \\
+			\textit{Lemming}          & \textit{CarScale}           & \textit{}                  & \textit{Freeman3}        & \textit{}                   & \textit{Skiing}           \\
+			\textit{}                 & \textit{}                   & \textit{}                  & \textit{Freeman4}        & \textit{}                   & \textit{MotorRolling}     \\
+			\textit{}                 & \textit{}                   & \textit{}                  & \textit{Lemming}         & \textit{}                   & \textit{}                 \\ \hline
+		\end{tabu}
+	}
+}
+}
+
+\end{table}
+
+基于相似的方法，本节从OTB测试集中提取出具有不同尺度变化速度和不同尺度变化剧烈程度的视频序列，并组织成子集。
+通过在每一帧的前30帧中对比目标物体边界框的面积，3个面积变化区间，``$1.6\sim1.8$''、``$1.8\sim2.0$''、``$2.0\sim\infty$''，
+被分别用于从测试集中提取低、中、高尺度变化程度子集。
+为了提取具有不同尺度变化速度的子集，本节使用3个帧窗口，``$20\sim30$''、``$10\sim20$''、``$1\sim10$''，
+以及一个固定的面积变化区间``$1.6\sim\infty$''。
+具有不同尺度变化速度和不同尺度变化剧烈程度的视频序列如表\ref{rate_level_division}(b)所示。
+
+在这些细分后的子集上，排名前五的跟踪器的数值化跟踪精度如表\ref{per-seq-asp}和表\ref{per-seq-scale}所示。
+表中给出的距离精度（DP）以20像素作为中心位置误差（CLE）阈值，
+给出的重叠精度（OP）以$0.5$作为IoU阈值。
+上述的阈值设置与PASCAL VOC\upcite{voc2007}物体检测测试集的要求是一致的。
+两个表中，第一列中的跟踪精度是在所有被选入表\ref{rate_level_division}(a)或者表\ref{rate_level_division}(b)的
+视频序列上进行平均而得到的。
+而其它列中的数值化精度均是跟踪器在表\ref{rate_level_division}中的对应子集上取得的平均精度。
+此外，在每个数值化跟踪精度之后，
+还给出了各个跟踪器的``优势视频序列数量''（表示该跟踪器在多少个序列上取得了最优或者次优的跟踪精度）。
+每一个子集中，最优和次优的精度分别用粗正体和粗斜体进行表示。
+
+\begin{table}[htb]
+	\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
+	\centering
+		\caption{不同宽高比变化速度和剧烈程度下的距离精度和重叠精度}
+	\label{per-seq-asp}
+	\scalebox{0.8}{
+		\begin{tabu}{c l|l|l|l|l|l|l|l|}
+			\cline{3-9}
+			 & &   \multicolumn{1}{c|}{宽高比}         & \multicolumn{3}{c|}{宽高比变化速度}                                                          & \multicolumn{3}{c|}{宽高比变化程度}                                                        \\ \cline{4-9} 
+			 & &  \multicolumn{1}{c|}{变化}    & \multicolumn{1}{c|}{慢}         & \multicolumn{1}{c|}{中}       & \multicolumn{1}{c|}{快}         & \multicolumn{1}{c|}{低}          & \multicolumn{1}{c|}{中}       & \multicolumn{1}{c|}{高}         \\ \hline   
+			\multicolumn{1}{|l}{\multirow{5}{*}{\rotatebox{90}{\tabincell{c}{\textbf{距离}\textbf{精度}}}}} & \multicolumn{1}{|l|}{KCFDPT}            & \textbf{70.27\%, 9} & \textbf{78.92\%, 5} & \textbf{\textit{81.78\%, 1}} & \textbf{\textit{52.40\%, 3}} & \textbf{84.51\%, 6} & \textbf{\textit{82.54\%, 2}} & \textbf{\textit{20.67\%, 1}} \\ \cline{2-9}
+			\multicolumn{1}{|l}{} &\multicolumn{1}{|l|}{SCM}               & 57.79\%, 8                        & 65.05\%, 2                        & 54.90\%, 1                        & \textbf{52.85\%, 5} & 72.38\%, 3                        & 59.55\%, 2                        & \textbf{21.41\%, 3} \\ \cline{2-9}
+			\multicolumn{1}{|l}{} &\multicolumn{1}{|l|}{DSST}              & \textbf{\textit{66.01\%, 7}} & \textbf{\textit{76.56\%, 2}} & 71.92\%, 2                        & 50.73\%, 3                        & \textbf{\textit{82.19\%, 3}} & 73.79\%, 3                        & 17.88\% ,1                        \\ \cline{2-9}
+			\multicolumn{1}{|l}{} &\multicolumn{1}{|l|}{SAMF}              & 57.58\%, 7                        & 61.03\%, 1                        & 61.33\%, 3                        & 51.13\%, 3                        & 58.47\%, 2                        & \textbf{85.31\%, 4} & 18.55\%, 1                        \\ \cline{2-9}
+			\multicolumn{1}{|l}{} &\multicolumn{1}{|l|}{Without\_Proposal} & 59.52\%, 5                        & 62.47\%, 1                        & \textbf{82.64\%, 2} & 38.09\%, 2                        & 71.30\%, 2                        & 71.96\%, 2                        & 15.48\%, 1                        \\ \Xhline{1.25pt}
+			\multicolumn{1}{|l}{\multirow{5}{*}{\rotatebox{90}{\tabincell{c}{\textbf{重叠}\textbf{精度}}}}} &\multicolumn{1}{|l|}{KCFDPT}            & \textbf{62.47\%, 7} & \textbf{71.15\%, 4} & \textbf{68.25\%, 3} & \textbf{\textit{49.18\%, 0}} & \textbf{78.38\%, 6} & \textbf{\textit{69.38\%, 1}} & \textbf{\textit{16.15\%, 0}} \\ \cline{2-9}
+			\multicolumn{1}{|l}{} &\multicolumn{1}{|l|}{SCM}               & \textbf{\textit{50.95\%, 6}} & \textbf{\textit{50.62\%, 2}} & 53.11\%, 0                        & \textbf{49.55\%, 4} & \textbf{\textit{61.59\%, 2}} & 57.58\%, 1                        & \textbf{17.30\%, 3} \\ \cline{2-9}
+			\multicolumn{1}{|l}{} &\multicolumn{1}{|l|}{DSST}              & 46.54\%, 8                        & 45.58\%, 3                        & 46.61\%, 2                        & 47.44\%, 3                        & 50.30\%, 4                        & 65.50\%, 3                        & 12.48\%, 1                        \\ \cline{2-9}
+			\multicolumn{1}{|l}{} &\multicolumn{1}{|l|}{SAMF}              & 44.42\%, 6                        & 38.57\%, 1                        & 46.08\%, 3                        & 48.95\%, 2                        & 42.03\%, 2                        & \textbf{69.83\%, 3} & 16.13\%, 1                        \\ \cline{2-9}
+			\multicolumn{1}{|l}{} &\multicolumn{1}{|l|}{Without\_Proposal} & 39.17\%, 3                        & 36.45\%, 0                        & \textbf{\textit{59.09\%, 1}} & 25.96\%, 2                        & 47.90\%, 0                        & 43.98\%, 1                        & 12.40\%, 2                        \\ \hline
+		\end{tabu}
+	}
+\end{table}
+
+% Please add the following required packages to your document preamble:
+% \usepackage[table,xcdraw]{xcolor}
+% If you use beamer only pass "xcolor=table" option, i.e. \documentclass[xcolor=table]{beamer}
+\begin{table}[htb]
+	\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
+	\caption{不同尺度变化速度和剧烈程度下的距离精度和重叠精度}
+	\label{per-seq-scale}
+	\centering
+	\scalebox{0.8}{
+		\begin{tabular}{c l|l|l|l|l|l|l|l|}
+			\cline{3-9}
+			& &\multicolumn{1}{c|}{尺度}   & \multicolumn{3}{c|}{尺度变化速度}                                                                 & \multicolumn{3}{c|}{尺度变化程度}                                                                 \\ \cline{4-9} 
+			& &    \multicolumn{1}{c|}{变化}   & \multicolumn{1}{c|}{慢}         & \multicolumn{1}{c|}{中}       & \multicolumn{1}{c|}{快}         & \multicolumn{1}{c|}{低}          & \multicolumn{1}{c|}{中}        & \multicolumn{1}{c|}{高}         \\ \hline
+			\multicolumn{1}{|l}{\multirow{5}{*}{\rotatebox{90}{\tabincell{c}{\textbf{距离}\textbf{精度}}}}} &\multicolumn{1}{|l|}{KCFDPT}            & \textbf{67.43\%, 12} & 71.51\%, 4                        & \textbf{95.53\%, 6} & \textbf{28.84\%, 2} & \textbf{\textit{78.10\%, 6}} & \textbf{100.00\%, 2} & \textbf{45.94\%, 4} \\ \cline{2-9} 
+			\multicolumn{1}{|l}{}&\multicolumn{1}{|l|}{SCM}               & 60.11\%, 10                        & \textbf{\textit{77.95\%, 4}} & 76.60\%, 3                        & 18.94\%, 3                        & 70.32\%, 4                        & \textbf{100.00\% ,2} & 37.05\%, 4                        \\ \cline{2-9}
+			\multicolumn{1}{|l}{}&\multicolumn{1}{|l|}{DSST}              & \textbf{\textit{66.90\%, 12}} & 71.66\%, 4                        & \textbf{\textit{94.06\%, 5}} & \textbf{\textit{28.59\%, 3}} & \textbf{78.21\%, 6} & \textbf{100.00\%, 2} & 44.51\%, 4                        \\ \cline{2-9}
+			\multicolumn{1}{|l}{}&\multicolumn{1}{|l|}{SAMF}              & 65.85\%, 11                        & \textbf{79.82\%, 4} & 83.60\%, 5                        & 27.80\%, 2                        & 75.59\%, 5                        & \textbf{100.00\%, 2} & \textbf{\textit{44.97\%, 4}} \\ \cline{2-9}
+			\multicolumn{1}{|l}{}&\multicolumn{1}{|l|}{Without\_Proposal} & 56.60\%, 4                         & 59.00\%, 1                        & 80.39\%, 2                        & 25.19\%, 1                        & 59.62\%, 2                        & 99.68\%, 1                         & 40.85\%, 1                        \\ \Xhline{1.25pt}
+			\multicolumn{1}{|l}{\multirow{5}{*}{\rotatebox{90}{\tabincell{c}{\textbf{重叠}\textbf{精度}}}}} &\multicolumn{1}{|l|}{KCFDPT}            & \textbf{62.47\%, 9}  & \textbf{\textit{71.85\%, 5}} & \textbf{90.43\%, 3} & 17.65\%, 1                        & \textbf{75.20\%, 6} & 97.18\%, 0                         & \textbf{37.99\%, 3} \\ \cline{2-9}
+			\multicolumn{1}{|l}{}&\multicolumn{1}{|l|}{SCM}               & 56.08\%, 9                         & \textbf{76.82\%, 5} & 68.24\%, 0                        & 16.59\%, 4                        & \textbf{\textit{66.19\%, 5}} & 93.69\%, 0                         & 33.77\%, 4                        \\ \cline{2-9}
+			\multicolumn{1}{|l}{}&\multicolumn{1}{|l|}{DSST}              & 52.68\%, 9                         & 58.65\%, 2                        & 74.68\%, 5                        & \textbf{19.13\%, 2} & 61.44\%, 4                        & \textbf{99.88\%, 2}  & 29.20\%, 3                        \\ \cline{2-9}
+			\multicolumn{1}{|l}{}&\multicolumn{1}{|l|}{SAMF}              & \textbf{\textit{57.08\%, 9}}  & 68.12\%, 2                        & \textbf{\textit{78.61\%, 4}} & \textbf{\textit{18.00\%, 3}} & 65.67\%, 3                        & \textbf{\textit{97.76\%, 2}}  & \textbf{\textit{35.64\%, 4}} \\ \cline{2-9}
+			\multicolumn{1}{|l}{}&\multicolumn{1}{|l|}{Without\_Proposal} & 39.04\%, 2                         & 45.03\%, 0                        & 53.65\%, 0                        & 14.32\%, 2                        & 48.18\%, 0                        & 52.78\%, 0                         & 24.67\%, 2                        \\ \hline
+		\end{tabular}
+	}
+\end{table}
+
+根据表\ref{per-seq-asp}，KCFDPT在所有的宽高比变化速度和剧烈程度下都是最有优势的。
+但是，在表\ref{per-seq-scale}中，对于尺度变化，KCFDPT的优势有轻微下降，
+原因在于SCM、DSST和SAMF也具备一定的尺度适应力。
+它们的尺度适应策略在尺度变化较慢时（表\ref{per-seq-scale}中数值化精度的第2列）尤其有效。
+此外，具有最剧烈宽高比变化程度（表\ref{per-seq-asp}的最后一列）和具有最快尺度变化速度（表\ref{per-seq-scale}中数值化精度的第4列）的视频序列恰好是OTB测试集中最难的，
+因此表中的所有5个跟踪器都取得了很低的跟踪精度，
+导致对应的精度排名代表性不佳。
+具有中等尺度变化程度（表\ref{per-seq-scale}中数值化精度的第6列）的子集中仅包含了2个视频序列，因此其下的精度区分度也显得不足。
+综上所述，综合考虑不同的尺度变化速度和程度，以及不同的宽高比变化速度和程度，
+KCFDPT的整体适应力是最佳的，足以证明本章优化后的EdgeBoxes对于跟踪任务的适应性。
+
 \subsubsection{VOT测试集上的对比}
-\subsubsection{参数敏感性分析}
+\label{vot_test}
+为了更加完整的评测，以及测试KCFDPT的通用性，
+本节将在VOT 2014\upcite{vot2014}测试集上进行额外的实验。
+VOT 2014包含25个视频序列，并且给出了自己的跟踪性能评价标准。
+与OTB不同，VOT 2014测试集是逐帧标注跟踪障碍的（例如遮挡、亮度变化、大小变化等），
+并且正确的跟踪结果是使用可旋转的边界框来表示的。
+VOT 2014的性能评价标准也与OTB大不相同，
+在一个跟踪器丢失目标后，VOT允许其进行重置，即从失败处附近开始，按照正确跟踪结果重新开始跟踪。
+VOT根据两个方面来评价一个跟踪器的性能，即准确性和鲁棒性。
+准确性按照IoU标准进行度量，类似于OTB中的重叠精度；鲁棒性按照跟踪器的失败重启次数进行度量。
+VOT并不输出各个跟踪器的绝对准确性和鲁棒性，
+而是给出各个跟踪器在所有参与对比的跟踪器中的相对排名。
+此外，VOT还将进行两种实验：基准实验中，在第一帧和每次重启时，跟踪器按照正确跟踪结果进行初始化；
+噪声实验中，跟踪器将按照随机扰动后的正确结果进行初始化。
+在实际使用场景中，跟踪器在初始化时获得的目标状态通常都是足够准确的，因此本节仅进行基准实验。
+
+VOT 2014除了提供测试数据集和评价标准，还提供了38个跟踪器在其上的运行结果。
+本节注意到，VOT 2014中也附带了DSST和KCF的跟踪结果，但它们与本章在OTB上所使用的跟踪器不是同一版本。
+为了对比的公平性，本节也把前面章节所使用的DSST和KCF版本加入了评测中，
+分别记为DSST\_org和KCF\_org。
+至于KCFDPT，除了必需的接口修改以外，本节不作任何修改和调优。
+至此，在VOT 2014上进行对比评测的跟踪器一共有41个，其结果如表\ref{vot2014}所示。
+为了显示清晰，表中只给出了VOT附带的38个跟踪器中的前五名，以及DSST\_org、KCF\_org和KCFDPT
+的性能排名。
+最优和次优的排名分别用粗正体和粗斜体进行了强调。
+
+\begin{table}[htb]
+	\centering
+		\caption{VOT 2014上的测试结果}
+	\label{vot2014}
+	\scalebox{0.9}{
+		\begin{tabular}{l c c c |c c c }
+			& \multicolumn{3}{c|}{完整测试集（基准实验）}                                           & \multicolumn{3}{c}{大小变化（基准实验）}                                       \\ \cline{2-7} 
+			& \multicolumn{1}{c}{准确性排名}               & 鲁棒性排名             & 综合排名               & 准确性排名              & 鲁棒性排名 & 综合排名               \\ \hline
+			\multicolumn{1}{l|}{DSST}      & \textbf{1.83} & 4.67                        & \textbf{3.25} & \textbf{1.00} & 8.00                        & 4.50                        \\ \hline
+			\multicolumn{1}{l|}{SAMF}      & \textbf{\textit{2.00}} & 5.00                        & \textbf{\textit{3.50}} & \textbf{1.00} & 10.00                       & 5.50                        \\ \hline
+			\multicolumn{1}{l|}{KCF}       & 2.17                        & 5.00                        & 3.59                        & \textbf{1.00} & 10.00                       & 5.50                        \\ \hline
+			\multicolumn{1}{l|}{DGT}       & 5.83                        & 5.50                        & 5.67                        & \textbf{1.00} & \textbf{2.00} & \textbf{1.50} \\ \hline
+			\multicolumn{1}{l|}{PLT\_14}   & 5.83                        & \textbf{2.33} & 4.08                        & 3.00                        & \textbf{2.00} & \textbf{\textit{2.50}} \\ \hline
+			\multicolumn{1}{l|}{DSST\_org} & 2.50                        & 7.17                        & 4.84                        & 3.00                        & 18.00                       & 10.50                       \\ \hline
+			\multicolumn{1}{l|}{KCF\_org}  & 9.17                        & 12.17                       & 10.67                       & 8.00                        & 30.00                       & 19.00                       \\ \hline
+			\multicolumn{1}{l|}{KCFDPT}    & 2.50                        & \textbf{\textit{4.50}} & \textbf{\textit{3.50}} & \textbf{1.00} & 10.00                       & 5.50                        \\ \hline
+		\end{tabular}
+	}
+
+\end{table}
+
+在整个测试集上和目标正在发生大小变化的帧上，KCFDPT表现出了和SAMF近似的性能。
+这与前面章节在OTB上测得的结果很不相同，其原因应该在于VOT 2014的失败重启机制。
+SAMF通过采样多个尺度略微不同的候选区域来适应目标物体的尺度变化，
+因此能够在物体大小变化较慢或者不频繁时取得较好效果。
+然而由于VOT的失败重启机制，当目标物体大小突然变化时，它也能通过重启继续跟踪目标。
+在目标大小变化的帧上，DGT\upcite{dgt}和PLT\_14\upcite{vot2013}凭借很强的鲁棒性，
+超过了SAMF和KCFDPT。
+这样的结果并不奇怪，因为DGT和PLT\_14的物体描述分别是基于区块的和使用稀疏局部特征的，
+因此它们的鲁棒性通常会强于使用全局描述的跟踪器。
+最后，在完整的VOT 2014测试集上，KCFDPT获得了综合排名第二的成绩，并且大幅优于DSST\_org和KCF\_org，
+这足以证明KCFDPT在跟踪任务中的通用性。
+
+\subsection{参数敏感性分析}
 \label{parameter-sensitivity}
+在KCFDPT中，有部分参数是难以通过理论推导或者是根据其实际意义来获得最佳设置的，
+它们也因此为称作``经验参数''。
+为了分析这些参数的作用，本节将适度地遍历它们的不同设置，并进行参数敏感性分析，
+遍历的结果还将同时证明本章和前一章中参数设置的有效性。
+在考察一个特定的参数时，本节将在OTB测试集及其两个子集（``尺度变化''子集和``宽高比变化''子集）上，用它的不同值来运行KCFDPT，
+而其它的参数设置全部保持和KCFDPT中的原设置一样。
+
+需要注意的是，本节的参数遍历并不是如同训练神经网络那样，在高维参数空间中进行搜索。
+那样的参数搜索通常会带来严重的``过拟合''问题。
+本节中，各个参数都是被独立地考察的（未被考察的参数保持原设置不变），并且候选的参数值也相当稀疏。
+这样的适度参数遍历将能够展示出不同参数设置的作用，同时还不会降低通用性。
+作为一个证明，\ref{vot_test}节中，KCFDPT在VOT 2014上仍然可以取得很好的跟踪性能。
+
+\begin{figure}[htb]
+\centering
+		\includegraphics[width=15cm]{parameter_sensitivity2.pdf}
+	\caption{不同参数设置下的跟踪精度和速度}
+	\label{parameter_sensitivity}
+\end{figure}
+
+本节将考察5个参数，通过遍历这些参数的不同设置所得到的结果如图\ref{parameter_sensitivity}所示。
+5个参数分别是背景抑制的大小阈值（\ref{backsuppresssec}节中设置为$64\times64$，对应图\ref{parameter_sensitivity}(a1)和(a2)）、
+尺度和宽高比检测窗口的尺度因子（\ref{wholeprocesssec}节中的$s^e$，对应图\ref{parameter_sensitivity}(b)）、
+阻尼因子（公式\ref{kcfdp-damping}中的$\gamma$，对应图\ref{parameter_sensitivity}(c)）、
+EdgeBoxes的最小面积因子（在公式\ref{EBfactor}中设置为$0.3$，对应图\ref{parameter_sensitivity}(d)）以及
+EdgeBoxes的最大宽高比因子（在公式\ref{EBfactor}中设置为$1.5$，对应图\ref{parameter_sensitivity}(e)）。
+在图\ref{parameter_sensitivity}中，参数的不同取值沿横坐标显示，纵坐标用于显示跟踪的精度（距离精度和重叠精度）
+和速度（相对FPS，即根据每幅子图中的最高FPS归一化后的FPS）。
+与准确率图和成功率图中的排名标准一样，这里的距离精度（DP）以20像素作为中心位置误差（CLE）阈值，
+重叠精度（OP）按照曲线下面积（AUC）进行计算，即考虑了所有的IoU阈值。
+但图\ref{parameter_sensitivity}(a2)是一个例外，它采用了更加严格的中心位置误差阈值（10像素）
+和IoU阈值（0.7）。
+图例中，后缀All、SV、ARV分别代表跟踪精度是在整个OTB测试集、``尺度变化''子集和``宽高比变化''子集上测得的。
+而跟踪速度均是在整个OTB测试集上测得。
+图中的最高和次高精度分别用 {\color[HTML]{FE0000} $\boldsymbol{\circ}$}和{\color[HTML]{3531FF} $\boldsymbol{\circ}$}
+进行了标注，它们对应的值也在曲线末尾分别用 {\color[HTML]{FE0000}红色}和{\color[HTML]{3531FF}蓝色}给出。
+
+如图\ref{parameter_sensitivity}(a1)所示，将背景抑制应用于大于$32\times32$（由于使用了对数坐标，对应于图中横坐标的$5$）
+的图像块，看上去要略优于使用阈值$64\times64$（对应于图中横坐标的$6$）。
+但是，当对跟踪精度的要求更加严格时（图\ref{parameter_sensitivity}(a2)），背景抑制大小阈值$64\times64$
+变得明显更优，因此若考虑通用性，该阈值是最佳的。
+在图\ref{parameter_sensitivity}(d)中，两个最小面积因子，$0.3$和$0.8$，看起来都是较好的选择。
+但是考虑到以$0.3$作为参数值时的重叠精度明显更好，因此$0.3$应当是最佳选择。
+至于图\ref{parameter_sensitivity}(b)、(c)和(e)中的其它3个参数，本章和上一章所采用的参数设置都能取得最高的跟踪精度。
+
+对于跟踪速度而言，背景抑制的大小阈值几乎没有影响，原因在于本章的背景抑制步骤是极其高效的，几乎不占用跟踪时间。
+越大的尺度和宽高比检测窗口应当给目标候选生成器来带越大的计算压力，并且会产生更多的目标候选。
+但是，图\ref{parameter_sensitivity}(b)中，速度的下降趋势在尺度因子到达$1.4$后就停止了。
+这说明目标候选的生成在跟踪过程中只占据少部分时间，并且上一章的目标候选过滤能够滤除大部分的目标候选，
+仅余下恒定数量的可靠候选。
+图\ref{parameter_sensitivity}(c)中的阻尼因子仅影响最终得到的目标位置和大小，因此对跟踪速度影响很小。
+类似于尺度和宽高比检测窗口的尺度因子，EdgeBoxes中越小的最小面积因子（图\ref{parameter_sensitivity}(d)）
+和越大的最大宽高比因子（图\ref{parameter_sensitivity}(e)）应当导致越慢的目标候选生成速度。
+但是，两个子图中的跟踪速度对这两个参数均不敏感，
+这再一次证明，相比整个跟踪过程，目标候选的生成速度是非常快的。
+
 
 \section{小结}
+本章承接上一章的内容，对跟踪器中``目标候选''的作用进行了分析，并对上一章的目标候选生成器进行了深入地优化。
+通过将现有的目标候选生成器面向跟踪任务进行适配，
+多个生成器被合理地嵌入了跟踪器中。
+通过对比这些目标候选生成器在跟踪任务中的表现，
+本章证明了目标候选的质量和跟踪精度间存在着正相关的关系，
+同时也确认了本章对EdgeBoxes的背景抑制优化是十分有效的。
+本章还对最终得到的跟踪器进行了更加充分的实验评测，
+其结果表明，本章优化后的目标候选生成器，对于不同速度和剧烈程度的尺度和宽高比变化都有着很强的适应力，
+且具有极佳的通用性。
+在本章和前一章中，目标候选生成器都是作为密集采样运动模型的一个补充。
+下一步的工作将考虑把密集采样运动模型和目标候选生成器进行整合，
+以同时发挥密集采样的可靠性和目标候选的灵活性。
