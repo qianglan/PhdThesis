@@ -1,5 +1,58 @@
+@article{Yang2011,
+author = {Yang, Hanxuan and Shao, Ling and Zheng, Feng and Wang, Liang and {Zhan Song}},
+doi = {10.1016/j.neucom.2011.07.024},
+journal = {Neurocomputing},
+number = {18},
+pages = {3823--3831},
+title = {{Recent Advances and Trends in Visual Tracking: A Review}},
+volume = {74},
+year = {2011}
+}
 
-http://votchallenge.net/vot2014/results.html
+@inproceedings{Wang2015,
+author = {Wang, Naiyan and Shi, Jianping and Yeung, Dit-Yan and {Jiaya Jia}},
+booktitle = {IEEE International Conference on Computer Vision},
+pages = {3101--3109},
+title = {{Understanding and Diagnosing Visual Tracking Systems}},
+year = {2015}
+}
+
+@inproceedings{dlt,
+author = {Wang, Naiyan},
+booktitle = {Annual Conference on Neural Information Processing System},
+pages = {1--9},
+title = {{Learning a Deep Compact Image Representation for Visual Tracking}},
+url = {http://papers.nips.cc/paper/5192-learning-a-deep-compact-image-representation-for-visual-tracking.pdf},
+year = {2013}
+}
+
+@article{sodlt,
+abstract = {Convolutional Neural Networks (CNNs) have demon- strated its great performance in various vision tasks, such as image classification [18] and object detection [8]. How- ever, there are still some areas that are untouched, such as visual tracking. We believe that the biggest bottleneck of applying CNN for visual tracking is lack of training data. The power of CNN usually relies on huge (possible mil- lions) training data, however in visual tracking we only have one labeled sample in the first frame. In this paper, we address this issue by transferring rich feature hierar- chies from an offline pretrained CNN into online tracking. In online tracking, the CNN is also finetuned to adapt to the appearance of the tracked target specified in the first frame of the video. We evaluate our proposed tracker on the open benchmark [33] and a non-rigid object tracking dataset. Our tracker demonstrates substantial improvements over the other state-of-the-art trackers.},
+archivePrefix = {arXiv},
+arxivId = {1501.04587},
+author = {Wang, Naiyan and Li, Siyi and Gupta, Abhinav and Yeung, Dit-Yan},
+eprint = {1501.04587},
+journal = {arXiv preprint arXiv:1501.04587},
+pages = {9},
+title = {{Transferring Rich Feature Hierarchies for Robust Visual Tracking}},
+url = {http://arxiv.org/abs/1501.04587},
+year = {2015}
+}
+
+
+
+@article{kalman,
+author = {{R. E. Kalman}},
+journal = {Journal of Basic Engineering},
+number = {1},
+pages = {34--45},
+title = {{A New Approach to Linear Filtering and Prediction Problem}},
+volume = {82},
+year = {1960}
+}
+
+
+
 @inproceedings{vot2014,
 abstract = {The Visual Object Tracking challenge 2014, VOT2014, aims at comparing short-term single-object visual trackers that do not apply pre-learned models of object appearance. Results of 38 trackers are presented. The number of tested trackers makes VOT 2014 the largest benchmark on short-term tracking to date. For each participating tracker, a short description is provided in the appendix. Features of the VOT2014 challenge that go beyond its VOT2013 predecessor are introduced: (i) a new VOT2014 dataset with full annotation of targets by rotated bounding boxes and per-frame attribute, (ii) extensions of the VOT2013 evaluation methodology, (iii) a new unit for tracking speed assessment less dependent on the hardware and (iv) the VOT2014 evaluation toolkit that significantly speeds up execution of experiments. The dataset, the evaluation kit as well as the results are publicly available at the challenge website (http://​votchallenge.​net).},
 author = {Kristan, Matej and Pflugfelder, Roman and Leonardis, Ale{\v{s}} and Matas, Jiri and {\v{C}}ehovin, Luka and Nebehay, Georg and Voj{\'{i}}ř, Tom{\'{a}}{\v{s}} and Fern{\'{a}}ndez, Gustavo and Luke{\v{z}}i{\v{c}}, Alan and Dimitriev, Aleksandar and Petrosino, Alfredo and Saffari, Amir and Li, Bo and Han, Bohyung and Heng, Cher Keng and Garcia, Christophe and Panger{\v{s}}i{\v{c}}, Dominik and H{\"{a}}ger, Gustav and Khan, Fahad Shahbaz and Oven, Franci and Possegger, Horst and Bischof, Horst and Nam, Hyeonseob and Zhu, Jianke and Li, Ji Jia and Choi, Jin Young and Choi, Jin Woo and Henriques, Jo{\~{a}}o F. and van de Weijer, Joost and Batista, Jorge and Lebeda, Karel and {\"{O}}fj{\"{a}}ll, Kristoffer and Yi, Kwang Moo and Qin, Lei and Wen, Longyin and Maresca, Mario Edoardo and Danelljan, Martin and Felsberg, Michael and Cheng, Ming Ming and Torr, Philip and Huang, Qingming and Bowden, Richard and Hare, Sam and Lim, Samantha Yue Ying and Hong, Seunghoon and Liao, Shengcai and Hadfield, Simon and Li, Stan Z. and Duffner, Stefan and Golodetz, Stuart and Mauthner, Thomas and Vineet, Vibhav and Lin, Weiyao and Li, Yang and Qi, Yuankai and Lei, Zhen and Niu, Zhi Heng},
@@ -46,6 +99,64 @@ year = {2015}
 	booktitle = {British Machine Vision Conference},
 	year      = {2015}
 }
+
+@article{Concha2014,
+author = {Concha, D and Cabido, R and Pantrigo, J J and Montemayor, A S},
+doi = {10.1007/s11554-014-0483-1},
+issn = {1861-8200},
+journal = {Journal of Real-Time Image Processing},
+keywords = {Particle filtering; GPU computing; Performance eva},
+pages = {1--19},
+title = {{Performance Evaluation of a 3D Multi-View-Based Particle Filter for Visual Object Tracking Using GPUs and Multicore CPUs}},
+url = {http://dx.doi.org/10.1007/s11554-014-0483-1},
+year = {2014}
+}
+
+@article{Brown2012,
+abstract = {A novel framework for acceleration of particle filtering approaches to 3D model-based, markerless visual tracking in monocular video is described. Specifically, we present a methodology for partitioning and mapping the computationally expensive weight-update stage of a particle filter to a graphics processing unit (GPU) to achieve particle- and pixel-level parallelism. Nvidia CUDA and Direct3D are employed to harness the massively parallel computational power of modern GPUs for simulation (3D model rendering) and evaluation (segmentation, feature extraction, and weight calculation) of hundreds of particles at high speeds. The proposed framework addresses the computational intensity that is intrinsic to all particle filter approaches, including those that have been modified to minimize the number of particles required for a particular task. Performance and tracking quality results for rigid object and articulated hand tracking experiments demonstrate markerless, model-based visual tracking on consumer-grade graphics hardware with pixel-level accuracy up to 95 percent at 60+ frames per second. The framework accelerates particle evaluation up to 49 times over a comparable CPU-only implementation, providing an increased particle count while maintaining real-time frame rates.},
+author = {Brown, James Anthony and Capson, David W.},
+doi = {10.1109/TVCG.2011.34},
+isbn = {1077-2626 VO - 18},
+issn = {10772626},
+journal = {IEEE Transactions on Visualization and Computer Graphics},
+keywords = {Edge and feature detection,Monte Carlo simulation,graphics processors,tracking,vision I/O},
+number = {1},
+pages = {68--80},
+pmid = {21301027},
+title = {{A Framework for 3D Model-Based Visual Tracking Using a GPU-Accelerated Particle Filter}},
+volume = {18},
+year = {2012}
+}
+
+@inproceedings{Rymut2010,
+author = {Rymut, Boguslaw and {Bogdan Kwolek}},
+booktitle = {International Conference on Computer Vision and Graphics},
+pages = {227--234},
+title = {{GPU-Supported Object Tracking Using Adaptive Appearance Models and Particle Swarm Optimization}},
+year = {2010}
+}
+
+@article{Cabido2012,
+author = {Cabido, R. and Montemayor, A.S. and Pantrigo, J.J. and Martínez-Zarzuela, M. and Payne, B.R.},
+doi = {10.1016/j.jvcir.2011.10.005},
+number = {2},
+pages = {271--286},
+title = {{High-Performance Template Tracking}},
+journal = {Journal of Visual Communication and Image Representation},
+volume = {23},
+year = {2012}
+}
+
+@article{Lozano2009,
+author = {Lozano, Oscar Mateo and Otsuka, Kazuhiro},
+journal = {Journal of Signal Processing Systems},
+number = {2},
+pages = {285--295},
+title = {{Real-time Visual Tracker by Stream Processing}},
+volume = {57},
+year = {2009}
+}
+
 
 @inproceedings{act,
 	author = {Danelljan, Martin and Shahbaz Khan, Fahad and Felsberg, Michael and Van de Weijer, Joost},
@@ -115,7 +226,7 @@ year = {2015}
 
 @article{colorhistogram,
 	author = {Dorin Comaniciu and Visvanathan Ramesh and Peter Meer},
-	title = {Kernel-based object tracking},
+	title = {Kernel-Based Object Tracking},
 	journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
 	volume = 25, 
 	number = 5, 
@@ -340,8 +451,8 @@ year = {2012}
 
 @inproceedings{decitree,
 	author    = {Wang, Aiping and Wan, Guowei and Cheng, Zhiquan and Li, Sikun},
-	title     = {An incremental extremely random forest classifier for online learning and tracking},
-	booktitle = {ICIP},
+	title     = {An Incremental Extremely Random Forest Classifier for Online Learning and Tracking},
+	booktitle = {International Conference on Image Processing},
 	year      = {2009},
 	pages = {1449-1452}
 }
@@ -349,8 +460,8 @@ year = {2012}
 
 @article{multicue,
 	author = {Wang, Aiping and Cheng, Zhiquan and Martin, Ralph R. and Li, Sikun},
-	title = {Multiple-cue-based visual object contour tracking with incremental learning},
-	journal = {LNCS},
+	title = {Multiple-Cue-Based Visual Object Contour Tracking with Incremental Learning},
+	journal = {Lecture Notes in Computer Science},
 	volume = 7544, 
 	pages = {225-243}, 
 	year = 2013
@@ -413,7 +524,7 @@ abstract = {We propose a novel visual tracking algorithm based on the representa
 archivePrefix = {arXiv},
 arxivId = {1510.07945},
 author = {Nam, Hyeonseob and Han, Bohyung},
-booktitle = {arXiv preprint arXiv:1510.07945},
+booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
 doi = {10.1109/CVPR.2016.465},
 eprint = {1510.07945},
 isbn = {9781467388511},
@@ -421,7 +532,7 @@ issn = {10636919},
 pages = {4293--4302},
 title = {{Learning Multi-Domain Convolutional Neural Networks for Visual Tracking}},
 url = {http://arxiv.org/abs/1510.07945},
-year = {2015}
+year = {2016}
 }
 
 
@@ -647,6 +758,17 @@ url = {http://www.khronos.org/opencl},
 year = {2011}
 }
 
+@inproceedings{deepsrdcf,
+author = {Danelljan, Martin and Gustav, H and Khan, Fahad Shahbaz and Felsberg, Michael},
+booktitle = {IEEE International Conference on Computer Vision Workshop},
+doi = {10.1109/ICCVW.2015.84},
+isbn = {9780769557205},
+pages = {621--629},
+title = {{Convolutional Features for Correlation Filter Based Visual Tracking}},
+year = {2015}
+}
+
+
 @inproceedings{fasterrcnn,
 abstract = {State-of-the-art object detection networks depend on region proposal algorithms to hypothesize object locations. Advances like SPPnet [7] and Fast R-CNN [5] have reduced the running time of these detection networks, exposing region pro-posal computation as a bottleneck. In this work, we introduce a Region Proposal Network (RPN) that shares full-image convolutional features with the detection network, thus enabling nearly cost-free region proposals. An RPN is a fully-convolutional network that simultaneously predicts object bounds and objectness scores at each position. RPNs are trained end-to-end to generate high-quality region proposals, which are used by Fast R-CNN for detection. With a simple alternating optimization, RPN and Fast R-CNN can be trained to share convolu-tional features. For the very deep VGG-16 model [18], our detection system has a frame rate of 5fps (including all steps) on a GPU, while achieving state-of-the-art object detection accuracy on PASCAL VOC 2007 (73.2{\%} mAP) and 2012 (70.4{\%} mAP) using 300 proposals per image. The code will be released.},
 archivePrefix = {arXiv},
@@ -748,7 +870,7 @@ abstract = {While feature point recognition is a key component of modern approac
 archivePrefix = {arXiv},
 arxivId = {arXiv:1407.5736v1},
 author = {{\"{O}}zuysal, Mustafa and Fua, Pascal and Lepetit, Vincent},
-booktitle = {Proceedings of the IEEE Computer Society Conference on Computer Vision and Pattern Recognition},
+booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
 doi = {10.1109/CVPR.2007.383123},
 eprint = {arXiv:1407.5736v1},
 isbn = {1424411807},
@@ -776,6 +898,15 @@ pages = {1--15},
 title = {{Heterogeneous CPU-GPU Tracking-Learning-Detection (H-TLD) for Real-Time Object Tracking}},
 year = {2015}
 }
+
+@inproceedings{Pengyu2013,
+author = {Pengyu, GUO and Xin, LI and Shaowen, DING and Zunhua, TIAN and Xiaohu, ZHANG},
+booktitle = {International Symposium on Photoelectronic Detection and Imaging},
+doi = {10.1117/12.2034977},
+title = {{Adaptive and Accelerated Tracking-Learning-Detection}},
+year = {2013}
+}
+
 
 @misc{opencv,
 abstract = {Open Source Computer Vision is a library of programming functions for real time computer vision},
@@ -1248,6 +1379,20 @@ year = {2012}
 	url =          {http://cvlab.hanyang.ac.kr/tracker_benchmark/benchmark_v10.html}
 }
 
+@article{Smeulders2014,
+author = {Smeulders, Arnold W M and Member, Senior Student and Chu, Dung M and Member, Senior Student and Cucchiara, Rita and Calderara, Simone and Member, Senior Student and Calderara, Simone and Member, Senior Student},
+doi = {10.1109/TPAMI.2013.230},
+issn = {0162-8828},
+journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+number = {7},
+pages = {1442--1468},
+title = {{Visual Tracking: An Experimental Survey}},
+url = {http://ieeexplore.ieee.org/lpdocs/epic03/wrapper.htm?arnumber=6671560},
+volume = {36},
+year = {2014}
+}
+
+
 @inproceedings{cfsurvey,
 abstract = {Abstract—Over these years, Correlation Filter-based Trackers (CFTs) have aroused increasing interests in the field of visual object tracking, and have achieved extremely compelling results in different competitions and benchmarks. In this paper, our goal is to review the developments of CFTs with extensive experimental results. 11 trackers are surveyed in our work, based on which a general framework is summarized. Furthermore, we investigate different training schemes for correlation filters, and also discuss various effective improvements that have been made recently. Comprehensive experiments have been conducted to evaluate the effectiveness and efficiency of the surveyed CFTs, and comparisons have been made with other competing trackers. The experimental results have shown that state-of- art performence, in terms of robustness, speed and accuracy, can be achieved by several recent CFTs, such as MUSTer and SAMF. We find that further improvements for correlation filter- based tracking can be made on estimating scales, applying part- based tracking strategy and cooperating with long-term tracking methods.},
 archivePrefix = {arXiv},
@@ -1338,6 +1483,17 @@ pmid = {21914436},
 title = {{ImageNet: A Large-Scale Hierarchical Image Database}},
 year = {2009}
 }
+
+@article{kcfdpt,
+author = {Huang, Dafei and Luo, Lei and Chen, Zhaoyun and Wen, Mei and Zhang, Chunyuan},
+journal = {International Journal of Computer Vision},
+number = {3},
+pages = {524--541},
+title = {{Applying Detection Proposals to Visual Tracking for Scale and Aspect Ratio Adaptability}},
+volume = {122},
+year = {2017}
+}
+
 
 @article{detector1,
 abstract = {Generic object detection is confronted by dealing with different degrees of variations in distinct object classes with tractable computations. This demands for descriptive and flexible object representations that are also efficient to evaluate for many locations.We propose to model an object class by a cascaded boosting classifier which integrates various types of features from competing local regions, named as regionlets. A regionlet is a base feature extraction region defined proportionally to a detection window at an arbitrary resolution (i.e., size and aspect ratio). These regionlets are organized in small groups with stable relative positions to delineate fine-grained spatial layouts inside objects. Their features are aggregated to a one-dimensional feature within one group so as to tolerate deformations. Then we evaluate the object bounding box proposals generated from segmentation cues, limiting the evaluation locations to thousands. Our approach achieves very competitive performance on popular multi-class detection benchmark datasets with a single method, without any contexts. It achieves the detection mean average precision of 41.7{\%} on the PASCAL VOC 2007 dataset, 39.7{\%} on the VOC 2010 for 20 object categories. We further develop support pixel integral images to efficiently augment regionlet features with the responses learned by deep convolutional neural networks. Our regionlet based method achieved 20.9{\%} mean average precision on 200 object categories in the ImageNet Large Scale Visual Object Recognition Challenge (ILSVRC 2013).},
@@ -1537,3 +1693,28 @@ year = {2014},
 booktitle = {IEEE Conference on Computer Vision and Pattern Recognition}
 }
 
+@book{Marr1982,
+abstract = {Foreword by Shimon Ullman Afterword by Tomaso Poggio David Marr's posthumously published Vision (1982) influenced a generation of brain and cognitive scientists, inspiring many to enter the field. In Vision, Marr describes a general framework for understanding visual perception and touches on broader questions about how the brain and its functions can be studied and understood. Researchers from a range of brain and cognitive sciences have long valued Marr's creativity, intellectual power, and ability to integrate insights and data from neuroscience, psychology, and computation. This MIT Press edition makes Marr's influential work available to a new generation of students and scientists. In Marr's framework, the process of vision constructs a set of representations, starting from a description of the input image and culminating with a description of three-dimensional objects in the surrounding environment. A central theme, and one that has had far-reaching influence in both neuroscience and cognitive science, is the notion of different levels of analysisin Marr's framework, the computational level, the algorithmic level, and the hardware implementation level. Now, thirty years later, the main problems that occupied Marr remain fundamental open problems in the study of perception. Vision provides inspiration for the continuing efforts to integrate knowledge from cognition and computation to understand vision and the brain.},
+address = {New York, NY, USA},
+author = {Marr, David},
+booktitle = {New York},
+doi = {10.2307/2185011},
+isbn = {0716715678},
+issn = {00318108},
+pages = {397},
+pmid = {3260955},
+publisher = {Henry Holt and Co.},
+title = {{Vision: A Computational Investigation into the Human Representation and Processing of Visual Information}},
+url = {http://mitpress.mit.edu/9780262514620},
+year = {1982}
+}
+
+@article{AlperYilmaz2006,
+author = {{Alper Yilmaz} and Javed, Omar and Shah, Mubarak},
+journal = {ACM Computing Surveys},
+number = {4},
+pages = {Article 13},
+title = {{Object Tracking: A Survey}},
+volume = {38},
+year = {2006}
+}

@@ -764,6 +764,7 @@ SAMF通过采样多个尺度略微不同的候选区域来适应目标物体的�
 
 \subsection{参数敏感性分析}
 \label{parameter-sensitivity}
+
 在KCFDPT中，有部分参数是难以通过理论推导或者是根据其实际意义来获得最佳设置的，
 它们也因此为称作``经验参数''。
 为了分析这些参数的作用，本节将适度地遍历它们的不同设置，并进行参数敏感性分析，
@@ -777,7 +778,7 @@ SAMF通过采样多个尺度略微不同的候选区域来适应目标物体的�
 这样的适度参数遍历将能够展示出不同参数设置的作用，同时还不会降低通用性。
 作为一个证明，\ref{vot_test}节中，KCFDPT在VOT 2014上仍然可以取得很好的跟踪性能。
 
-\begin{figure}[htb]
+\begin{figure}[htbp]
 \centering
 		\includegraphics[width=15cm]{parameter_sensitivity2.pdf}
 	\caption{不同参数设置下的跟踪精度和速度}
