@@ -17,14 +17,90 @@ title = {{Understanding and Diagnosing Visual Tracking Systems}},
 year = {2015}
 }
 
-@inproceedings{dlt,
-author = {Wang, Naiyan},
-booktitle = {Annual Conference on Neural Information Processing System},
-pages = {1--9},
-title = {{Learning a Deep Compact Image Representation for Visual Tracking}},
-url = {http://papers.nips.cc/paper/5192-learning-a-deep-compact-image-representation-for-visual-tracking.pdf},
-year = {2013}
+@inproceedings{Kim2011,
+abstract = {In this paper, we propose an OpenCL framework that treats multi- ple GPUs as a single compute device. Providing the single GPU image makes an OpenCL application written for a single GPU portable to the GPGPU systems with multiple GPUs. It also makes the application exploit the full computing power of the multiple GPUs and the entire amount of GPU memories available in the sys- tem. Our OpenCL framework automatically distributes at run time an OpenCL kernel written for a single GPU into multiple CUDA kernels that execute on the multiple GPUs. It applies a run-time memory access range analysis to the kernel by performing a sam- pling run and identifies an optimal workload distribution for the kernel. To achieve a single compute device image, the runtime maintains a virtual device memory that is allocated in the main memory of the GPGPU system. The OpenCL runtime treats the memory as if it were the memory of a single GPU device and keeps it consistent to the memories of the multiple GPUs. Our OpenCL- C-to-C translator generates the sampling code from the OpenCL kernel code and our OpenCL-C-to-CUDA-C translator generates theCUDAkernel code for the distributed OpenCL kernel.We show the effectiveness of our OpenCL framework by implementing the OpenCL runtime and the two source-to-source translators.We eval- uate its performance with a GPGU system that contains eight GPUs using eleven OpenCL benchmark applications. Categories},
+author = {Kim, Jungwon and Kim, Honggyu and Lee, Joo Hwan and Lee, Jaejin},
+booktitle = {ACM Symposium on Principles and Practice of Parallel Programming},
+doi = {10.1145/1941553.1941591},
+isbn = {9781450301190},
+issn = {03621340},
+keywords = {access range analysis,by grant 2009-0081569,center for manycore programming,compilers,creative research ini-,from the national research,opencl,runtime,this work was supported,tiatives,virtual device memory,workload distribution},
+number = {8},
+pages = {277},
+title = {{Achieving a Single Compute Device Image in OpenCL for Multiple GPUs}},
+url = {http://dl.acm.org/citation.cfm?doid=2038037.1941591{\%}5Cnhttp://portal.acm.org/citation.cfm?doid=1941553.1941591},
+volume = {46},
+year = {2011}
 }
+
+
+@article{Kelley2012,
+author = {Ragan-Kelley, Jonathan and Adams, Andrew and Paris, Sylvain and Levoy, Marc and Amarasinghe, Saman and {Fr{\'{e}}do Durand}},
+journal = {ACM Transactions on Graphics},
+number = {4},
+pages = {Article No. 32},
+title = {{Decoupling Algorithms from Schedules for Easy Optimization of Image Processing Pipelines}},
+volume = {31},
+year = {2012}
+}
+
+
+@inproceedings{Fatahalian2006,
+author = {Fatahalian, Kayvon and Horn, Daniel Reiter and Knight, Timothy J. and Leem, Larkhoon and Houston, Mike and Park, Ji Young and Erez, Mattan and Ren, Manman and Aiken, Alex and Dally, William J. and Hanrahan, Pat},
+booktitle = {ACM/IEEE Conference on Supercomputing},
+pages = {Article No. 83},
+title = {{Sequoia: Programming the Memory Hierarchy}},
+year = {2006}
+}
+
+@article{Catanzaro2010,
+abstract = {THE PARLAB AT BERKELEY,UPCRC-ILLINOIS, AND THE PERVASIVE PARALLEL LABORATORY AT STANFORD ARE STUDYING HOW TO MAKE PARALLEL PROGRAMMING SUCCEED GIVEN INDUSTRY'SRECENT SHIFT TO MULTICORE COMPUTING.ALL THREE CENTERS ASSUME THAT FUTURE MICROPROCESSORS WILL HAVE HUNDREDS OF CORES AND ARE WORKING ON APPLICATIONS, PROGRAMMING ENVIRONMENTS, AND ARCHITECTURES THAT WILL MEET THIS CHALLENGE.THIS ARTICLE BRIEFLY SURVEYS THE SIMILARITIES AND DIFFERENCE IN THEIR RESEARCH.},
+author = {Catanzaro, Bryan and Fox, Armando and Keutzer, Kurt and Patterson, David and Su, Bor Yiing and Snir, Marc and Olukotun, Kunle and Hanrahan, Pat and Chafi, Hassan},
+doi = {10.1109/MM.2010.42},
+isbn = {0272-1732},
+issn = {02721732},
+journal = {IEEE Micro},
+keywords = {Hardware,Multicore,Parallel applications,Parallel architectures,Parallel computing,Parallel programming environments,Shared-memory},
+number = {2},
+pages = {41--55},
+title = {{Ubiquitous Parallel Computing from Berkeley, Illinois, and Stanford}},
+volume = {30},
+year = {2010}
+}
+
+
+
+@inproceedings{Seo2011,
+author = {Seo, S. and Jo, G. and Lee, J.},
+booktitle = {IEEE International Symposium on Workload Characterization},
+pages = {137--148},
+title = {{Performance Characterization of NAS Parallel Benchmarks in OpenCL}},
+year = {2011}
+}
+
+
+@inproceedings{Lan2012,
+author = {Lan, Q. and Xun, C. and Wen, M. and Su, H. and Liu, L. and Zhang, C.},
+booktitle = {International Conference on Parallel and Distributed Computing, Applications and Technologies},
+pages = {356--360},
+title = {{Improving Performance of GPU Specific OpenCL Program on CPUs}},
+year = {2012}
+}
+
+
+
+@inproceedings{Espeland2011,
+author = {Espeland, H{\aa}vard and Beskow, Paul B. and Stensland, Hakon K. and Olsen, Preben N. and Kristoffersen, Stale and Griwodz, Carsten and Halvorsen, Pal},
+booktitle = {International Conference on Parallel Processing Workshops},
+doi = {10.1109/ICPPW.2011.22},
+isbn = {978-1-4577-1337-8},
+pages = {416--426},
+title = {{P2G: A Framework for Distributed Real-Time Processing of Multimedia Data}},
+url = {http://ieeexplore.ieee.org/lpdocs/epic03/wrapper.htm?arnumber=6047051},
+year = {2011}
+}
+
+
 
 @article{sodlt,
 abstract = {Convolutional Neural Networks (CNNs) have demon- strated its great performance in various vision tasks, such as image classification [18] and object detection [8]. How- ever, there are still some areas that are untouched, such as visual tracking. We believe that the biggest bottleneck of applying CNN for visual tracking is lack of training data. The power of CNN usually relies on huge (possible mil- lions) training data, however in visual tracking we only have one labeled sample in the first frame. In this paper, we address this issue by transferring rich feature hierar- chies from an offline pretrained CNN into online tracking. In online tracking, the CNN is also finetuned to adapt to the appearance of the tracked target specified in the first frame of the video. We evaluate our proposed tracker on the open benchmark [33] and a non-rigid object tracking dataset. Our tracker demonstrates substantial improvements over the other state-of-the-art trackers.},
@@ -147,12 +223,23 @@ volume = {23},
 year = {2012}
 }
 
+@techreport{Hill2012,
+author = {Hill, Mark D.},
+booktitle = {SigARCH},
+doi = {10.1145/2555243.2558890},
+isbn = {9781450326568},
+pages = {1--16},
+title = {{21st Century Computer Architecture: A Community White Paper}},
+year = {2012}
+}
+
+
 @article{Lozano2009,
 author = {Lozano, Oscar Mateo and Otsuka, Kazuhiro},
 journal = {Journal of Signal Processing Systems},
 number = {2},
 pages = {285--295},
-title = {{Real-time Visual Tracker by Stream Processing}},
+title = {{Real-Time Visual Tracker by Stream Processing}},
 volume = {57},
 year = {2009}
 }
@@ -519,6 +606,17 @@ title = {{The Visual Object Tracking {VOT2015} Challenge Results}},
 year = {2015}
 }
 
+@inproceedings{Lee2011,
+author = {Lee, Hyoukjoong and Brown, Kevin J},
+booktitle = {ACM Symposium on Principles and Practice of Parallel Programming},
+isbn = {9781450301190},
+keywords = {complicate this chal-,domain-specific languages,dynamic optimizations,each with their own,emerging heterogeneous systems further,gramming models are available,offs,parallel programming,set of trade-},
+pages = {35--45},
+title = {{A Domain-Specific Approach To Heterogeneous Parallelism}},
+year = {2011}
+}
+
+
 @inproceedings{mdnet,
 abstract = {We propose a novel visual tracking algorithm based on the representations from a discriminatively trained Convolutional Neural Network (CNN). Our algorithm pretrains a CNN using a large set of videos with tracking ground-truths to obtain a generic target representation. Our network is composed of shared layers and multiple branches of domain-specific layers, where domains correspond to individual training sequences and each branch is responsible for binary classification to identify target in each domain. We train each domain in the network iteratively to obtain generic target representations in the shared layers. When tracking a target in a new sequence, we construct a new network by combining the shared layers in the pretrained CNN with a new binary classification layer, which is updated online. Online tracking is performed by evaluating the candidate windows randomly sampled around the previous target state. The proposed algorithm illustrates outstanding performance in existing tracking benchmarks.},
 archivePrefix = {arXiv},
@@ -825,7 +923,7 @@ year = {2017}
 @inproceedings{cell,
   title={An {OpenCL} Framework for Heterogeneous Multicores with Local Memory},
   author={J. Lee and J. Kim and S. Seo and S. Kim and J. Park and H. Kim and T. T. Dao and Y. Cho and S. J. Seo and S. H. Lee and others},
-  booktitle={Proceedings of the 19th International Conference on Parallel Architectures and Compilation Techniques},
+  booktitle={International Conference on Parallel Architectures and Compilation Techniques},
   pages={193--204},
   year={2010},
   organization={ACM}
@@ -1033,6 +1131,32 @@ year = {2015}
   year =         {2013},
   title =        {{Intel SDK for OpenCL Applications}},
   url = {https://software.intel.com/en-us/intel-opencl}
+}
+
+@misc{dryad,
+  author =       {{Christophe Poulain}},
+  organization = {{Microsoft Research}},
+  year =         {2004},
+  title =        {{Dryad}},
+  url = {https://www.microsoft.com/en-us/research/project/dryad/}
+}
+
+@misc{streamc,
+  author =       {{William J. Dally and Abhishek Das and Ben Serebrin and Jin Namkoong and Ujval Kapasi}},
+  organization = {{Stanford University}},
+  year =         {2010},
+  title =        {{Imagine Stream Programming}},
+  url = {http://cva.stanford.edu/projects/imagine/project/imagine_stream_programming.html}
+}
+
+@techreport{mpi,
+  author =       {{Blaise Barney}},
+  organization = {{Lawrence Livermore National Laboratory}},
+  institution = {{Lawrence Livermore National Laboratory}},
+  number = {UCRL-MI-133316},
+  year =         {2012},
+  title =        {{Message Passing Interface (MPI)}},
+  url = {https://computing.llnl.gov/tutorials/mpi/}
 }
 
 

@@ -1,11 +1,43 @@
 \begin{cabstract}
+当前世界正在迎接一波新的人工智能热潮。
+人工智能的应用越来越广泛，几乎进入了人们生产生活的所有领域。
+计算机视觉对于人工智能，犹如眼睛对于人类一样，获取着绝大部分外界信息，起着决定性的作用。
+而视觉跟踪致力于获取运动中物体当前的位置和状态，是大量计算机视觉高层应用的重要基石，
+具有基础性的理论意义和无可替代的应用价值。
+虽然经过了近三十年的不断研究，
+但随着视觉数据的数量和质量不断提高、人们对于智能化的需求不断增加，视觉跟踪仍然面临着众多挑战。
+首先，视觉跟踪算法的准确性、鲁棒性和适应力还普遍不足，难以应对纷繁的干扰因素和复杂的物体变化；
+其次，为了提高精度和鲁棒性，跟踪算法正日趋复杂，跟踪效率渐渐成为瓶颈；
+最后，由于异构计算平台的出现，进行高性能的跟踪算法实现较为困难，且难以向不同的计算设备/平台进行移植。
+
+为了应对上述挑战，
+本文以``高性能视觉跟踪关键技术''作为研究课题，希望从两个方面来实现高性能的视觉跟
+踪\pozhehao 视觉跟踪的高性能算法和跟踪算法的高性能实现。
+本文的主要工作和创新点有：
+\begin{compactitem}
+\item[1.] \textbf{提出了将物体检测领域常用的``目标候选''方法应用于视觉跟踪的通用方法。}
+\end{compactitem}
+
+\begin{compactitem}
+\item[2.] \textbf{揭示了``目标候选''在视觉跟踪中的作用规律，并对``目标候选''生成器进行了针对视觉跟踪的优化。}
+\end{compactitem}
+
+\begin{compactitem}
+\item[3.] \textbf{在异构计算平台上，基于并行编程模型OpenCL，对TLD这一完整视觉跟踪应用进行了高性能并行实现。}
+\end{compactitem}
+
+\begin{compactitem}
+\item[4.] \textbf{提出了一种新的代码转换方法，以提升GPU特定的OpenCL Kernel程序在CPU上的性能移植性。}
+\end{compactitem}
+
+
 
 \end{cabstract}
-\ckeywords{; ; }
+\ckeywords{视觉跟踪; 相关滤波; 高性能实现; 并行编程模型}
 
 \begin{eabstract}
 
 
 \end{eabstract}
-\ekeywords{; ; }
+\ekeywords{Visual Tracking; Correlation Filtering; High-Performance Implementation; Parallel Programming Model}
 
