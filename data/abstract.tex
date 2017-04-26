@@ -14,30 +14,107 @@
 本文以``高性能视觉跟踪关键技术''作为研究课题，希望从两个方面来实现高性能的视觉跟
 踪\pozhehao 视觉跟踪的高性能算法和跟踪算法的高性能实现。
 本文的主要工作和创新点有：
-\begin{compactitem}
-\item[1.] \textbf{提出了将物体检测领域常用的``目标候选''方法应用于视觉跟踪的通用方法。}
-\end{compactitem}
 
-\begin{compactitem}
-\item[2.] \textbf{揭示了``目标候选''在视觉跟踪中的作用规律，并对``目标候选''生成器进行了针对视觉跟踪的优化。}
-\end{compactitem}
+1. 提出了将物体检测领域的``目标候选''方法应用于视觉跟踪的通用方法。
+针对当前视觉跟踪算法对目标物体的尺度和宽高比变化适应力不足这一问题，本
+文将目标候选生成器EdgeBoxes，和基于相关滤波的跟踪算法进行了结合。
+为了能够准确辨别大小、形状多变的目标候选，本文对相关滤波跟踪算
+法的物体特征描述和更新策略进行了优化；为了提高嵌入目标候选后的跟踪
+效率和鲁棒性，本文在跟踪过程中加入了目标候选过滤和带阻尼的更新步
+骤。最终所得的跟踪器在一个大型公开测试集上展现出了很强的鲁棒性
+和适应力，同时还达到了令人满意的跟踪速度。
 
-\begin{compactitem}
-\item[3.] \textbf{在异构计算平台上，基于并行编程模型OpenCL，对TLD这一完整视觉跟踪应用进行了高性能并行实现。}
-\end{compactitem}
+2. 揭示了``目标候选''在视觉跟踪中的作用规律，并对``目标候选''生成器进行了针对视觉跟踪的优化。
+本文将多个具有代表性的目标候选生成器面向跟踪任务进行了适配，并将它们合理地嵌入了跟踪器中。
+此外，针对目标候选生成器EdgeBoxes在跟踪任务中暴露出的弱点，本文对其进行了``背景抑制''优化。
+通过大量的实验，本文证明了目标候选在视觉跟踪中有着重要作用，且其质量和跟踪精度间存在着正相关的关系。
+实验同时也证明了对于EdgeBoxes的背景抑制优化是十分有效的。
 
-\begin{compactitem}
-\item[4.] \textbf{提出了一种新的代码转换方法，以提升GPU特定的OpenCL Kernel程序在CPU上的性能移植性。}
-\end{compactitem}
+3. 在异构计算平台上，基于并行编程模型OpenCL，对TLD这一完整视觉跟踪应用进行了高性能实现。
+通过分析和提取TLD算法的计算密集部分和性能瓶颈部分，
+本文并行化了Fern随机森林的特征提取和分类过程、最邻近分类的NCC计算过程、
+以及学习过程中的重叠率计算和正负样本提取。
+此外，由于Fern随机森林和LK光流跟踪互相独立，本文还在不同的计算设备上将它们重叠执行。
+最终各个OpenCL Kernel程序将运行在各自适合的计算设备上，
+取得了令人满意的整体加速比，完全满足实时跟踪的需求。
 
-
-
+4. 提出了一种新的代码转换方法，以提升GPU特定的OpenCL Kernel程序在CPU上的性能移植性。
+该方法借助于本文新提出的数组访问描述式，在工作项折叠过程中，能够消除所有的冗余局部存储数组和对应的同步。
+在Kernel的后继优化过程中，该方法不仅从原GPU特定Kernel中提取并行性和局部性信息，
+还会考虑目标CPU的体系结构细节，以进一步提升Kernel程序在CPU上的性能。
+实验显示，对于GPU特定的Kernel程序，若使用包含本文方法的新OpenCL运行时，
+将获得超越Intel官方运行时的性能。
 \end{cabstract}
 \ckeywords{视觉跟踪; 相关滤波; 高性能实现; 并行编程模型}
 
 \begin{eabstract}
+Nowadays, this whole world is undergoing a revolution of artificial intelligence,
+which has entered almost every aspect of human industry and daily life.
+Computer vision, acting as the eye to human beings, is a crucial source of information acquisition,
+thus plays a deciding role in artificial intelligence.
+Visual tracking is responsible for estimating the location and status of moving objects,
+which makes it a building block of many computer visual applications, and of 
+fundamental theoretical importance as well as irreplaceable application value.
+In spite of 30 years' research efforts, since the requirement for intelligence is continuously increasing,
+visual tracking is still under the pressure of many challenging factors.
+Firstly, the accuracy, robustness and adaptability of visual tracking algorithms are not developed enough to deal with various baffling factors and sophisticated object motion.
+Secondly, with the purpose of higher accuracy, 
+tracking algorithms are becoming increasingly sophisticated, 
+which often leads to unacceptable tracking efficiency.
+Last but not least, with the availability of heterogeneous compute platform,
+the high-performance implementation of tracking algorithms is hard to achieve,
+and the implementation also suffers from poor portability in different hardware devices.
 
+To solve the mentioned issues, 
+this paper focuses on ``key techniques for high-perfor-mance visual tracking'', 
+and tries to achieve high tracking performance through two research directions:
+high-performance algorithm for visual tracking, and high-performance implementation of tracking algorithm.
+The primary contributions and innovations of this paper are as follows:
 
+1. A general method for cooperating detection proposal from object detection area with
+visual tracking is proposed. In order to improve the scale and aspect ratio adaptability
+of visual tracking algorithm, this paper combines a detection proposal generator named 
+EdgeBoxes, with a correlation filter based tracker.
+To precisely discriminate flexible detection proposals, the correlation filter is optimized with
+feature integration and robust updating scheme.
+To improve tracking efficiency and robustness, proposal rejection and update with damping
+are added into tracking process.
+The resultant tracker shows superior robustness and adaptability on a large video dataset,
+and satisfactory tracking speed is also achieved.
+
+2. The effect of detection proposal in visual tracking is revealed, and a proposal generator is optimized for tracking task. 
+This paper adapts several representative detection proposal generators to tracking task, 
+and integrates them properly into a visual tracker.
+Moreover, in order to conquer the weakness of EdgeBoxes in tracking, 
+an optimization step called ``background suppression'' is added.
+Through sufficient experiments, this paper proves that there is a strong positive correlation between 
+proposal quality and tracking accuracy.
+Experiment results also validate the effectiveness of background suppression optimization for
+EdgeBoxes.
+
+3. The whole TLD tracking application is implemented on a heterogeneous compute platform
+based on OpenCL parallel programming model.
+By analyzing and extracting the computation-intensive parts and bottlenecks of TLD algorithm,
+this paper parallelizes the following components: 
+the feature extraction and classification procedures of Fern random forest,
+the NCC computation of Nearest Neighbor classifier, and the overlap ratio calculation and sample
+selection procedures of learning module.
+Moreover, because the Fern random forest and LK optical flow tracking are two independent components, this paper overlaps their executions on two different compute devices.
+By assigning each Kernel program to its suitable device, satisfactory over-all speedup is achieved,
+which can adequately satisfy real time tracking demand.
+
+4. A novel code transformation method is proposed to improve the performance portability of
+GPU-specific OpenCL Kernels on CPUs.
+This method is based on a new kind of array access descriptor from this paper,
+and thus can eliminate all the redundant local memory usages along with corresponding
+synchronizations in the work-item coalescing step.
+In the post-optimization step, this method not only extracts parallelism
+and locality from the original GPU-specific Kernels,
+but also considers the architectural details of the target CPUs,
+which leads to further performance gains.
+Experiments show that, for GPU-specific Kernels, 
+the new OpenCL runtime equipping with the method above can outperform the official
+Intel OpenCL runtime on CPUs.
 \end{eabstract}
 \ekeywords{Visual Tracking; Correlation Filtering; High-Performance Implementation; Parallel Programming Model}
 
