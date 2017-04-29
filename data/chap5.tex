@@ -106,7 +106,7 @@ Intel实现的OpenCL运行时\upcite{intelocl}并未开源，仅公开了少量�
 该类方法通常首先提取对性能有重要影响的参数，然后通过自动调优程序不断尝试各种参数组合，直到达到最佳性能。
 与代码转换类方法相比，自动调优有很多不可避免的劣势。
 首先，自动调优需要大量额外编程。除了需要手动编写自动调优程序外，原OpenCL代码还必须重构或者重写，以暴露出影响性能的参数，供调优程序修改。
-其次，自动调优方法通常过于耗时且不够鲁邦。在一种体系结构下极大影响性能的参数，在另一体系结构下可能无足轻重，
+其次，自动调优方法通常过于耗时且不够鲁棒。在一种体系结构下极大影响性能的参数，在另一体系结构下可能无足轻重，
 但自动调优程序自身无法发现问题，从而导致更大的时间开销。
 为此，Pennycook等人提出了一种体系结构无关的方法\upcite{OclPP1}，以发掘出在不同体系结构下均能获得可接受的（而不是最优的）性能
 的参数组合。
@@ -131,7 +131,7 @@ Intel实现的OpenCL运行时\upcite{intelocl}并未开源，仅公开了少量�
 Fang等人将这一工作应用在了OpenCL Kernel上\upcite{aristotle}，构造出了一个自动分析工具。
 通过将访存矩阵、偏移向量和体系结构参数输入工具，就能分析出局部存储对性能的影响。
 
-本节将提出一个新的数组访问线性描述式。相比上述的描述方法，它更加得精确，但又足够灵活。
+本节将提出一个新的数组访问线性描述式。相比上述的描述方法，它更加的精确，但又足够灵活。
 该描述基于一个重要假设，即绝大多数GPU特定Kernel程序中，数组访问模式都是线性的。
 这一假设是通过分析大量GPU特定Kernel程序得出的，
 譬如，在Nvidia GPU Computing SDK\upcite{nvidiasdk}和SHOC\upcite{shoc}测试集中，只有包含了间接访存（一个数组的访问索引是另一数组的元素）的Kernel才可能违反该假设。
@@ -164,7 +164,7 @@ Fang等人将这一工作应用在了OpenCL Kernel上\upcite{aristotle}，构造
 $Iter_x$（$x = a, b, k$）代表循环正规化（Loop Normalization）后的循环变量。
 对于数组访问$\texttt{A[a + uiWA * Lid.y + Lid.x]}$，得到的线性下标函数是$f^{read}_{A}$，其值覆盖了Kernel执行时对数组$\bm{A}$的所有可能的访问位置。
 线性约束集合$Constraints^{read}_{A}$通过约束$f^{read}_{A}$中变量的取值，限制了上述访问位置的范围。
-对于数组$\bm{BS}$和$\bm{B}$ 的访问描述式与图\ref{desriptor1}非常类似，因此不再单独列出。
+由于对数组$\bm{BS}$和$\bm{B}$ 的访问描述式与图\ref{desriptor1}非常类似，因此不再单独列出。
 
 \begin{figure}[htb]
 	\scalebox{0.8}{$\left\{ \begin{array}{l}
@@ -267,7 +267,7 @@ $Iter_x$（$x = a, b, k$）代表循环正规化（Loop Normalization）后的�
 因为CPU体系结构中的多级Cache具有完全相同的功能，所以使用局部存储数组是毫无意义的，还会导致额外的数据拷贝。
 要准确去除第1）种作用类型的数组，需要首先通过分析判别局部存储数组的作用类型，然后将对原数组的访问转换为对全局存储数组的访问。
 
-如果一个局部存储数组不具备第3）和第4）种作用，但是具备第1）或者第2）种（又或两种皆有之），
+如果一个局部存储数组不具备第3）和第4）种作用，但是具备第1）或者第2）种（又或者两种皆有之），
 那么Kernel程序对它的一系列访问必然满足下列过程\upcite{oclprogrammingguide}：
 \begin{compactitem}
 \item[$\rightarrow$]{从全局存储数组中读出数据，再存入该局部存储数组中。} 
@@ -653,6 +653,19 @@ Intel的官方OpenCL运行时来自Intel SDK for OpenCL Applications 2013\upcite
 其中Stencil2D来自SHOC\upcite{shoc}，其它4个来自Nvidia GPU Computing SDK。
 第6个Kernel程序NaiveMatrixMul来自\cite{oclprogrammingguide}，即\ref{localityreexploresec}节中介绍过的``基本矩阵乘法Kernel''。
 它的数据局部性没有得到任何优化，将作为本节评测的基准。
+值得注意的是，本节并没有选取上一章TLD算法高性能实现中的OpenCL Kernel作为测试集，原因主要有以下两点。
+首先，本章的代码转换方法是一个通用方法，面向各类GPU特定的OpenCL Kernel程序。
+而相比专用测试集中的Kernel，TLD算法中的Kernel程序所具有的代表性明显不足。
+其次，上一章的Kernel程序中，有的包含间接访存（如Fern随机森林的特征提取和分类过程），因而无法使用本章方法；
+有的未使用局部存储（如学习过程中的重叠率计算），
+或者局部存储由于具有数据交换作用而无法去除（上一章所有使用了局部存储的Kernel程序），因而本章的方法无法完全发挥作用。
+但是，本节选取的测试集和视觉跟踪仍然有着密切联系。
+例如，KCF跟踪器中的所有逐元素操作都可以看做是Stencil2D的特例，
+而离散余弦变换（DCT）也是KCF中离散傅里叶变换（DFT）的一种特殊形式。
+
+
+
+
 
 \begin{table}[htb]
 	\caption{用于性能评测的6个Kernel程序}
