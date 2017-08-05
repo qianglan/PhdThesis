@@ -1,5 +1,5 @@
 %*********************第五章******************
-\chapter{GPU特定OpenCL Kernel程序的性能移植性提升}
+\chapter{OpenCL Kernel程序的性能移植性提升方法}
 \section{引言}
 上一章已经提到，当前从超级计算机到智能手机，异构计算平台已经广泛应用。
 而众多异构计算平台中，CPU和GPU仍然是两类最典型的异构计算设备。
@@ -148,7 +148,7 @@ Fang等人将这一工作应用在了OpenCL Kernel上\upcite{aristotle}，构造
 \begin{table}[htb]
 	\centering
 	\caption{原始的GPU特定矩阵乘法Kernel程序}
-	\fbox{\includegraphics[width=12cm]{fig1-3.pdf}}
+	\fbox{\includegraphics[width=12cm]{scaleaspect.pdf}}
 	\label{orgkernel}
 \end{table}
 
@@ -353,7 +353,7 @@ f_{\bm{A}}^{read} = (uiWA \times BLOCK\_SIZE \times Gid.y +\\ BLOCK\_SIZE \times
 \begin{table}[htb]
 \centering
 \caption{去除冗余的局部存储数组后的矩阵乘法Kernel代码片段}
-\fbox{\includegraphics[width=10cm]{fig4.pdf}}
+\fbox{\includegraphics[width=10cm]{scaleaspect.pdf}}
 \label{localmemremoved}
 \end{table}
 
@@ -397,7 +397,7 @@ f_{\bm{A}}^{read} = (uiWA \times BLOCK\_SIZE \times Gid.y +\\ BLOCK\_SIZE \times
 
 \begin{figure}
 	\centering
-	\includegraphics[width=10.5cm]{fig5.pdf}
+	\includegraphics[width=10.5cm]{scaleaspect.pdf}
 	\caption{依赖性分析示意图}
 	\label{dependence}
 \end{figure}
@@ -439,7 +439,7 @@ $\overrightarrow{\bm{Var}}$代表变量组成的向量，$Const$代表一个常�
 \begin{table}[htb]
 	\centering
 	\caption{工作项折叠后的矩阵乘法Kernel代码片段}
-	\fbox{\includegraphics[width=10cm]{fig6.pdf}}	
+	\fbox{\includegraphics[width=10cm]{scaleaspect.pdf}}	
 	\label{debarriered}
 \end{table}
 
@@ -459,7 +459,7 @@ $\bm{B}$的每一分块的各个行将以合并访存的方式被循环访问16�
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=12cm]{fig7.pdf}
+\includegraphics[width=12cm]{scaleaspect.pdf}
 \caption{矩阵乘法$\bm{C}=\bm{A}\times \bm{B}$中对于数组$\bm{A}$和$\bm{B}$的不同访问顺序}
 \label{access}
 \end{figure}
@@ -511,7 +511,7 @@ GPU特定Kernel程序对于局部存储数组的访问通常也是顺序、逐�
 \begin{table}[htb]
 \centering
 \caption{向量化后的矩阵乘法Kernel代码片段}
-\fbox{\includegraphics[width=10cm]{fig8.pdf}}
+\fbox{\includegraphics[width=10cm]{scaleaspect.pdf}}
 \label{vectorized}
 \end{table}
 
@@ -569,13 +569,13 @@ Knights Corner架构中有32个。因此向量寄存器的重用率将对Kernel�
 \begin{table}[htb]
 	\centering
 	\caption{面向Sandy Bridge架构转换后的最终矩阵乘法Kernel代码片段}
-	\fbox{\includegraphics[width=10.5cm]{fig9.pdf}}
+	\fbox{\includegraphics[width=10.5cm]{scaleaspect.pdf}}
 	\label{cpuoutput}
 \end{table}
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=12cm]{fig72.pdf}
+\includegraphics[width=12cm]{scaleaspect.pdf}
 \caption{转换后的矩阵乘法Kernel对于数组$\bm{A}$和$\bm{B}$的访问顺序}
 \label{access2}
 \end{figure}
@@ -588,12 +588,12 @@ Knights Corner架构中有32个。因此向量寄存器的重用率将对Kernel�
 \begin{table}[htb]
 \centering
 \caption{面向Knights Corner架构转换后的最终矩阵乘法Kernel代码片段}
-\fbox{\includegraphics[width=10cm]{fig10.pdf}}
+\fbox{\includegraphics[width=10cm]{scaleaspect.pdf}}
 \label{micouput}
 \end{table}
 
 
-\section{运行时调度}
+\section{运行时动态调度}
 \label{runtimesec}
 上述的整个代码转换过程，包括提取数组访问描述式，消除冗余的局部存储数组和同步语句，构建线程循环，
 以及后继优化，被实现为一个源到源的代码转换工具链。
@@ -624,7 +624,7 @@ Knights Corner架构中有32个。因此向量寄存器的重用率将对Kernel�
 
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=13cm]{fig11.pdf}
+	\includegraphics[width=13cm]{scaleaspect.pdf}
 	\caption{GPU特定Kernel的转换和调度执行}
 	\label{sysdiagram}
 \end{figure}
@@ -816,6 +816,11 @@ NaiveMatrixMul需要进行循环分段，而在循环分段后，两者的代码
 运行时的性能。
 借助本章的工作成果，在异构平台上实现高性能跟踪器时，可专注于面向GPU的优化，或是重用已有的GPU特定代码，
 极大提高编程效率。
-本章的方法仍然存在诸多不足，例如无法支持间接数组访问、静态调度算法不够高效、没有考虑工作组间的并行优化等。
+
+本章的方法仍然存在诸多不足。
+例如，除了运行OpenCL Kernel以外，多/众核CPU还会运行操作系统和其它进程，各工作组的执行时间无法完全确定。
+由于分支等不确定因素的存在，各个工作组的实际计算负载也不尽相同。
+因此本章在运行时调度时，简单地将工作组按数量分成等份是难以保证负载均衡的。
+此外，本章方法目前还无法支持间接数组访问，也没有考虑工作组间的并行优化。
 未来将针对这些不足进行进一步的研究。
  
