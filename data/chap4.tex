@@ -44,17 +44,40 @@
 
 单计算设备的卷积层实现不涉及通信过程，只包含计算过程，卷积计算的实现可以采用目前流行的库，比如cublas或者cuDNN（针对GPU平台）。多计算设备的模型并行实现，包含计算和通信两个过程，模型并行将计算任务分配到多个计算设备中，每个计算设备负责部分卷积计算，计算完成后，每个设备的计算结果需要传输到其它计算设备中。在模型并行中，虽然卷积计算被划分成多个小的计算任务，但每个小计算任务仍然属于卷积计算，因此在模型并行中，每个计算设备上的卷积计算仍然可以调用现有的库来实现，关键是为每个计算设备准备好所需的数据。卷积计算涉及到输入和卷积核，经过计算最后得到卷积计算结果，在模型并行中，各个计算设备的输入都相同，而卷积核参数被划分到不同的计算设备中，最后每个计算设备的计算结果需要合并成一个计算结果，然后同步到所有计算设备中，作为下一层的输入。所以，模型并行很重要一点就是数据的存储顺序，首先是卷积核参数的划分可以连续直接连续地划分到各个计算设备中，其次就是各个计算设备的计算结果在合并中，可以很直接拼接在一起。
 
+下面假定卷积层的输入的batch大小为N，输入的通道数为C，输入特征的高为H，宽为W，输入维度可表示为NxHxWxC，卷积核的大小为f，输出通道数为K，则卷积核的维度可表示为CxfxfxK，卷积时的步长为1，则输出的特征图的维度可表示为NxPxQxK。为了使模型并行时存储连续，对卷积核参数存储，需要保证最后存储的是K所在的维度，而输入的存储需要保证最后存储的是C所在的维度。模型并行中假定所使用的计算设备个数为n，则输入保持不变，各个计算设备的卷积核参数维度变为Cxfxfx（K／n），输出的维度变为NxPxQx（K／n）。划分之后的任务在各个计算设备中仍然可以作为一个完整的卷积层计算，只是规模变小了。
 
+对于通信阶段，可以采用的一种简单通信模式是选取一个计算设备作为主设备，在各个计算设备上的卷积计算完成后，
+各个计算设备将计算的结果传输到主计算设备中，计算结果都汇总到主计算设备之后，由主计算设备再将汇总的结果分发到其它计算设备中。我们采用CUDA-Awared MPI，其算法实现如表\ref{simppleModelParallel}中的代码所示。
 
+\begin{table}
+\caption{基于多设备上的模型并行简单实现}
+\label{simppleModelParallel}
+\begin{lstlisting}[language=C++, basicstyle=\ttfamily\footnotesize]
+void SimpleModelParallel( float* inputs,  float* weights,  float* outputs,  int N, int buf_size, int deviceNum, int kernel_stride, int output_stride... )
+{
+	...
+	int my_rank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+	convComp(inputs, weights+my_rank*kernel_stride, outputs+my_rank*output_stride);
+	if(my_rank==0){
+		for(int i=1; i<deviceNum; i++)
+			MPI_Recv(outputs+i*stride, buf_size, MPI_FLOAT, i, 0, MPI_COMM_WORLD );
+	}
+	else
+		MPI_Send(outputs+i*stride, buf_size, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
+	MPI_Bariier(MPI_COMM_WORLD);
+	
+	MPI_Broadcast(outputs, buf_size*deviceNum, MPI_FLOAT, 0, MPI_COMM_WORLD);
+	...
+}
+\end{lstlisting}
+\end{table}
 
-
-基于GPUDirect技术的模型并行实现如算法\ref{}所示。
-
-下面从理论上分析单设备上直接
-
-\subsection{模型并行的流水化实现}
+下面从理论上分析单设备上卷积计算开销和多设备模型并行情况下时间开销。根据之前的假设，
 
 \subsection{优化的通信模式设计}
+
+\subsection{模型并行的流水化实现}
 
 
 %\subsection{计算与通信的重叠执行}
