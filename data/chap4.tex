@@ -44,7 +44,7 @@
 
 单计算设备的卷积层实现不涉及通信过程，只包含计算过程，卷积计算的实现可以采用目前流行的库，比如cublas或者cuDNN（针对GPU平台）。多计算设备的模型并行实现，包含计算和通信两个过程，模型并行将计算任务分配到多个计算设备中，每个计算设备负责部分卷积计算，计算完成后，每个设备的计算结果需要传输到其它计算设备中。在模型并行中，虽然卷积计算被划分成多个小的计算任务，但每个小计算任务仍然属于卷积计算，因此在模型并行中，每个计算设备上的卷积计算仍然可以调用现有的库来实现，关键是为每个计算设备准备好所需的数据。卷积计算涉及到输入和卷积核，经过计算最后得到卷积计算结果，在模型并行中，各个计算设备的输入都相同，而卷积核参数被划分到不同的计算设备中，最后每个计算设备的计算结果需要合并成一个计算结果，然后同步到所有计算设备中，作为下一层的输入。所以，模型并行很重要一点就是数据的存储顺序，首先是卷积核参数的划分可以连续直接连续地划分到各个计算设备中，其次就是各个计算设备的计算结果在合并中，可以很直接拼接在一起。
 
-下面假定卷积层的输入的batch大小为N，输入的通道数为C，输入特征的高为H，宽为W，输入维度可表示为NxHxWxC，卷积核的大小为f，输出通道数为K，则卷积核的维度可表示为CxfxfxK，卷积时的步长为1，则输出的特征图的维度可表示为NxPxQxK。为了使模型并行时存储连续，对卷积核参数存储，需要保证最后存储的是K所在的维度，而输入的存储需要保证最后存储的是C所在的维度。模型并行中假定所使用的计算设备个数为n，则输入保持不变，各个计算设备的卷积核参数维度变为Cxfxfx（K／n），输出的维度变为NxPxQx（K／n）。划分之后的任务在各个计算设备中仍然可以作为一个完整的卷积层计算，只是规模变小了。
+下面假定卷积层的输入的batch大小为$N$，输入的通道数为$C$，输入特征的高为$H$，宽为$W$，输入维度可表示为$N\times H\times W\times C$，卷积核的大小为$f$，输出通道数为$K$，则卷积核的维度可表示为$C\times f\times f\times K$，卷积时的步长为1，则输出的特征图的维度可表示为$N\times P\times Q\times K$。为了使模型并行时存储连续，对卷积核参数存储，需要保证最后存储的是K所在的维度，而输入的存储需要保证最后存储的是C所在的维度。模型并行中假定所使用的计算设备个数为$n$，则输入保持不变，各个计算设备的卷积核参数维度变为$C\times f\times f\times$ $\frac{K}{n}$，输出的维度变为$N\times P\times Q\times$ $\frac{K}{n}$。划分之后的任务在各个计算设备中仍然可以作为一个完整的卷积层计算，只是规模变小了。
 
 对于通信阶段，可以采用的一种简单通信模式是选取一个计算设备作为主设备，在各个计算设备上的卷积计算完成后，
 各个计算设备将计算的结果传输到主计算设备中，计算结果都汇总到主计算设备之后，由主计算设备再将汇总的结果分发到其它计算设备中。我们采用CUDA-Awared MPI，其算法实现如表\ref{simppleModelParallel}中的代码所示。
@@ -73,9 +73,79 @@ void SimpleModelParallel( float* inputs,  float* weights,  float* outputs,  int 
 \end{lstlisting}
 \end{table}
 
-下面从理论上分析单设备上卷积计算开销和多设备模型并行情况下时间开销。根据之前的假设，
+下面从理论上分析单设备上卷积计算开销和多设备模型并行情况下时间开销。根据之前的假设，输入规模为$N\times H\times W\times C$，卷积核参数规模$C\times f\times f\times K$，输出规模为$N\times P\times Q\times K$，卷积核大小为$r$,单设备的峰值计算性能为$Peak$，单设备情形下的利用率为$\alpha$，总的计算量可以用如下公式表示：
+\begin{equation}
+L_1 = 2NPQCKr^2
+\end{equation}
+
+根据单设备计算能力以及利用率的假定，我们可以估算出单设备上卷积计算的时间$T_1$为：
+\begin{equation}
+T_1 = \frac{L_1}{\alpha \times Peak} = \frac{2NPQCKr^2}{\alpha \times Peak}
+\end{equation}
+
+在模型并行中，假设各个设备的利用率为$\beta$，计算设备数量为 $n$ ，则模型并行中的计算时间$T_2$为：
+\begin{equation}
+T_2 = \frac{L_1}{n \times \beta \times Peak} = \frac{2NPQCKr^2}{n\times \beta \times Peak}
+\end{equation}
+
+下面再计算模型并行中通信的时间开销，假定设备之间的通信带宽用$B$表示，则根据表\ref{simppleModelParallel}中算法描述的通信模式，可以计算出需要通信的数据总量$M$为：
+\begin{equation}
+M = \frac{NPQKr^2}{n}\times (n-1)+nNPQKr^2
+\end{equation}
+
+通信时间$T_3$为：
+\begin{equation}
+T_3 = \frac{M}{B} = \frac{\frac{NPQKr^2}{n}\times (n-1)+nNPQKr^2}{B}
+\end{equation}
+
+所以模型并行中的总时间$T_4$为：
+\begin{equation}
+\label{modelParallelTime}
+T_4 = T_2 + T_3 = \frac{2NPQCKr^2}{n\times \beta \times Peak}+ \frac{\frac{NPQKr^2}{n}\times (n-1)+nNPQKr^2}{B}
+\end{equation}
+
+从\ref{modelParallelTime}中可以分析出，随着计算设备的数目$n$的增大，虽然计算时间会降低，但通信时间会增加，因此有必要对通信部分进行优化。\ref{commMode}将对通信模式进行优化，使得通信开销不会随着计算设备数目的增加而增大。
 
 \subsection{优化的通信模式设计}
+\label{commMode}
+上一节中介绍的这种先收集到一个节点合并数据，然后再广播到其它所有节点的方法并不是很高效的通信模式，本节将设计一种环形的拓扑结构进行通信，这种通信结构的特点是通信开销不会随着计算设备数目的增加而增大。
+
+基于环形拓扑结构的通信只发生在相邻的计算节点间，通过多次相邻节点间的通信可以完成数据的收集与广播的目的。下面对通信的过程进行描述，每个计算设备存储部分计算结果，对计算设备进行从1到$n$进行编号，并且这$n$个计算设备按照环形的结构逻辑上相连。数据的通信分$n$次完成，在第$i$次通信时，编号为$j$的计算节点将第$(i-1)$次接收的数据发送给编号为 $(j+1)\%n$的计算节点，同时从编号为$(j-1)\%n$的计算节点接收数据。在$n$次通信完成后，每个计算设备上最终的数据就是通信前各个计算设备上数据的拼接。图\ref{allgather}为计算设备数目为4时的通信过程示意图，具体的代码实现如表\ref{ringAllgatherA}中所示。
+
+\begin{figure*}[tbh]%\small
+\centering
+\resizebox{0.6\textwidth}{!}{
+\includegraphics{figs/allgather.pdf}
+}
+\caption{An example of 4 GPUs to exchange data based on a ring topology architeture, each GPU only communicate with its two neighbours, allgather operation is done through 4(the number of devices) times of communication.}
+\label{allgather}
+\end{figure*}
+
+\begin{table}
+\caption{环形通信模式实现}
+\label{ringAllgatherA}
+\begin{lstlisting}[language=C++, basicstyle=\ttfamily\footnotesize]
+void RingAllgather( float* outputs,  float *recv_buf, int buf_size, int deviceNum, int my_rank... )
+{
+	...
+	int commNum = deviceNum;
+	int send_to = (my_rank+1)\%deviceNum;
+	int recv_from = (my_rank-1+deviceNum)\%deviceNum;
+	float *send_buf, *recv_buf;
+	send_buf = outputs+my_rank*buf_size;
+	recv_buf = outputs+recv_from*buf_size;
+	for(int i=0;i<commNum;i++){	
+		for(int j=0;j<deviceNum;j++){
+			MPI_Send(send_buf, buf_size, MPI_FLOAT, send_to, 0, MPI_COMM_WORLD);
+			MPI_Recv();
+		}
+		send_buf = recv_buf;
+		recv_buf = outputs+((i-1+deviceNum)\%deviceNum)*buf_size;
+	}
+	...
+}
+\end{lstlisting}
+\end{table}
 
 \subsection{模型并行的流水化实现}
 
