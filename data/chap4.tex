@@ -125,7 +125,7 @@ T_4 = T_2 + T_3 = \frac{2NPQCKr^2}{n\times \beta \times Peak}+ \frac{\frac{NPQKr
 \caption{环形通信模式实现}
 \label{ringAllgatherA}
 \begin{lstlisting}[language=C++, basicstyle=\ttfamily\footnotesize]
-void RingAllgather( float* outputs,  float *recv_buf, int buf_size, int deviceNum, int my_rank... )
+void RingAllgather( float* outputs,  int buf_size, int deviceNum, int my_rank... )
 {
 	...
 	int commNum = deviceNum;
@@ -137,7 +137,7 @@ void RingAllgather( float* outputs,  float *recv_buf, int buf_size, int deviceNu
 	for(int i=0;i<commNum;i++){	
 		for(int j=0;j<deviceNum;j++){
 			MPI_Send(send_buf, buf_size, MPI_FLOAT, send_to, 0, MPI_COMM_WORLD);
-			MPI_Recv();
+			MPI_Recv(recv_buf, buf_size, MPI_FLOAT, recv_from, 0, MPI_COMM_WORLD);
 		}
 		send_buf = recv_buf;
 		recv_buf = outputs+((i-1+deviceNum)\%deviceNum)*buf_size;
@@ -147,7 +147,66 @@ void RingAllgather( float* outputs,  float *recv_buf, int buf_size, int deviceNu
 \end{lstlisting}
 \end{table}
 
+基于环形通信算法，下面对该算法的通信开销进行理论上的计算与分析。每个计算设备上需要交换的数据大小记为$M$，计算设备的数目记为$N$，设备$i$与相邻的通信设备$(i+1)\%N$间的通信带宽为$B_i$。则通过公式\ref{commT}可计算出总的通信开销$T$。
+
+\begin{equation}
+\label{commT}
+T = N*\max_{i \in N}{\dfrac{M}{B_i}} = \max_{i \in N}{\dfrac{N\times M}{B_i}} = \max_{i \in N}{\dfrac{S}{B_i}}
+\end{equation}
+
+$S$代表从所有的计算设备收集汇总的数据，$S$一般是一个固定值，所以环形通信开销取决所有相邻节点间最小的通信带宽，而与通信的数据量无关，也与计算设备的数目无关。
+
 \subsection{模型并行的流水化实现}
+GPU支持kernel执行与数据传输同时进行，所以我们可以进一步对通信进行优化，在通信进行的同时进行计算，这样可以隐藏通信的开销。由于通信与计算有相关性，即只有计算完成后，计算结果才能被用于通信，所以为了隐藏通信，需要将计算切分成多个阶段完成。GPU依次对切分成的任务进行计算，对第$(i+1)$个任务的计算可以与第$i$次计算任务的结果的通信同时执行，这个方法就是模型并行的流水化执行。图\ref{pipelinedModelParallel}为多设备模型并行的流水化与多设备模型并行的简单实现以及单设备计算的比较示意图。
+
+\begin{figure*}[tbh]%\small
+\centering
+\resizebox{0.6\textwidth}{!}{
+\includegraphics{figs/pipelinedModel.pdf}
+}
+\caption{Time distribution in (a) single GPU implementation version, (b) simple model parallelization version and (c) pipelined model parallelization version.}
+\label{pipelinedModelParallel}
+\end{figure*}
+
+对于算法的具体实现，本工作采用的平台是Nvidia GPU，采用CUDA-Awared MPI编程，CUDA-Awared MPU提供异步的通信方式，而对于kernel的计算，CUDA提供事件方式进行控制，这为计算与通信重叠的实现提供了很好的基础。模型并行的流水化实现中，首先是为计算设备上的所有计算任务创建一个事件进行关联，其次将所有的计算kernel压入命令队列中等待GPU执行，然后依次查询各个计算kernel关联的时间，看计算任务是否完成，如果计算完成，则可以对已经完成的计算任务的计算结果进行通信。表\ref{OverlapA}中是具体的算法实现。
+
+\begin{table}
+\caption{模型并行流水化的代码实现}
+\label{OverlapA}
+\begin{lstlisting}[language=C++, basicstyle=\ttfamily\footnotesize]
+void PipelinedModelParallel( float *inputs, float *filters, float* outputs,  int delta_num, int buf_size, int deviceNum, int stride1, int stride2... )
+{
+	...
+	int my_rank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+	stream_t streamT[delta_num];
+	int commNum = deviceNum;
+	int send_to = (my_rank+1)\%deviceNum;
+	int recv_from = (my_rank-1+deviceNum)\%deviceNum;
+	float *send_buf, *recv_buf;
+	send_buf = outputs+my_rank*buf_size;
+	recv_buf = outputs+recv_from*buf_size;
+	for(int i=0; i<delta_num; i++){
+		cudaStreamCreate(streamT[i]);
+		convComp(inputs, filters+i*stride2, outputs+my_rank*stride1+i*stride2, streamT[i]);
+	}
+	for(int j=0; j<delta_num; j++){
+		cudaStreamSynchronize(streamT[j]);
+		send_buf = outputs+my_rank*stride1+j*stride2;
+		recv_buf = outputs+recv_from*stride1+j*stride2;
+		for(int i=0;i<commNum;i++){	
+			for(int j=0;j<deviceNum;j++){
+				MPI_Send(send_buf, buf_size, MPI_FLOAT, send_to, 0, MPI_COMM_WORLD);
+				MPI_Recv(recv_buf, buf_size, MPI_FLOAT, recv_from, 0, MPI_COMM_WORLD);
+			}
+			send_buf = recv_buf;
+			recv_buf = outputs+((i-1+deviceNum)\%deviceNum)*stride1+j*stride2;
+		}
+	}
+	...
+}
+\end{lstlisting}
+\end{table}
 
 
 %\subsection{计算与通信的重叠执行}
@@ -163,3 +222,16 @@ void RingAllgather( float* outputs,  float *recv_buf, int buf_size, int deviceNu
 
 \section{小结}
 面对跟踪器日益复杂的结构和不断增加的计算负载，高性能的跟踪算法实现变得十分必要。
+
+
+
+
+
+
+
+
+
+
+
+
+
