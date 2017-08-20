@@ -208,14 +208,27 @@ void PipelinedModelParallel( float *inputs, float *filters, float* outputs,  int
 \end{lstlisting}
 \end{table}
 
-
-%\subsection{计算与通信的重叠执行}
-
 \section{实验评测与分析}
+本节对两个常用的2D以及3D卷积网络的模型并行实现进行了评测与分析，比较了多设备上模型并行性能与单设备上的性能，并且比较了模型并行简单实现的性能与模型并行的流水化实现的性能。
 
 \subsection{实验设置}
+所有试验都在带有2个Nvidia K20 GPU的服务器上做的测试，K20是Keple体系结构，支持GPU Direct技术，表\ref{}为K20具体参数。试验的软件环境包括CUDA 8.0， cudnn 5.0以及OpenMP。每个卷积计算将调用cudnn库，GPU间的数据通信使用CUDA-Aware MPI。
 
-\subsection{2D卷级层模型并行实现性能}
+\subsection{2D卷级层的模型并行实现的性能}
+本实验选取了一个常用的2D卷积神经网络即VGG网络，该神经网络包含多层卷积层，这些卷积层涵盖了主要的计算，所以本章介绍的模型并行主要用于加速卷积层的计算，从而降低卷积神经网络前向计算过程的延迟。第一个实验比较了VGG网络的各个卷积层在单GPU上实现的性能与多GPU上模型并行简单实现的性能。单GPU上的实现只包含计算时间，而多GPU上的模型并行的简单实现包含计算和GPU间的通信时间。
+
+图\ref{singleAndSimple}为VGG网络前向计算过程单GPU实现与多GPU模型并行简单实现的性能比较。实验测试了VGG卷积网络的所有卷积层的前向计算的执行时间，从实验结果可以看到，除了第一层卷积层，其它卷积层的多GPU实现性能都比单GPU上实现性能好，在多GPU实验中使用的是2个GPU，理论上来说2个GPU上的模型并行性能应该是单GPU上性能的2倍，但在实验中，取得最好加速效果的应该是$conv3 \_2$，相比单GPU性能，双GPU性能提高了约45\%。对于VGG网络的前面几层以及最后一层卷积层，提升的效果就不是特别明显了（比如卷积层$conv1\_2$、$conv2\_1$、$conv2\_2$、$conv5\_1$），有的甚至性能下降了（如$conv1\_1$），这是因为对于VGG卷积网络的开始的卷积层，卷积层输入的通道数都还计较少，卷积核的输出通道数也比较少，所以这些卷积层的计算量并不大，对于单GPU来说，都很难发挥单GPU的效率，而在多GPU的模型并行中，还需要将少量的计算进一步划分到各个GPU上，则多GPU上效率比单GPU上的效率更低，因此，双GPU上的执行时间与单GPU相比，并不能达到理想的一半的效果，并且在开始的卷积层的输入输出分辨率往往比较大，所以输出特征图所需的存储也相对较大，多GPU上的通信开销将比较大。在第一层卷积层，这两个问题尤为突出，因此我们看到最后单GPU上的性能超过了双GPU模型并行的性能。
+
+\begin{figure*}[tbh]%\small
+\centering
+\resizebox{0.6\textwidth}{!}{
+\includegraphics{figs/singleAndSimple.pdf}
+}
+\caption{Performance comparison between single GPU implementation and simple model parallelization implementation for 2D convolutional neural network.}
+\label{singleAndSimple}
+\end{figure*}
+
+
 
 \subsection{3D卷级层模型并行实现性能}
 
