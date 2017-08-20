@@ -228,7 +228,16 @@ void PipelinedModelParallel( float *inputs, float *filters, float* outputs,  int
 \label{singleAndSimple}
 \end{figure*}
 
+从第一个实验中，我们可以看出模型并行的简单实现存在的问题，一个是由于模型并行导致计算负载过轻而影响GPU效率的发挥，二是通信开销没有得到隐藏。第二个实验是对模型并行流水化的性能评测，模型并行的流水化可以使得通信得到隐藏，但并不能解决模型并行中效率低下的问题，而且由于模型并行的流水化中计算被切成更多小的计算任务，这个效率低下的问题会更加严重，为此在模型并行的流水化中，引入了Nvidia GPU中提供的并发kernel执行的技术。所以在第二个实验中，测试了模型并行的简单实现的性能、模型并行流水化而未采用kernel并发执行技术的性能以及模型并行流水化并且采用了kernel并发执行技术的性能。测试的对象仍然是VGG网络的所有卷积层，图\ref{simpleAndPipelined}为实验结果。单从比较通信时间可以发现，模型并行的流水化的两种实现中通信时间都比模型并行的简单实现少，所以模型并行的流水化方法确实能达到隐藏通信的目的。而比较这三种实现的总时间会发现，模型并行的流水化中未采用并发技术的时间都要比另两种方法长，这是因为模型并行的流水化而未采用并发技术的实现中GPU利用率低，使得计算部分的总时间明显比模型并行的简单实现中的计算时间长。而在采用了并发技术之后，我们可以观察到模型并行的流水化在某些卷积层（如$conv2\_1$、$conv2\_2$）最后总的时间要比模型并行的简单实现的时间短。而对于其它层，主要是这些卷积层的kernel实现中，线程块数目足够大，使得并发技术并没有完全发挥出效果。
 
+\begin{figure*}[tbh]%\small
+\centering
+\resizebox{0.6\textwidth}{!}{
+\includegraphics{figs/simpleAndPipelined.pdf}
+}
+\caption{Time cost distribution in each part of simple model parallelization and pipelined model parallelziation for 2D convolutional layers.}
+\label{simpleAndPipelined}
+\end{figure*}
 
 \subsection{3D卷级层模型并行实现性能}
 
