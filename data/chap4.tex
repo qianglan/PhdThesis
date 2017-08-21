@@ -161,7 +161,7 @@ GPU支持kernel执行与数据传输同时进行，所以我们可以进一步�
 
 \begin{figure*}[tbh]%\small
 \centering
-\resizebox{0.6\textwidth}{!}{
+\resizebox{0.8\textwidth}{!}{
 \includegraphics{figs/pipelinedModel.pdf}
 }
 \caption{Time distribution in (a) single GPU implementation version, (b) simple model parallelization version and (c) pipelined model parallelization version.}
@@ -221,7 +221,7 @@ void PipelinedModelParallel( float *inputs, float *filters, float* outputs,  int
 
 \begin{figure*}[tbh]%\small
 \centering
-\resizebox{0.6\textwidth}{!}{
+\resizebox{0.8\textwidth}{!}{
 \includegraphics{figs/singleAndSimple.pdf}
 }
 \caption{Performance comparison between single GPU implementation and simple model parallelization implementation for 2D convolutional neural network.}
@@ -232,7 +232,7 @@ void PipelinedModelParallel( float *inputs, float *filters, float* outputs,  int
 
 \begin{figure*}[tbh]%\small
 \centering
-\resizebox{0.6\textwidth}{!}{
+\resizebox{0.8\textwidth}{!}{
 \includegraphics{figs/simpleAndPipelined.pdf}
 }
 \caption{Time cost distribution in each part of simple model parallelization and pipelined model parallelziation for 2D convolutional layers.}
@@ -240,19 +240,42 @@ void PipelinedModelParallel( float *inputs, float *filters, float* outputs,  int
 \end{figure*}
 
 \subsection{3D卷级层模型并行实现性能}
+模型并行同样可以应用到3D卷积神经网络中，在本节实验中，主要测试一个用于视频分析的3D卷积神经网络，这个3D卷积神经网络名为C3D，在C3D中，有5层卷积层，表\ref{conv3d-info}为该3D卷积神经网络各个卷积层的参数配置。
 
+\begin{table}[]
+\centering
+\caption{Convolution layers of a 3D network; the filter size in all layers is $3\times 3\times 3$. Assume the batch size is $1$.}
+\label{conv3d-info}
+\begin{tabular}{|c|c|c|c|}
+\hline
+Layer & CxDxHxWxN       & K   \\ \hline
+conv1 & 3x16x112x112x1 & 32   \\ \hline
+conv2 & 32x16x56x56x1  & 64   \\ \hline
+conv3 & 64x8x28x28x1   & 256  \\ \hline
+conv4 & 256x4x14x14x1  & 256  \\ \hline
+conv5 & 256x2x7x7x1    & 256  \\ \hline
+\end{tabular}
+\end{table} 
 
+本节实验比较了3D卷积神经网络的单GPU实现、双GPU的模型并行的简单实现以及双GPU的模型并行的流水化实现。图\ref{3DSimpleAndPipelined}为C3D网络的各个卷积层的这三种实现的总时间比较。与2D卷积层类似，对于大部分3D卷积层来说，它们的双GPU的模型并行的简单实现可以取得一定的加速效果，与单GPU的实现性能相比，双GPU的模型并行的简单实现可以提高$20\%~40\%$的性能。在卷积层$conv1$，模型并行实现的性能反而下降了，其原因也是因为在第一层卷积层中，计算量太小，导致模型并行中GPU计算效率明显下降，而输出特征图相对较大，又导致模型并行中的通信开销增加。最终使得模型并行实现的性能低于单设备的实现。
 
+在模型并行的流水化实现中，除了卷积层$conv5$，其它层的执行时间并没有比模型并行的简单实现少，其中主要的原因为C3D的设计上为乐控制计算量，各个卷积层的输入输出通道数较小，特征图大小也因为抽样分辨率下降明显，所以各个卷积层在GPU上的实现时，cudnn库中所使用的线程块大小以及线程块内的线程数都较小，使得模型并行的流水化实现中并发技术并不能明显提高GPU的利用效率，流水化实现带来的通信隐藏并不能弥补由于GPU效率下降而损失的性能。
+
+\begin{figure*}[tbh]%\small
+\centering
+\resizebox{0.8\textwidth}{!}{
+\includegraphics{figs/3DSimpleAndPipelined.pdf}
+}
+\caption{Performance comparison between single GPU, simple parallelization and pipelined model parallelization for 3D convolutional neural network.}
+\label{3DSimpleAndPipelined}
+\end{figure*}
 
 \section{小结}
-面对跟踪器日益复杂的结构和不断增加的计算负载，高性能的跟踪算法实现变得十分必要。
+本章主要介绍了在数据中心环境下，针对卷积神经网络应用而提出的一个低延迟的解决方案，采用模型并行的方法在多个计算设备上进行并行加速。首先介绍了多个计算设备上的模型并行的简单实现，相比于单设备上的卷积实现，卷积计算部分在多个计算设备上确实得到了加速的效果，但存在的问题是通信开销随着计算节点的数目增加而变得复杂；其次，针对模型并行简单实现中通信开销上存在的问题，本章介绍了一种环形结构的通信模式，可以控制模型并行中的通信开销；最后，为了进一步隐藏通信开销，本章介绍了模型并行的流水化实现，即将卷积计算划分成很多小的计算任务，然后将计算和通信交替执行，进而达到计算与通信重叠的目的。
 
+最后从实验结果来看，模型并行的多种实现中计算部分的时间加速并不能达到理想的效果，主要是各层卷积层的计算量还不够，特别是模型并行的流水化实现中，由于计算任务被划成更多小的计算任务，多计算设备上的利用效率更低了。即使采用GPU中的kernel并发执行机制，也只能对某些卷积层有效。但如果只从通信开销来看，模型并行的流水化实现中确实达到了计算与通信重叠的目的。
 
-
-
-
-
-
+可以预测，对于未来计算更加密集型的卷积神经网络的前向计算过程，本章介绍的技术将达到更好的效果。
 
 
 
