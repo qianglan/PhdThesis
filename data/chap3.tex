@@ -8,7 +8,7 @@
 
 但对于3D卷积神经网络的应用来说，如果仍然采用2D卷积神经网络的方法来处理，就会存在计算量大，存储消耗大的问题。有些方法只能解决其中的一个问题，比如基于FFT变换的方法在某些情况下可以有效降低计算量，但是以消耗存储为代价的。有一种卷积计算的快速算法，称为WMFA(Winograd Minimal Filtering Algorithm)，这种算法目前已经成功运用在2D卷积神经网络中，能够有效降低卷积中的计算量，并且不会增加额外的存储空间。因此，将2D WMFA应用到3D卷积神经网络中是非常值得研究的课题。本章内容主要是介绍3D WMFA算法在3D卷积网络上的应用，需要解决的问题包括，由2D WMFA算法的形式推倒出3D WMFA的形式；从理论上分析3D WMFA算法的复杂性，证明该算法在计算和存储开销上的优势；面向GPU异构平台，将3D WMFA算法高效地映射到GPU上。
 
-本章内容安排如下：第二节介绍了关于卷积神经网络中加速的一些研究现状；第三节介绍快速卷积算法WMFA的3D形式，以及3D WMFA算法的复杂性分析；第四节将重点介绍3D WMFA算法的GPU实现，并且介绍了面向GPU的几种优化技术；第五节将对3D WMFA算法的性能进行评测，并与其它卷积方法的性能进行了对比；最后是对本章内容的总结，随着3D卷积网络应用的推广，对其进行加速变得尤为重要。
+本章内容安排如下：第二节介绍了关于卷积神经网络中加速的一些研究现状；第三节介绍快速卷积算法WMFA的3D形式，以及3D WMFA算法的复杂性分析并证明了3D WMFA在理论上可以减少卷积计算量；第四节将重点介绍3D WMFA算法的GPU实现，并且介绍了面向GPU的几种优化技术；第五节将对3D WMFA算法的性能进行评测，并与其它卷积方法的性能进行了对比；最后是对本章内容的总结，随着3D卷积网络应用的推广，对其进行加速变得尤为重要。
 
 \section{相关研究}
 对于卷积神经网络的加速，目前主要集中在对2D卷积神经网络的加速研究中，加速的方法主要包括网络结构的改进、算法的改进、深度学习框架中加速库的使用以及新的平台的使用。
@@ -23,35 +23,73 @@ Alexnet\ref{}是最早被提出的卷积神经网络，在图像分类应用中�
 
 本章的工作主要是借鉴2D卷积网络中算法加速的相关研究，来加速3D卷积神经网络的计算过程。
 \section{快速3D卷级算法}
-
-
-
+本节将首先介绍3D卷积神经网络中的3D卷积计算的定义，然后通过对1D和2D WMFA算法的介绍，推导出WMFA的3D形式，并将3D WMFA 算法运用到3D卷积层的实现中，最后对3D WMFA算法的计算复杂行进行了分析。
 
 \subsection{3D卷级神经网络定义}
+对于2D卷积来说，每个卷积核有长和宽两个维度，卷积核在输入特征图的长和宽两个方向依次滑动进行卷积运算。假定2D卷积层的输入特征图规模为$N\times C\times H\times W$，卷积核规模为$C\times K\times R\times S$，则2D卷积按照其定义可以用公式\ref{eq:2dcnn}表示。
+\begin{equation} \label{eq:2dcnn}
+Y_{i,k,x,y} = \sum_{c=0}^{C-1}\sum_{r=0}^{R-1}\sum_{s=0}^{S-1}I_{i,c,x+r,y+s}F_{k,r,s,c}
+\end{equation} 
+3D卷积在2D卷积的基础上增加了深度维度的信息，因此卷积核在做卷积时也需要在深度所在维度进行卷积运算，公式\ref{eq:3dcnn}为3D卷积计算的公式。公式中 $Y_{i,k,x,y,z}$ 代表了第 $k$个通道的卷积计算结果， $I_{i,c,x+r,y+s,z+t}$ 为其中的一个输入特征图， $F_{k,r,s,t,c}$ 是其中的一个卷积核， 公式\ref{eq:3dcnn}是按照3D卷积的定义得到的计算公式，从公式中可以发现3D卷积计算的定义法需要消耗大量的计算，更为详细的复杂行分析将在\ref{Complexity}节中介绍。 
 
-\subsection{3D Winograd 算法}
+\begin{equation} \label{eq:3dcnn}
+Y_{i,k,x,y,z} = \sum_{c=0}^{C-1}\sum_{r=0}^{R-1}\sum_{s=0}^{S-1}\sum_{t=0}^{T-1}I_{i,c,x+r,y+s,z+t}F_{k,r,s,t,c}
+\end{equation} 
 
-\subsection{3D Winograd 算法的复杂性分析}
+\subsection{3D WMFA 算法}
+本小节将介绍一种快速的3D卷积实现算法，这里命名为3D WMFA算法，WMFA算法由\ref{}提出。WMFA最开始运用在1D和2D卷积计算中。下面将从1D和2D的WMFA形式推导出3D WMFA形式。
+
+在1D的WMFA算法中，一次计算长度为$m$ 的块大小的结果，卷积核大小假定为$r$，则用$F(m,r)$来表示一次$m$个值的计算结果。按照1D卷积计算的定义，需要$2\times 3=6$次矩阵乘运算才能计算出$F(2,3)$，但如果采用1D WMFA算法，则卷积可以通过公式\ref{eq:1dwinograd}实现。
+\begin{equation} \label{eq:1dwinograd}
+F(2,3) = \begin{bmatrix}
+i_0 & i_1 & i_2 \\
+i_1 & i_2 & i_3 
+\end{bmatrix}
+\begin{bmatrix}
+f_0 \\
+f_1 \\
+f_2
+\end{bmatrix}
+= \begin{bmatrix}
+m_1 + m_2 + m_3 \\
+m_2 - m_3 - m_4
+\end{bmatrix}
+\end{equation} 
+
+其中，$m_1$、$m_2$、$m_3$以及$m_4$可以通过公式\ref{mequation}计算得到。
+
+\begin{equation}
+\label{mequation}
+\begin{split}
+m_1 = (i_0-i_2)f_0 	 \quad	m_2 = (i_1+i_2)\frac{f_0+f_1+f_2}{2} \\
+m_4 = (i_1-i_3)f_2 	 \quad	m_3 = (i_2-i_1)\frac{f_0-f_1+f_2}{2}
+\end{split}
+\end{equation}
+
+在1D WMFA中，
+
+\subsection{3D WMFA 算法的复杂性分析}
+\label{Complexity}
 
 
-\section{3D Winograd 算法的实现与优化}
+\section{3D WMFA 算法的实现与优化}
 
-\subsection{3D Winograd 算法的实现}
+\subsection{3D WMFA 算法的实现}
 
-\subsection{3D Winograd 算法的优化}
+\subsection{3D WMFA 算法的优化}
 
 
 \section{实验评测与分析}
 \subsection{实验设置}
 
 
-\subsection{3D Winograd 算法各优化方法的性能}
+\subsection{3D WMFA 算法各优化方法的性能}
 
 
-\subsection{3D Winograd 算法各kernel执行时间分布}
+\subsection{3D WMFA 算法各kernel执行时间分布}
 
 
-\subsection{3D Winograd 算法与其它卷级算法性能比较}
+\subsection{3D WMFA 算法与其它卷级算法性能比较}
 
 
 \section{小结}
