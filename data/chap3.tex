@@ -218,17 +218,17 @@ M^{(\varepsilon,\eta,\nu)} = U^{(\varepsilon,\eta,\nu)}V^{(\varepsilon,\eta,\nu)
 
 \subsection{3D WMFA 算法的复杂性分析}
 \label{Complexity}
-这一节将对3D WMFA算法的计算复杂行进行分析。首先还是假设输入特征图的规模为$N \times C \times D \times H \times W$，卷积核规模为$K \times C \times r \times r \times r$，输出特征图的大小规模为$N \times K \times M \times P \times Q$。 则3D WMFA算法中转化成的矩阵乘中的乘加操作总数可以通过公式\ref{mmnumber}表示。
+这一节将对3D WMFA算法的计算复杂行进行分析。首先还是假设输入特征图的规模为$N \times C \times D \times H \times W$，卷积核规模为$K \times C \times r \times r \times r$，输出特征图的大小规模为$N \times K \times H \times W \times D$。 则3D WMFA算法中转化成的矩阵乘中的乘加操作总数可以通过公式\ref{mmnumber}表示。
 \begin{equation}
 \label{mmnumber}
 %L_1 = 2N\ceil{\frac{M}{m}}\ceil{\frac{P}{m}}\ceil{\frac{Q}{m}}CK(m+r-1)^3
-L_1 = 2N{\frac{M}{m}}{\frac{P}{m}}{\frac{Q}{m}}CK(m+r-1)^3
+L_1 = 2N{\frac{H}{m}}{\frac{W}{m}}{\frac{D}{m}}CK(m+r-1)^3
 \end{equation}
 
 如果采用直接卷积的方法，需要总的浮点运算次数可以通过公式\ref{directNum}表示。
 \begin{equation}
 \label{directNum}
-L_2 = 2NMPQCKr^3
+L_2 = 2NHWDCKr^3
 \end{equation}
 
 将公式\ref{directNum}与公式\ref{mmnumber}两边相除，可以得到它们的比值的表达式：
@@ -236,11 +236,41 @@ L_2 = 2NMPQCKr^3
 \frac{L_2}{L_1} = \frac{m^3*r^3}{(m+r-1)^3}
 \end{equation}
 
-为了看出3D WMFA算法的优势，假定$m=2$ and $r=3$，计算复杂性可以降低$\frac{L_2}{L_1}$ ＝ $\frac{2*2*2*3*3*3}{4*4*4}$=$\frac{216}{64}=3.375$。然而3D WMFA算法在对输入、输出以及卷积核的变换中会增加一些加法的额外开销。也可以从理论上对这些额外的开销进行量化。
+为了看出3D WMFA算法的优势，假定$m=2$ and $r=3$，计算复杂性可以降低$\frac{L_2}{L_1}$ ＝ $\frac{2*2*2*3*3*3}{4*4*4}$=$\frac{216}{64}=3.375$。然而3D WMFA算法在对输入、输出以及卷积核的变换中会增加一些加法的额外开销。也可以从理论上对这些额外的开销进行量化。假定对最小的输入块的变换开销为$\beta$，对卷积核块的变换开销为$\gamma$，对输出块的变换开销为$\delta$，这三个变换过程总的算术复杂性记为$T(I)$，$T(F)$，$T(O)$，则可以用公式\ref{transformComp}来表达。
+\begin{equation}
+\label{transformComp}
+	\begin{split}
+	%\frac{L_2}{L_1} = \frac{m^3*r^3}{(m+r-1)^3}
+	T(I) = \frac{\beta}{m^3}NHWDC \\
+	T(F) = \gamma CK \\
+	T(O) = \frac{\delta}{m^3}NHWDK  
+	\end{split}
+\end{equation}
+
+下面可以计算出各个变换阶段的计算复杂性占点乘阶段开销的比例，如公式\ref{transformMR}所示。从式中可以看出，对输入、输出以及卷积核的变换开销占点乘的比例是很低的。
+\begin{equation}
+\label{transformMR}
+	\begin{split}
+	%\frac{L_2}{L_1} = \frac{m^3*r^3}{(m+r-1)^3}
+	T(I)/L_1 =\frac{\beta}{2K(m+r-1)^3}   \\
+	T(F)/L_1 = \frac{\gamma m^3}{2NHWD(m+r-1)^3} \\
+	T(O) /L_1= \frac{\delta}{C(m+r-1)^3} 
+	\end{split}
+\end{equation}
 
 \section{3D WMFA 算法的实现与优化}
+本节将对3D WMFA的具体实现进行介绍，面向的计算平台是GPU异构平台。在将3D WMFA算法映射到GPU中，需要针对GPU的体系结构特点进行一些相应的优化，从而提高3D WMFA算法在GPU上的性能。
 
 \subsection{3D WMFA 算法的实现}
+根据算法\ref{3DWinograd}的计算特性，该算法具有很好的并行性，因此采用GPU平台可以高效地实现算法\ref{3DWinograd}的各个计算过程。首先介绍3D WMFA算法的基本实现，基本实现的计算流图如图\ref{computeflow}所示，
+\begin{figure*}[tbh]%\small
+\centering
+\resizebox{0.8\textwidth}{!}{
+\includegraphics{figs/computeFlow.pdf}
+}
+\caption{The computing flow of 3D WMFA}
+\label{computeflow}
+\end{figure*}
 
 \subsection{3D WMFA 算法的优化}
 
