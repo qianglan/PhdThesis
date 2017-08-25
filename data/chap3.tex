@@ -262,7 +262,7 @@ L_2 = 2NHWDCKr^3
 本节将对3D WMFA的具体实现进行介绍，面向的计算平台是GPU异构平台。在将3D WMFA算法映射到GPU中，需要针对GPU的体系结构特点进行一些相应的优化，从而提高3D WMFA算法在GPU上的性能。
 
 \subsection{3D WMFA 算法的实现}
-根据算法\ref{3DWinograd}的计算特性，该算法具有很好的并行性，因此采用GPU平台可以高效地实现算法\ref{3DWinograd}的各个计算过程。首先介绍3D WMFA算法的基本实现，基本实现的计算流图如图\ref{computeflow}所示，
+根据算法\ref{3DWinograd}的计算特性，该算法具有很好的并行性，因此采用GPU平台可以高效地实现算法\ref{3DWinograd}的各个计算过程。下面介绍3D WMFA算法的基本实现，基本实现的计算流图如图\ref{computeflow}所示，从图中可以看出3D WMFA算法的基本实现中包含的计算过程，首先是对输入特征图和卷积核的3D Winograd变换，变换之后的两个结果并没有直接进行矩阵乘运算，这里需要对变换之后的结果进行一次重排，数据按照矩阵乘所需要的存储格式重新组织，然后对重排之后的结果进行矩阵乘运算。矩阵乘在GPU上已经有可调用的高性能库，这里直接调用cublas实现矩阵乘。矩阵运算结束后也需要对结果进行一下重排才能进行反变换得到最后的结果。
 \begin{figure*}[tbh]%\small
 \centering
 \resizebox{0.8\textwidth}{!}{
@@ -271,6 +271,8 @@ L_2 = 2NHWDCKr^3
 \caption{The computing flow of 3D WMFA}
 \label{computeflow}
 \end{figure*}
+
+在图\ref{computeflow}中，除了矩阵乘部分可以调用cublas库实现外，其它六个计算部分需要自己实现相应的CUDA代码。
 
 \subsection{3D WMFA 算法的优化}
 
