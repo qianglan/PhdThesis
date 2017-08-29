@@ -295,21 +295,101 @@ GPU的baseline实现中，在调用cuBlas库实现矩阵乘之前，需要对输
 \subsection{3D WMFA 算法的优化}
 在\ref{baselineIm}中介绍的是在GPU平台上的一个baseline实现，在本小节中，将介绍针对GPU的两个优化方法，第一种优化方法是对齐访存，对齐访存可以使存储的访问更加高效，并且提高cache的命中率；第二种方法将变换与重排两步操作合并以减少全局存储的访问。
 
-在GPU平台中，数据的存储顺序以及线程访问数据的方式将会影响GPU性能的发挥。在baseine实现中，输入图片数据是按照$NCDHW$的顺序存储的，即首先存储各个通道然后存储bach中的每一个输入，而由于线程块中的线程是在N所在维度方向进行划分的，这意味着处于同一个线程块中的线程访问的是处于batch中的不同输入图片，然而处于不同图片相同位置的数据在存储位置上是相隔很远的，GPU上的cache大小也是有限的，如同处于同一个线程块的线程所访问的数据相隔距离大于GPU的cache大小，则每个线程将独立地访问全局存储，这将导致大量的存储访问。因此，在第一种优化方法中，输入图片的存储顺序变成了$CDHWN$ ，这样输入数据最先存储的是N维中的数据，线程块中的32个线程访问的数据变成了连续存储，从全局存储中每次访存的数据都可以被使用，因此全局存储的访存带宽得到充分利用。
+在GPU平台中，数据的存储顺序以及线程访问数据的方式将会影响GPU性能的发挥。在baseine实现中，输入图片数据是按照$NCDHW$的顺序存储的，即首先存储各个通道然后存储bach中的每一个输入，而由于线程块中的线程是在N所在维度方向进行划分的，这意味着处于同一个线程块中的线程访问的是处于batch中的不同输入图片，然而处于不同图片相同位置的数据在存储位置上是相隔很远的，GPU上的cache大小也是有限的，如同处于同一个线程块的线程所访问的数据相隔距离大于GPU的cache大小，则每个线程将独立地访问全局存储，这将导致大量的存储访问。因此，在第一种优化方法中，输入图片的存储顺序变成了$CDHWN$ ，这样输入数据最先存储的是N维中的数据，线程块中的32个线程访问的数据变成了连续存储，从全局存储中每次访存的数据都可以被使用，因此全局存储的访存带宽得到充分利用。同理，卷积核的存储顺序由$KTRSC$变为$CTRSK$，其中T、R、S为卷积核的大小，输出结果的存储顺序由$NDHWK$变为$KDHWN$。
+
+在第一个优化方法的基础上，再采用第二优化方法，即将变换与重排两步操作合并。第二个优化方法的实质是减少对全局存储的访问，因为在基本实现的方法中，卷积核以及输入图片变换之后的结果是存储在全局存储中，然后进入下一个kernel执行重排操作，从全局存储中读出数据进行重排后写回全局存储器中。可以发现3D WMFA的基本实现中，重排使用单独的一个kernel来实现导致了大量的全局存储的访问，因此，很自然的想法就是将重排的实现合并到变换的kernel中，即在变换执行结束时，变换之后的结果在向全局存储存储时，直接存储到重排之后的正确位置中，紧接着就能进行矩阵乘运算。类似地，对矩阵乘的结果进行反变换之前，也可以不需要进行重排，变换时，直接从全局存储中读取相应的正确数据进行反变换。
+
+由于全局存储器离计算单元相对最远，全局存储的访问对性能的影响非常大，第二个优化方法能够有效的减少对全局存储的访问。在\ref{experiment}节中，也将看到第二个优化方法对性能的影响。
 
 
 \section{实验评测与分析}
+\label{experiment}
 \subsection{实验设置}
+所有的实验都是在Geforce GTX 1080 GPU上测试的，该GPU计算性能强大，拥有20个多处理器，2560个CUDA 核心，8GB的显存大小，具体参数参考表\ref{my-label}。实验中软件环境主要是CUDA 8.0以及cublas和cuDNN库。
+\begin{table}[]
+\centering
+\caption{Properties of the GeForce GTX 1080}
+\label{my-label}
+\begin{tabular}{l|l}
+\hline
+parameters                                    & values \\ \hline
+CUDA capability major/minor version number    & 6.1    \\ \hline
+Total amount of global memory                 & 8GB    \\ \hline
+CUDA Cores                                    & 2560   \\ \hline
+L2 Cache Size                                 & 2MB    \\ \hline
+Warp size                                     & 32     \\ \hline
+Total number of registers available per block & 64KB   \\ \hline
+\end{tabular}
+\end{table}
 
 
 \subsection{3D WMFA 算法各优化方法的性能}
+本实验测试了3D WMFA算法的各种实现在一个经典的3D卷积神经网络中的性能。这个经典的3D卷积网络是用来对视频进行分类的，该网络结构包含五层卷积层，表\ref{conv3d-info}列出了各个3D卷积层的参数以及包含的计算量。
+\begin{table}[]
+\centering
+\caption{Convolution layers of a 3D network; the filter size in all layers is $3\times 3\times 3$, and the GFLOPS columns calculate the number of flops operations in each convolutional layer. Assume the batch size is $32$.}
+\label{conv3d-info}
+\begin{tabular}{|c|c|c|c|}
+\hline
+Layer & CxDxHxWxN       & K   & GFLOPS \\ \hline
+conv1 & 3x16x112x112x32 & 32  & 16.65   \\ \hline
+conv2 & 32x16x56x56x32  & 64  & 88.8  \\ \hline
+conv3 & 64x8x28x28x32   & 256 & 88.8  \\ \hline
+conv4 & 256x4x14x14x32  & 256 & 44.4   \\ \hline
+conv5 & 256x2x7x7x32    & 256 & 5.55   \\ \hline
+\end{tabular}
+\end{table} 
 
+由于第一层3D卷积层的通道数只有3，3D WMFA算法的实现代码暂不支持，因此，实验只对其它四层卷积层的3D WMFA实现进行了测试，比较了3D WMFA的基本实现以及两种优化的实现方法的性能。图\ref{result1}为3D WMFA算法的两种优化实现的性能相对于该算法的基本实现的性能加速。从结果中可以看到，各个卷积层的3D WMFA算法的实现中，第一种优化方法相对于基本实现取得了3 $\thicksim$ 4倍的加速。然而，第二种优化方法的实现相对于基本实现取得的最大加速比可以达到约42倍，最少也能达到约13倍的加速比。第一种优化方法使得存储访问变得更加高效，带宽得到了充分利用，对性能影响也是很显著的，而第二种优化方法能够减少大量不必要的全局存储访问，而全局存储访问的延迟在GPU的所有存储层次中是最大的，因此，第二种优化方法取得了非常好的优化性能。
+
+\begin{figure}[tbh]%\small
+\centering
+\resizebox{0.8\textwidth}{!}{
+\includegraphics{figs/result1.pdf}
+}
+\caption{Speed up with different optimizations on 3D convolution layers}
+\label{result1}
+\end{figure}
 
 \subsection{3D WMFA 算法各kernel执行时间分布}
+第二个实验更好地研究了各个优化方法对各个kernel性能的具体影响。卷积层$conv3$的计算量算是最大的，因此第二个实验测试了3D WMFA算法的实现中的各个kernel在该层的性能变化。图\ref{result2}是3D WMFA算法的各个kernel在三种实现中的执行时间比较。无论是3D WMFA算法的基本实现方法还是第一个优化方法实现中，$ReshapeOutput$这个kernel在所有kernel中占用时间最长，这是因为该kernel中包含的全局访存次数是最多的。然而在第二个优化方法的实现中，由于重排部分已经被优化了，第二个优化方法的实现中所占时间最长的变为矩阵乘部分了，占了约$60\%$的时间。卷积核变换在这三种实现中所占比例都很低，这可以从计算复杂性分析部分找到理论上的支持。
+
+\begin{figure}[tbh]%\small
+\centering
+\resizebox{0.8\textwidth}{!}{
+\includegraphics{figs/result2.pdf}
+}
+\caption{Time percentage distribution of each kernel in each implementation version for a specific convolution layer}
+\label{result2}
+\end{figure}
 
 
 \subsection{3D WMFA 算法与其它卷级算法性能比较}
-
+最后将3D WMFA算法的最优实现与当前GPU上的深度学习库进行性能比较，目前针对Nvidia 的GPU的深度学习库主要是cuDNN。cuDNN针对3D卷积计算的实现中，
 
 \section{小结}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
