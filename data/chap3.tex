@@ -363,12 +363,42 @@ conv5 & 256x2x7x7x32    & 256 & 5.55   \\ \hline
 \label{result2}
 \end{figure}
 
-
 \subsection{3D WMFA 算法与其它卷级算法性能比较}
-最后将3D WMFA算法的最优实现与当前GPU上的深度学习库进行性能比较，目前针对Nvidia 的GPU的深度学习库主要是cuDNN。cuDNN针对3D卷积计算的实现中，
+最后将3D WMFA算法的最优实现与当前GPU上的深度学习库进行性能比较，目前针对Nvidia 的GPU的深度学习库主要是cuDNN。cuDNN在对3D卷积计算的实现中，有两个可用的算法实现，一个是将卷积转化为矩阵乘，另一个是利用FFT 分块方法实现卷积。可以用$cuDNN$ $SGEMM$ 和 $cuDNN$ $FFT$ $Tiling$代表这两种方法，并用$3D WMFA$代表本章介绍的算法。图\ref{result3}为这三种卷积实现方法在四个卷积层的执行时间比较，对于$conv2$卷积层，$3D$ $WMFA$方法比$cuDNN$ $FFT$ $Tiling$方法慢$30$\%，然而比$cuDNN$ $SGEMM$方法性能要高，$cuDNN$ $FFT$ $Tiling$方法能够取得较快的速度是以消耗大量存储为代价的。由于参数$C$和$K$在卷积层$conv2$中比较小，导致在$3D$ $WMFA$方法中的矩阵乘规模比较小，影响了GPU性能的发挥。然而随着$C$和$K$两个参数的增大，我们看到对卷积层$conv3$、$conv4$以及$conv5$，$3D$ $WMFA$方法取得了比另两个方法更好的性能。如果将各个卷积层的执行时间累加起来得到总的执行时间，$cuDNN$ $SGEMM$方法的执行总时间为$132.6$ ms，$cuDNN$ $FFT$ $Tiling$方法的执行总时间为$135.4$ ms，而$3D$ $WMFA$方法的执行总时间为$108.2$ ms，比其它两种方法性能都要好。
+
+\begin{figure}[tbh]%\small
+\centering
+\resizebox{0.8\textwidth}{!}{
+\includegraphics{figs/result3.pdf}
+}
+\caption{Execution time of different methods on 3D convolution layers}
+\label{result3}
+\end{figure}
+
+
+可以进一步计算出$cuDNN$ $SGEMM$方法和$3D$ $WMFA$方法的浮点性能，表\ref{FlopsInfo}为这两种方法在各个卷积层的浮点计算性能。与$cuDNN$ $SGEMM$方法相比，$3D$ $WMFA$方法最高能达到$1.96$倍的加速，$3D$ $WMFA$方法取得最好的性能为4.72 TFLOPS，而GTX 1080的峰值性能为8.2TFLOPS，因此$3D$ $WMFA$方法能够达到峰值性能的$57.5$\%。
+
+\begin{table}[]
+\centering
+\caption{Performance of cuDNN SGEMM versus that of the 3D WMFA on 3D convolution layers. Performance is measured in effective TFLOPS.}
+\label{FlopsInfo}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\multirow{2}{*}{Layer} & \multirow{2}{*}{CxDxHxWxN} & \multirow{2}{*}{K} & \multicolumn{2}{c|}{TFLOPS} & \multirow{2}{*}{speedup} \\ \cline{4-5}
+                       &                            &                    & cuDNN SGEMM       & 3D WMFA        &                          \\ \hline
+conv2                  & 32x16x56x56x32             & 64                 & 1.21        & 1.28          & 1.05                     \\ \hline
+conv3                  & 64x8x28x28x32              & 256                & 2.38        & 3.31          & 1.39                     \\ \hline
+conv4                  & 256x4x14x14x32             & 256                & 2.4         & 4.72          & 1.96                     \\ \hline
+conv5                  & 256x2x7x7x32               & 256                & 1.46        & 2.1           & 1.44                     \\ \hline
+\end{tabular}
+\end{table}
 
 \section{小结}
+2D卷积神经网络的成功应用，使得3D卷积神经网络的研究逐渐盛行，而3D卷积神经网络主要需要解决的问题就是计算量大的问题。传统的卷积计算方法比如矩阵乘和FFT变换方法并不能有效地应用到3D卷积计算中，本章采用的3D WMFA算法，可以从理论上证明这个方法能够有效地减少3D卷积的计算量并且不会增加额外的存储开销。
 
+本章从1D和2D WMFA算法的推导开始，进而推导出了3D WMFA算法的形式，并对该算法的计算复杂行进行了理论分析，理论上，该算法能将核心计算降低到原来计算的$30$\%，代价是增加一些额外的变换开销，但这些变换开销与核心的浮点计算相比，占的比例比较小。
+
+在3D WMFA算法的具体实现中，本章主要介绍了GPU平台下，对算法中变换进行了高效地实现。虽然算法中涉及的多个变换计算量不大，但由于变换中涉及到对全局存储的访问，因此，本章介绍了对存储访问的两种优化方法，
 
 
 
