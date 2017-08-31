@@ -1,1844 +1,389 @@
-@article{Yang2011,
-author = {Yang, Hanxuan and Shao, Ling and Zheng, Feng and Wang, Liang and {Zhan Song}},
-doi = {10.1016/j.neucom.2011.07.024},
-journal = {Neurocomputing},
-number = {18},
-pages = {3823--3831},
-title = {{Recent Advances and Trends in Visual Tracking: A Review}},
-volume = {74},
-year = {2011}
-}
-
-@inproceedings{Wang2015,
-author = {Wang, Naiyan and Shi, Jianping and Yeung, Dit-Yan and {Jiaya Jia}},
-booktitle = {IEEE International Conference on Computer Vision},
-pages = {3101--3109},
-title = {{Understanding and Diagnosing Visual Tracking Systems}},
-year = {2015}
-}
-
-@inproceedings{Kim2011,
-abstract = {In this paper, we propose an OpenCL framework that treats multi- ple GPUs as a single compute device. Providing the single GPU image makes an OpenCL application written for a single GPU portable to the GPGPU systems with multiple GPUs. It also makes the application exploit the full computing power of the multiple GPUs and the entire amount of GPU memories available in the sys- tem. Our OpenCL framework automatically distributes at run time an OpenCL kernel written for a single GPU into multiple CUDA kernels that execute on the multiple GPUs. It applies a run-time memory access range analysis to the kernel by performing a sam- pling run and identifies an optimal workload distribution for the kernel. To achieve a single compute device image, the runtime maintains a virtual device memory that is allocated in the main memory of the GPGPU system. The OpenCL runtime treats the memory as if it were the memory of a single GPU device and keeps it consistent to the memories of the multiple GPUs. Our OpenCL- C-to-C translator generates the sampling code from the OpenCL kernel code and our OpenCL-C-to-CUDA-C translator generates theCUDAkernel code for the distributed OpenCL kernel.We show the effectiveness of our OpenCL framework by implementing the OpenCL runtime and the two source-to-source translators.We eval- uate its performance with a GPGU system that contains eight GPUs using eleven OpenCL benchmark applications. Categories},
-author = {Kim, Jungwon and Kim, Honggyu and Lee, Joo Hwan and Lee, Jaejin},
-booktitle = {ACM Symposium on Principles and Practice of Parallel Programming},
-doi = {10.1145/1941553.1941591},
-isbn = {9781450301190},
-issn = {03621340},
-keywords = {access range analysis,by grant 2009-0081569,center for manycore programming,compilers,creative research ini-,from the national research,opencl,runtime,this work was supported,tiatives,virtual device memory,workload distribution},
-number = {8},
-pages = {277},
-title = {{Achieving a Single Compute Device Image in OpenCL for Multiple GPUs}},
-url = {http://dl.acm.org/citation.cfm?doid=2038037.1941591{\%}5Cnhttp://portal.acm.org/citation.cfm?doid=1941553.1941591},
-volume = {46},
-year = {2011}
-}
-
-
-@article{Kelley2012,
-author = {Ragan-Kelley, Jonathan and Adams, Andrew and Paris, Sylvain and Levoy, Marc and Amarasinghe, Saman and {Fr{\'{e}}do Durand}},
-journal = {ACM Transactions on Graphics},
-number = {4},
-pages = {Article No. 32},
-title = {{Decoupling Algorithms from Schedules for Easy Optimization of Image Processing Pipelines}},
-volume = {31},
-year = {2012}
-}
-
-
-@inproceedings{Fatahalian2006,
-author = {Fatahalian, Kayvon and Horn, Daniel Reiter and Knight, Timothy J. and Leem, Larkhoon and Houston, Mike and Park, Ji Young and Erez, Mattan and Ren, Manman and Aiken, Alex and Dally, William J. and Hanrahan, Pat},
-booktitle = {ACM/IEEE Conference on Supercomputing},
-pages = {Article No. 83},
-title = {{Sequoia: Programming the Memory Hierarchy}},
-year = {2006}
-}
-
-@article{Catanzaro2010,
-abstract = {THE PARLAB AT BERKELEY,UPCRC-ILLINOIS, AND THE PERVASIVE PARALLEL LABORATORY AT STANFORD ARE STUDYING HOW TO MAKE PARALLEL PROGRAMMING SUCCEED GIVEN INDUSTRY'SRECENT SHIFT TO MULTICORE COMPUTING.ALL THREE CENTERS ASSUME THAT FUTURE MICROPROCESSORS WILL HAVE HUNDREDS OF CORES AND ARE WORKING ON APPLICATIONS, PROGRAMMING ENVIRONMENTS, AND ARCHITECTURES THAT WILL MEET THIS CHALLENGE.THIS ARTICLE BRIEFLY SURVEYS THE SIMILARITIES AND DIFFERENCE IN THEIR RESEARCH.},
-author = {Catanzaro, Bryan and Fox, Armando and Keutzer, Kurt and Patterson, David and Su, Bor Yiing and Snir, Marc and Olukotun, Kunle and Hanrahan, Pat and Chafi, Hassan},
-doi = {10.1109/MM.2010.42},
-isbn = {0272-1732},
-issn = {02721732},
-journal = {IEEE Micro},
-keywords = {Hardware,Multicore,Parallel applications,Parallel architectures,Parallel computing,Parallel programming environments,Shared-memory},
-number = {2},
-pages = {41--55},
-title = {{Ubiquitous Parallel Computing from Berkeley, Illinois, and Stanford}},
-volume = {30},
-year = {2010}
-}
-
-
-
-@inproceedings{Seo2011,
-author = {Seo, S. and Jo, G. and Lee, J.},
-booktitle = {IEEE International Symposium on Workload Characterization},
-pages = {137--148},
-title = {{Performance Characterization of NAS Parallel Benchmarks in OpenCL}},
-year = {2011}
-}
-
-
-@inproceedings{Lan2012,
-author = {Lan, Q. and Xun, C. and Wen, M. and Su, H. and Liu, L. and Zhang, C.},
-booktitle = {International Conference on Parallel and Distributed Computing, Applications and Technologies},
-pages = {356--360},
-title = {{Improving Performance of GPU Specific OpenCL Program on CPUs}},
-year = {2012}
-}
-
-
-
-@inproceedings{Espeland2011,
-author = {Espeland, H{\aa}vard and Beskow, Paul B. and Stensland, Hakon K. and Olsen, Preben N. and Kristoffersen, Stale and Griwodz, Carsten and Halvorsen, Pal},
-booktitle = {International Conference on Parallel Processing Workshops},
-doi = {10.1109/ICPPW.2011.22},
-isbn = {978-1-4577-1337-8},
-pages = {416--426},
-title = {{P2G: A Framework for Distributed Real-Time Processing of Multimedia Data}},
-url = {http://ieeexplore.ieee.org/lpdocs/epic03/wrapper.htm?arnumber=6047051},
-year = {2011}
-}
-
-
-
-@article{sodlt,
-abstract = {Convolutional Neural Networks (CNNs) have demon- strated its great performance in various vision tasks, such as image classification [18] and object detection [8]. How- ever, there are still some areas that are untouched, such as visual tracking. We believe that the biggest bottleneck of applying CNN for visual tracking is lack of training data. The power of CNN usually relies on huge (possible mil- lions) training data, however in visual tracking we only have one labeled sample in the first frame. In this paper, we address this issue by transferring rich feature hierar- chies from an offline pretrained CNN into online tracking. In online tracking, the CNN is also finetuned to adapt to the appearance of the tracked target specified in the first frame of the video. We evaluate our proposed tracker on the open benchmark [33] and a non-rigid object tracking dataset. Our tracker demonstrates substantial improvements over the other state-of-the-art trackers.},
-archivePrefix = {arXiv},
-arxivId = {1501.04587},
-author = {Wang, Naiyan and Li, Siyi and Gupta, Abhinav and Yeung, Dit-Yan},
-eprint = {1501.04587},
-journal = {arXiv preprint arXiv:1501.04587},
-pages = {9},
-title = {{Transferring Rich Feature Hierarchies for Robust Visual Tracking}},
-url = {http://arxiv.org/abs/1501.04587},
-year = {2015}
-}
-
-
-
-@article{kalman,
-author = {{R. E. Kalman}},
-journal = {Journal of Basic Engineering},
-number = {1},
-pages = {34--45},
-title = {{A New Approach to Linear Filtering and Prediction Problem}},
-volume = {82},
-year = {1960}
-}
-
-
-
-@inproceedings{vot2014,
-abstract = {The Visual Object Tracking challenge 2014, VOT2014, aims at comparing short-term single-object visual trackers that do not apply pre-learned models of object appearance. Results of 38 trackers are presented. The number of tested trackers makes VOT 2014 the largest benchmark on short-term tracking to date. For each participating tracker, a short description is provided in the appendix. Features of the VOT2014 challenge that go beyond its VOT2013 predecessor are introduced: (i) a new VOT2014 dataset with full annotation of targets by rotated bounding boxes and per-frame attribute, (ii) extensions of the VOT2013 evaluation methodology, (iii) a new unit for tracking speed assessment less dependent on the hardware and (iv) the VOT2014 evaluation toolkit that significantly speeds up execution of experiments. The dataset, the evaluation kit as well as the results are publicly available at the challenge website (http://​votchallenge.​net).},
-author = {Kristan, Matej and Pflugfelder, Roman and Leonardis, Ale{\v{s}} and Matas, Jiri and {\v{C}}ehovin, Luka and Nebehay, Georg and Voj{\'{i}}ř, Tom{\'{a}}{\v{s}} and Fern{\'{a}}ndez, Gustavo and Luke{\v{z}}i{\v{c}}, Alan and Dimitriev, Aleksandar and Petrosino, Alfredo and Saffari, Amir and Li, Bo and Han, Bohyung and Heng, Cher Keng and Garcia, Christophe and Panger{\v{s}}i{\v{c}}, Dominik and H{\"{a}}ger, Gustav and Khan, Fahad Shahbaz and Oven, Franci and Possegger, Horst and Bischof, Horst and Nam, Hyeonseob and Zhu, Jianke and Li, Ji Jia and Choi, Jin Young and Choi, Jin Woo and Henriques, Jo{\~{a}}o F. and van de Weijer, Joost and Batista, Jorge and Lebeda, Karel and {\"{O}}fj{\"{a}}ll, Kristoffer and Yi, Kwang Moo and Qin, Lei and Wen, Longyin and Maresca, Mario Edoardo and Danelljan, Martin and Felsberg, Michael and Cheng, Ming Ming and Torr, Philip and Huang, Qingming and Bowden, Richard and Hare, Sam and Lim, Samantha Yue Ying and Hong, Seunghoon and Liao, Shengcai and Hadfield, Simon and Li, Stan Z. and Duffner, Stefan and Golodetz, Stuart and Mauthner, Thomas and Vineet, Vibhav and Lin, Weiyao and Li, Yang and Qi, Yuankai and Lei, Zhen and Niu, Zhi Heng},
-booktitle = {Lecture Notes in Computer Science},
-doi = {10.1007/978-3-319-16181-5_14},
-isbn = {9783319161808},
-issn = {16113349},
-keywords = {Performance evaluation,Short-term single-object trackers,VOT},
-pages = {191--217},
-title = {{The Visual Object Tracking VOT2014 Challenge Results}},
-volume = {8926},
-year = {2015}
-}
-
-
-
-@inproceedings{50seqs,
-	author       = "Yi Wu and Jongwoo Lim and Ming-Hsuan Yang",
-	title        = "Online Object Tracking: A Benchmark",
-	booktitle    = "IEEE Conference on Computer Vision and Pattern Recognition",
-	year         = "2013",
-	pages        = "2411-2418"
-}
-
-@article{kcf,
-	author = {Jo{\~a}o F. Henriques and Rui Caseiro and Pedro Martins and Jorge Batista},
-	title = {High-Speed Tracking with Kernelized Correlation Filters},
-	journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
-	year = 2015,
-	doi = {10.1109/TPAMI.2014.2345390}
-}
-
-@inproceedings{vtd,
-	author    = {Junseok Kwon and Kyoung Mu Lee},
-	title     = {Visual Tracking Decomposition},
-	booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
-	year      = {2010},
-	pages     = {1269-1276}
-}
-
-@inproceedings{kcfdp,
-	author    = {Dafei Huang and Lei Luo and Mei Wen and Zhaoyun Chen and Chunyuan Zhang},
-	title     = {Enable Scale and Aspect Ratio Adaptability in Visual Tracking with Detection Proposals},
-	booktitle = {British Machine Vision Conference},
-	year      = {2015}
-}
-
-@article{Concha2014,
-author = {Concha, D and Cabido, R and Pantrigo, J J and Montemayor, A S},
-doi = {10.1007/s11554-014-0483-1},
-issn = {1861-8200},
-journal = {Journal of Real-Time Image Processing},
-keywords = {Particle filtering; GPU computing; Performance eva},
-pages = {1--19},
-title = {{Performance Evaluation of a 3D Multi-View-Based Particle Filter for Visual Object Tracking Using GPUs and Multicore CPUs}},
-url = {http://dx.doi.org/10.1007/s11554-014-0483-1},
-year = {2014}
-}
-
-@article{Brown2012,
-abstract = {A novel framework for acceleration of particle filtering approaches to 3D model-based, markerless visual tracking in monocular video is described. Specifically, we present a methodology for partitioning and mapping the computationally expensive weight-update stage of a particle filter to a graphics processing unit (GPU) to achieve particle- and pixel-level parallelism. Nvidia CUDA and Direct3D are employed to harness the massively parallel computational power of modern GPUs for simulation (3D model rendering) and evaluation (segmentation, feature extraction, and weight calculation) of hundreds of particles at high speeds. The proposed framework addresses the computational intensity that is intrinsic to all particle filter approaches, including those that have been modified to minimize the number of particles required for a particular task. Performance and tracking quality results for rigid object and articulated hand tracking experiments demonstrate markerless, model-based visual tracking on consumer-grade graphics hardware with pixel-level accuracy up to 95 percent at 60+ frames per second. The framework accelerates particle evaluation up to 49 times over a comparable CPU-only implementation, providing an increased particle count while maintaining real-time frame rates.},
-author = {Brown, James Anthony and Capson, David W.},
-doi = {10.1109/TVCG.2011.34},
-isbn = {1077-2626 VO - 18},
-issn = {10772626},
-journal = {IEEE Transactions on Visualization and Computer Graphics},
-keywords = {Edge and feature detection,Monte Carlo simulation,graphics processors,tracking,vision I/O},
-number = {1},
-pages = {68--80},
-pmid = {21301027},
-title = {{A Framework for 3D Model-Based Visual Tracking Using a GPU-Accelerated Particle Filter}},
-volume = {18},
-year = {2012}
-}
-
-@inproceedings{Rymut2010,
-author = {Rymut, Boguslaw and {Bogdan Kwolek}},
-booktitle = {International Conference on Computer Vision and Graphics},
-pages = {227--234},
-title = {{GPU-Supported Object Tracking Using Adaptive Appearance Models and Particle Swarm Optimization}},
-year = {2010}
-}
-
-@article{Cabido2012,
-author = {Cabido, R. and Montemayor, A.S. and Pantrigo, J.J. and Martínez-Zarzuela, M. and Payne, B.R.},
-doi = {10.1016/j.jvcir.2011.10.005},
-number = {2},
-pages = {271--286},
-title = {{High-Performance Template Tracking}},
-journal = {Journal of Visual Communication and Image Representation},
-volume = {23},
-year = {2012}
-}
-
-@techreport{Hill2012,
-author = {Hill, Mark D.},
-booktitle = {SigARCH},
-doi = {10.1145/2555243.2558890},
-isbn = {9781450326568},
-pages = {1--16},
-title = {{21st Century Computer Architecture: A Community White Paper}},
-year = {2012}
-}
-
-
-@article{Lozano2009,
-author = {Lozano, Oscar Mateo and Otsuka, Kazuhiro},
-journal = {Journal of Signal Processing Systems},
-number = {2},
-pages = {285--295},
-title = {{Real-Time Visual Tracker by Stream Processing}},
-volume = {57},
-year = {2009}
-}
-
-
-@inproceedings{act,
-	author = {Danelljan, Martin and Shahbaz Khan, Fahad and Felsberg, Michael and Van de Weijer, Joost},
-	title = {Adaptive Color Attributes for Real-Time Visual Tracking},
-	booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
-	year = {2014},
-	pages = {1090-1097}
-}
-
-@inproceedings{scm,
-	author = {Wei Zhong and Huchuan Lu and Ming-Hsuan Yang},
-	title = {Robust Object Tracking via Sparsity-Based Collaborative Model},
-	booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
-	year = {2012},
-	pages = {1838-1845}
-}
-
-@inproceedings{lsk,
-	author = {Baiyang Liu and Junzhou Huang and Lin Yang and Casimir Kulikowsk},
-	title = {Robust Tracking Using Local Sparse Appearance Model and K-Selection},
-	booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
-	year = {2011},
-	pages = {1313-1320}
-}
-
-@inproceedings{asla,
-	author = {Xu Jia and Huchuan Lu and Ming-Hsuan Yang},
-	title = {Visual Tracking via Adaptive Structural Local Sparse Appearance Model},
-	booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
-	year = {2012},
-	pages = {1822-1829}
-}
-
-@inproceedings{stc,
-	author = {Kaihua Zhang and Lei Zhang and David Zhang and Ming-Hsuan Yang},
-	title = {Fast Visual Tracking via Dense Spatio-Temporal Context Learning},
-	booktitle = {European Conference on Computer Vision},
-	year = {2014},
-	pages = {127-141}
-}
-
-@inproceedings{pbcf,
-	author = {Ting Liu and Gang Wang and Qingxiong Yang},
-	title = {Real-Time Part-Based Visual Tracking via Adaptive Correlation Filters},
-	booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
-	year = {2015},
-	pages = {4902-4912}
-}
-
-@article{colornaming,
-	author = {Van de Weijer, Joost and Cordelia Schmid and Jakob Verbeek and Diane Larlus},
-	title = {Learning Color Names for Real-World Applications},
-	journal = {IEEE Transactions on Image Processing},
-	volume = 18, 
-	number = 7, 
-	pages = {1512-1523}, 
-	year = 2009
-}
-
-@inproceedings{samf,
-	author = {Yang Li and Jianke Zhu},
-	title = {A Scale Adaptive Kernel Correlation Filter Tracker with Feature Integration},
-	booktitle = {European Conference on Computer Vision Workshop},
-	year = {2014},
-	pages = {254-265}
-}
-
-@article{colorhistogram,
-	author = {Dorin Comaniciu and Visvanathan Ramesh and Peter Meer},
-	title = {Kernel-Based Object Tracking},
-	journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
-	volume = 25, 
-	number = 5, 
-	pages = {564-577}, 
-	year = 2003
-}
-
-@inproceedings{hog,
-	author = {Navneet Dalal and Bill Triggs},
-	title = {Histograms of Oriented Gradients for Human Detection},
-	booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
-	year = {2005},
-	pages = {886-893}
-}
-
-@inproceedings{dsst,
-abstract = {Robust scale estimation is a challenging problem in visual object tracking. Most existing methods fail to handle large scale variations in complex image sequences. This paper presents a novel approach for robust scale estimation in a tracking-by-detection framework. The proposed approach works by learning discriminative correlation filters based on a scale pyramid representation. We learn separate filters for translation and scale estimation, and show that this improves the performance compared to an exhaustive scale search. Our scale estimation approach is generic as it can be incorporated into any tracking method with no inherent scale estimation. Experiments are performed on 28 benchmark sequences with significant scale vari-ations. Our results show that the proposed approach significantly improves the perfor-mance by 18.8{\%} in median distance precision compared to our baseline. Finally, we provide both quantitative and qualitative comparison of our approach with state-of-the-art trackers in literature. The proposed method is shown to outperform the best existing tracker by 16.6{\%} in median distance precision, while operating at real-time.},
-archivePrefix = {arXiv},
-arxivId = {arXiv:1401.4290v2},
-author = {Danelljan, Martin and H{\"{a}}ger, Gustav and Felsberg, Michael},
-booktitle = {British Machine Vision Conference},
-doi = {10.1017/CCOL0521824737.025},
-eprint = {arXiv:1401.4290v2},
-isbn = {0521824737},
-issn = {0014-2956},
-pmid = {10102984},
-title = {{Accurate Scale Estimation for Robust Visual Tracking}},
-year = {2014}
-}
-
-@inproceedings{plt,
-abstract = {We present a quantitative evaluation of Matrioska, a novel framework for the detection and tracking in real-time of unknown object in a video stream, on the LTDT2014 dataset that includes six sequences for the evaluation of single-object long-term visual trackers. Matrioska follows the approach of tracking by detection: the detector localizes the target object in each frame, using multiple keypoint-based methods. To account for appearance changes, the learning module updates both the target object and background model with a growing and pruning approach.},
-author = {Maresca, Mario Edoardo and Petrosino, Alfredo},
-booktitle = {IEEE Computer Society Conference on Computer Vision and Pattern Recognition Workshops},
-doi = {10.1109/CVPRW.2014.128},
-isbn = {9781479943098},
-issn = {21607516},
-pages = {720--725},
-title = {{The Matrioska Tracking Algorithm on LTDT2014 Dataset}},
-year = {2014}
-}
-
-
-
-@inproceedings{tld,
-	author = {Zdenek Kalal and Jiri Matas and Krystian Mikolajczyk},
-	title = {{P-N} Learning: Bootstrapping Binary Classifiers by Structural Constraints},
-	booktitle = {IEEE Computer Society Conference on Computer Vision and Pattern Recognition},
-	year = {2010},
-	pages = {49--56}
-}
-
-@article{tldjournal,
-abstract = {This paper investigates long-term tracking of unknown objects in a video stream. The object is defined by its location and extent in a single frame. In every frame that follows, the task is to determine the object's location and extent or indicate that the object is not present. We propose a novel tracking framework (TLD) that explicitly decomposes the long-term tracking task into tracking, learning and detection. The tracker follows the object from frame to frame. The detector localizes all appearances that have been observed so far and corrects the tracker if necessary. The learning estimates detector's errors and updates it to avoid these errors in the future. We study how to identify detector's errors and learn from them. We develop a novel learning method (P-N learning) which estimates the errors by a pair of "experts'': (i) P-expert estimates missed detections, and (ii) N-expert estimates false alarms. The learning process is modeled as a discrete dynamical system and the conditions under which the learning guarantees improvement are found. We describe our real-time implementation of the TLD framework and the P-N learning. We carry out an extensive quantitative evaluation which shows a significant improvement over state-of-the-art approaches.},
-author = {Kalal, Zdenek and Mikolajczyk, Krystian and Matas, Jiri},
-doi = {10.1109/TPAMI.2011.239},
-isbn = {2011030153},
-issn = {01628828},
-journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
-keywords = {Long-term tracking,bootstrapping,learning from video,real time,semi-supervised learning},
-number = {7},
-pages = {1409--1422},
-pmid = {22156098},
-title = {{Tracking-Learning-Detection}},
-volume = {34},
-year = {2012}
-}
-
-
-
-@inproceedings{struck,
-	author = {Sam Hare and Amir Saffari and Philip H. S. Torr},
-	title = {Struck: Structured Output Tracking with Kernels},
-	booktitle = {International Conference on Computer Vision},
-	year = {2011},
-	pages = {263-270}
-}
-
-@inproceedings{csk,
-	author = {Jo{\~a}o F. Henriques and Rui Caseiro and Pedro Martins and Jorge Batista},
-	title = {Exploiting the Circulant Structure of Tracking-by-Detection with Kernels},
-	booktitle = {European Conference on Computer Vision},
-	year = {2012},
-	pages = {702-715}
-}
-
-@inproceedings{mosse,
-	author = {David S. Bolme and J. Ross Beveridge and Bruce A. Draper and Yui Man Lui},
-	title = {Visual Object Tracking using Adaptive Correlation Filters},
-	booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
-	year = {2010},
-	pages = {2544-2550}
-}
-
-@inproceedings{rcnn,
-	Author    = {Ross Girshick and Jeff Donahue and Trevor Darrell and Jitendra Malik},
-	Title     = {Rich Feature Hierarchies for Accurate Object Detection and Semantic Segmentation},
-	Booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
-	Year      = {2014},
-	pages = {580-587}
-}
-
-@inproceedings{spp,
-	Author    = {Kaiming He and Xiangyu Zhang and Shaoqing Ren and Jian Sun},
-	Title     = {Spatial Pyramid Pooling in Deep Convolutional Networks for Visual Recognition},
-	Booktitle = {European Conference on Computer Vision},
-	Year      = {2014},
-	pages = {346-361}
-}
-
-@misc{PMT, 
-	author = {Piotr Doll\'ar}, 
-	title = {{P}iotr's {C}omputer {V}ision {M}atlab {T}oolbox ({PMT})}, 
-	howpublished = {\small\url{http://vision.ucsd.edu/~pdollar/toolbox/doc/index.html}} 
-}
-
-@online{bingImpl, 
-	author = {Tianfei Zhou}, 
-	title = {BING Objectness Proposal Estimator Matlab (mex-c) Wrapper}, 
-	url = {https://github.com/tfzhou/BINGObjectness},
-	year = {2015}
-}
-
-@Article{voc2007, 
-	author = "Everingham, M. and Eslami, S. M. A. and Van~Gool, L. and Williams, C. K. I. and Winn, J. and Zisserman, A.", 
-	title = "The Pascal Visual Object Classes Challenge: {A Retrospective}", 
-	journal = "International Journal of Computer Vision", 
-	volume = "111", 
-	year = "2015", 
-	number = "1",  
-	pages = "98-136", 
-} 
-
-
-@inproceedings{edgeboxes,
-	author    = {C. Lawrence Zitnick and Piotr Doll\'ar},
-	title     = {{Edge Boxes}: Locating Object Proposals from Edges},
-	booktitle = {European Conference on Computer Vision},
-	year      = {2014},
-	pages = {391-405}
-}
-
-@article{selectivesearch,
-	author = {Jasper R. R. Uijlings and Koen E. A. van de Sande and Theo Gevers and Arnold W. M. Smeulders},
-	title = {Selective Search for Object Recognition},
-	journal = {International Journal of Computer Vision},
-	volume = 104, 
-	number = 2, 
-	pages = {154-171}, 
-	year = 2013
-}
-
-@inproceedings {mcg,
-	title = {Multiscale Combinatorial Grouping},
-	booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
-	year = {2014},
-	author = {Pablo Arbelaez and Pont-Tuset, J. and Barron, Jon and Marqu{\'e}s, F. and Jitendra Malik},
-	pages = {328-335}
-}
-
-
-@article{cpmc,
-	author = {Jo{\~a}o Carreira and Cristian Sminchisescu },
-	title = {{CPMC}: Automatic Object Segmentation Using Constrained Parametric Min-Cuts},
-	journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
-	volume = 34, 
-	number = 7, 
-	pages = {1312-1328}, 
-	year = 2012
-}
-
-
-@inproceedings{geodesic,
-	title={Geodesic Object Proposals},
-	author={Philipp Kr{\"a}henb{\"u}hl and Vladlen Koltun},
-	booktitle={European Conference on Computer Vision},
-	year={2014},
-	pages = {725-739}
-}
-
-@article{objectness,
-	author = {Alexe, Bogdan and Deselaers, Thomas and Ferrari, Vittorio},
-	title = {Measuring the Objectness of Image Windows},
-	journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
-	volume = 34, 
-	number = 11, 
-	pages = {2189-2202}, 
-	year = 2012
-}
-
-@inproceedings{bing,
-	title={{BING}: Binarized Normed Gradients for Objectness Estimation at 300fps},
-	author={Ming-Ming Cheng and Ziming Zhang and Wen-Yan Lin and Philip H. S. Torr},
-	booktitle={IEEE Conference on Computer Vision and Pattern Recognition},
-	year={2014},
-	pages = {3286-3293}
-}
-
-@article{dpsurvey,
-	author = {Jan Hosang and Rodrigo Benenson and Piotr Doll\'ar and Bernt Schiele},
-	title = {What Makes for Effective Detection Proposals?},
-	journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
-	year = 2015,
-	doi = {10.1109/TPAMI.2015.2465908}
-}
-
-
-@inproceedings{dpcompare,
-	author = {J. Hosang and R. Benenson and B. Schiele},
-	title = {How Good are Detection Proposals, Really?},
-	booktitle = {British Machine Vision Conference},
-	year = {2014}
-}
-
-@inproceedings{structurededge,
-	author = {Piotr Doll\'ar and C. Lawrence Zitnick},
-	title = {Structured Forests for Fast Edge Detection},
-	booktitle = {International Conference on Computer Vision},
-	year = {2013},
-	pages = {1841-1848}
-}
-
-@inproceedings{decitree,
-	author    = {Wang, Aiping and Wan, Guowei and Cheng, Zhiquan and Li, Sikun},
-	title     = {An Incremental Extremely Random Forest Classifier for Online Learning and Tracking},
-	booktitle = {International Conference on Image Processing},
-	year      = {2009},
-	pages = {1449-1452}
-}
-
-
-@article{multicue,
-	author = {Wang, Aiping and Cheng, Zhiquan and Martin, Ralph R. and Li, Sikun},
-	title = {Multiple-Cue-Based Visual Object Contour Tracking with Incremental Learning},
-	journal = {Lecture Notes in Computer Science},
-	volume = 7544, 
-	pages = {225-243}, 
-	year = 2013
-}
-
-@inproceedings{jots,
-	author = {Longyin Wen and Dawei Du and Zhen Lei and Stan Z. Li and Ming-Hsuan Yang},
-	title = {{JOTS}: Joint Online Tracking and Segmentation},
-	booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
-	year      = {2015},
-	pages = {2226-2234}
-}
-
-@inproceedings{pfseg,
-	author = {Vasileios Belagiannis and Falk Schubert and Nassir Navab and Slobodan Ilic},
-	title = {Segmentation based particle filtering for real-time 2d object tracking},
-	booktitle = {European Conference on Computer Vision},
-	year      = {2012},
-	pages = {842-855}
-}
-
-@inproceedings{pixeltrack,
-	author = {Stefan Duffner and Christophe Garcia},
-	title = {{PixelTrack}: A Fast Adaptive Algorithm for Tracking Non-Rigid Objects},
-	booktitle = {International Conference on Computer Vision},
-	year      = {2013},
-	pages = {2480-2487}
-}
-
-@inproceedings{houghtrack,
-	author = {Martin Godec and Peter M. Roth and Horst Bischof},
-	title = {Hough-Based Tracking of Non-Rigid Objects},
-	booktitle = {International Conference on Computer Vision},
-	year      = {2011},
-	pages = {81-88}
-}
-
-@inproceedings{vot2013,
-	author = {Matej Kristan and Roman Pflugfelder and Ales Leonardis and {\em et al}},
-	title = {The Visual Object Tracking {VOT2013} Challenge Results},
-	booktitle = {IEEE International Conference on Computer Vision Workshop},
-	year      = {2013},
-	pages = {98-111}
-}
-
-@inproceedings{vot2015,
-abstract = {The Visual Object Tracking challenge 2015, VOT2015, aims at comparing short-term single-object visual trackers that do not apply pre-learned models of object appearance. Results of 62 trackers are presented. The number of tested trackers makes VOT 2015 the largest benchmark on short-term tracking to date. For each participating tracker, a short description is provided in the appendix. Features of the VOT2015 challenge that go beyond its VOT2014 pre-decessor are: (i) a new VOT2015 dataset twice as large as in VOT2014 with full annotation of targets by rotated bounding boxes and per-frame attribute, (ii) extensions of the VOT2014 evaluation methodology by introduction of a new performance measure. The dataset, the evaluation kit as well as the results are publicly available at the challenge website 1 .},
-author = {Kristan, Matej and Pflugfelder, Roman and Leonardis, Ale{\v{s}} and Matas, Jiri and {\v{C}}ehovin, Luka and Nebehay, Georg and Voj{\'{i}}$\backslash$vr, Tom{\'{a}}{\v{s}} and Fernandez, Gustavo and Others},
-booktitle = {IEEE International Conference on Computer Vision Workshop},
-doi = {10.1109/ICCVW.2015.79},
-isbn = {9780769557205},
-issn = {16113349},
-pages = {1--27},
-title = {{The Visual Object Tracking {VOT2015} Challenge Results}},
-year = {2015}
-}
-
-@inproceedings{Lee2011,
-author = {Lee, Hyoukjoong and Brown, Kevin J},
-booktitle = {ACM Symposium on Principles and Practice of Parallel Programming},
-isbn = {9781450301190},
-keywords = {complicate this chal-,domain-specific languages,dynamic optimizations,each with their own,emerging heterogeneous systems further,gramming models are available,offs,parallel programming,set of trade-},
-pages = {35--45},
-title = {{A Domain-Specific Approach To Heterogeneous Parallelism}},
-year = {2011}
-}
-
-
-@inproceedings{mdnet,
-abstract = {We propose a novel visual tracking algorithm based on the representations from a discriminatively trained Convolutional Neural Network (CNN). Our algorithm pretrains a CNN using a large set of videos with tracking ground-truths to obtain a generic target representation. Our network is composed of shared layers and multiple branches of domain-specific layers, where domains correspond to individual training sequences and each branch is responsible for binary classification to identify target in each domain. We train each domain in the network iteratively to obtain generic target representations in the shared layers. When tracking a target in a new sequence, we construct a new network by combining the shared layers in the pretrained CNN with a new binary classification layer, which is updated online. Online tracking is performed by evaluating the candidate windows randomly sampled around the previous target state. The proposed algorithm illustrates outstanding performance in existing tracking benchmarks.},
-archivePrefix = {arXiv},
-arxivId = {1510.07945},
-author = {Nam, Hyeonseob and Han, Bohyung},
-booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
-doi = {10.1109/CVPR.2016.465},
-eprint = {1510.07945},
-isbn = {9781467388511},
-issn = {10636919},
-pages = {4293--4302},
-title = {{Learning Multi-Domain Convolutional Neural Networks for Visual Tracking}},
-url = {http://arxiv.org/abs/1510.07945},
-year = {2016}
-}
-
-
-@inproceedings{dgt,
-	author = {Cai, Z. and Wen, L. and Yang, J. and Lei, Z. and Li, S.Z.},
-	title = {Structured Visual Tracking with Dynamic Graph},
-	booktitle = {Asian Conference on Computer Vision},
-	year      = {2012},
-	pages = {86-97}
-}
-
-@inproceedings{proposalSelect,
-	author = {Yang Hua and Karteek Alahari and Cordelia Schmid},
-	title = {Online Object Tracking with Proposal Selection},
-	booktitle = {International Conference on Computer Vision},
-	year      = {2015},
-	pages = {3092-3100}
-}
-
-@article{adobing,
-	author = {Pengpeng Liang and Yu Pang and Chunyuan Liao and Xue Mei and Haibin Ling},
-	title = {Adaptive Objectness for Object Tracking},
-	journal = {IEEE Signal Processing Letters},
-	volume = 23, 
-	number = 7, 
-	pages = {949-953}, 
-	year = 2016
-}
-
-@inproceedings{moca,
-	author = {Guibo	Zhu and Jinqiao Wang and Yi Wu and Xiaoyu Zhang and Hanqing Lu},
-	title = {{MC-HOG} Correlation Tracking with Saliency Proposal},
-	booktitle = {{AAAI Conference on Artificial Intelligence}},
-	year      = {2016},
-	pages = {3690-3696}
-}
-
-@inproceedings{ebt,
-	author = {Gao Zhu and Fatih Porikli and Hongdong Li},
-	title = {Beyond Local Search: Tracking Objects Everywhere with Instance-Specific Proposals},
-	booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
-	year      = {2016},
-	pages = {943-951}
-}
-
-@inproceedings{rpnt,
-	author = {Gao Zhu and Fatih Porikli and Hongdong Li},
-	title = {Robust Visual Tracking with Deep Convolutional Neural Network based Object Proposals on {PETS}},
-	booktitle = {IEEE Conference on Computer Vision and Pattern Recognition Workshop},
-	year      = {2016},
-	pages = {26-33}
-}
-
-@inproceedings{rpn,
-	author = {Ren, Shaoqing and He, Kaiming and Girshick, Ross and Sun, Jian},
-	title = {Faster {R-CNN}: Towards Real-Time Object Detection with Region Proposal Networks},
-	booktitle = {Annual Conference on Neural Information Processing Systems},
-	year      = {2015},
-	pages = {91-99}
-}
-
-
-
-@misc{Authors06,
- author = {Authors},
- title = {The frobnicatable foo filter},
- note = {ECCV06 submission ID 324. Supplied as additional material {\tt eccv06.pdf}},
- year = 2006
-}
-
-@misc{Authors06b,
- author = {Authors},
- title = {Frobnication tutorial},
- note = {Supplied as additional material {\tt tr.pdf}},
- year = 2006
-}
-
-@article{Alpher02,
-author = {A. Alpher},
-title = {Frobnication},
-journal = {Journal of Foo},
-volume = 12, 
-number = 1, 
-pages = {234--778}, 
-year = 2002
-}
-
-@article{Alpher03,
-author = {A. Alpher and J.~P.~N. Fotheringham-Smythe},
-title = {Frobnication revisited},
-journal = {Journal of Foo},
-volume = 13, 
-number = 1, 
-pages = {234--778}, 
-year = 2003
-}
-
-@article{Alpher04,
-author = {A. Alpher and J.~P.~N. Fotheringham-Smythe and G. Gamow},
-title = {Can a machine frobnicate?},
-journal = {Journal of Foo},
-volume = 14, 
-number = 1, 
-pages = {234--778}, 
-year = 2004
-}
-
-@article{Mermin89,
-author = {N. David Mermin},
-title = {What's wrong with these equations?},
-journal = {Physics Today},
-year = 1989,
-month = oct,
-note = {\small\url{http://www.cvpr.org/doc/mermin.pdf}}
-}
-
-@Book{Hartley00,
-  author       = "Hartley, R.~I. and Zisserman, A.",
-  title        = "Multiple View Geometry in Computer Vision",
-  year         = "2000",
-  publisher    = "Cambridge University Press, ISBN: 0521623049",
-}
-
-@InProceedings{Claus05,
-  author       = "Claus, D. and Fitzgibbon, A.~W.",
-  title        = "A Rational Function Lens Distortion Model for General
-                 Cameras",
-  booktitle    = "Proc. CVPR",
-  year         = "2005",
-  pages        = "213--219",
-}
-
-@InProceedings{Zhang96,
-  author =	 "Z. Zhang",
-  title =	 "On the Epipolar Geometry Between Two Images With
-                  Lens Distortion",
-  booktitle =	 "Proc. ICPR",
-  year =	 "1996",
-  pages =	 "407--411",
-}
-
-@InProceedings{Fitzgibbon01,
-  author       = "Fitzgibbon, A.~W.",
-  title        = "Simultaneous Linear Estimation of Multiple View
-                 Geometry and Lens Distortion",
-  booktitle    = "Proc. CVPR",
-  year         = "2001"
-}
-
-@article{Brown71,
-author = {D.~C. Brown},
-title = {Close-range camera calibration},
-journal = {Photogrammetric Eng.},
-volume = 37,
-number = 8,
-pages = {855--866}, 
-year = 1971
-}
-
-@article{Devernay01,
-author = {F. Devernay and O. Faugeras},
-title = {Straight lines have to be straight},
-journal = {MVA},
-volume = 13,
-pages = {14--24}, 
-year = 2001
-}
-
-@article{Swaminathan00,
-author = {R. Swaminathan and S. Nayar},
-title = {Nonmetric calibration of wide-angle lenses and polycameras},
-journal = {IEEE T-PAMI},
-volume = 22,
-number = 10,
-pages = {1172--1178}, 
-year = 2000
-}
-
-@InProceedings{Tsai86,
-  author =	 "Tsai, Y.~R.",
-  title =	 "An Efficient and Accurate Camera Calibration
-                  Technique for {3D} Machine Vision",
-  booktitle =	 "Proc. CVPR",
-  year =	 "1986",
-}
-
-
-@inproceedings{jetson,
-author = {Stone, John E. and Hallock, Michael J. and Phillips, James C. and Peterson, Joseph R. and Luthey-Schulten, Zaida and Schulten, Klaus},
-booktitle = {IEEE 28th International Parallel and Distributed Processing Symposium Workshops},
-doi = {10.1109/IPDPSW.2016.130},
-isbn = {9781509021406},
-keywords = {Energy efficiency,GPU computing,Heterogeneous architectures,High-performance computing,Mobile computing,Molecular modeling},
-pages = {89--100},
-title = {{Evaluation of Emerging Energy-Efficient Heterogeneous Computing Platforms for Biomolecular and Cellular Simulation Workloads}},
-volume = {2016-August},
-year = {2016}
-}
-
-@misc{top500,
-	lab = {TOP500.org},
-	author = {TOP500},
-	organization = {TOP500.org},
-	year =         {2010},
-	title =        {{TOP500} lists: November 2010},
-	url =          {https://www.top500.org/lists/2010/11/highlights/}
-}
-
-@misc{top500th2,
-	lab = {TOP500.org},
-	author = {TOP500},
-	organization = {TOP500.org},
-	year =         {2014},
-	title =        {{TOP500} lists: November 2014},
-	url =          {http://top500.org/lists/2014/11/}
-}
-
-@book{oclspec,
-author = {Munshi, A},
-institution = {Khronos OpenCL Working Group and others},
-title = {{The {OpenCL} Specification}},
-url = {http://www.khronos.org/opencl},
-year = {2011}
-}
-
-@inproceedings{deepsrdcf,
-author = {Danelljan, Martin and Gustav, H and Khan, Fahad Shahbaz and Felsberg, Michael},
-booktitle = {IEEE International Conference on Computer Vision Workshop},
-doi = {10.1109/ICCVW.2015.84},
-isbn = {9780769557205},
-pages = {621--629},
-title = {{Convolutional Features for Correlation Filter Based Visual Tracking}},
-year = {2015}
-}
-
-
-@inproceedings{fasterrcnn,
-abstract = {State-of-the-art object detection networks depend on region proposal algorithms to hypothesize object locations. Advances like SPPnet [7] and Fast R-CNN [5] have reduced the running time of these detection networks, exposing region pro-posal computation as a bottleneck. In this work, we introduce a Region Proposal Network (RPN) that shares full-image convolutional features with the detection network, thus enabling nearly cost-free region proposals. An RPN is a fully-convolutional network that simultaneously predicts object bounds and objectness scores at each position. RPNs are trained end-to-end to generate high-quality region proposals, which are used by Fast R-CNN for detection. With a simple alternating optimization, RPN and Fast R-CNN can be trained to share convolu-tional features. For the very deep VGG-16 model [18], our detection system has a frame rate of 5fps (including all steps) on a GPU, while achieving state-of-the-art object detection accuracy on PASCAL VOC 2007 (73.2{\%} mAP) and 2012 (70.4{\%} mAP) using 300 proposals per image. The code will be released.},
-archivePrefix = {arXiv},
-arxivId = {arXiv:1506.01497v1},
-author = {Ren, Shaoqing and He, Kaiming and Girshick, Ross and Sun, Jian},
-booktitle = {Conference on Neural Information Processing Systems},
-doi = {10.1016/j.nima.2015.05.028},
-eprint = {arXiv:1506.01497v1},
-isbn = {0162-8828 VO - PP},
-issn = {01689002},
-pages = {1--10},
-pmid = {27295650},
-title = {{Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks}},
-year = {2015}
-}
-
-@inproceedings{fastrcnn,
-archivePrefix = {arXiv},
-arxivId = {1504.08083},
-author = {Girshick, Ross},
-booktitle = {Proceedings of the IEEE International Conference on Computer Vision},
-doi = {10.1109/ICCV.2015.169},
-eprint = {1504.08083},
-isbn = {9781467383912},
-issn = {15505499},
-pages = {1440--1448},
-pmid = {23739795},
-title = {{Fast R-CNN}},
-year = {2015}
-}
-
-@misc{openmp,
-	organization = {OpenMP Architecture Review Board},
-	year =         {2015},
-	title =        {Open Multi-Processing},
-	url =          {http://www.openmp.org/}
-}
-
-@book{cudaspec,
-author = {{NVIDIA Corporation}},
-keywords = {Nvidia},
-title = {{CUDA C Programming Guide}},
-url = {http://developer.download.nvidia.com/compute/DevZone/docs/html/C/doc/CUDA\_C\_Programming\_Guide.pdf},
-year = {2017}
-}
-
-@misc{snapdragon,
-	organization = {Qualcomm},
-	year =         {2017},
-	title =        {Snapdragon 835 mobile platform},
-	url =          {https://www.qualcomm.com/products/snapdragon/processors/835}
-}
-
-@inproceedings{cell,
-  title={An {OpenCL} Framework for Heterogeneous Multicores with Local Memory},
-  author={J. Lee and J. Kim and S. Seo and S. Kim and J. Park and H. Kim and T. T. Dao and Y. Cho and S. J. Seo and S. H. Lee and others},
-  booktitle={International Conference on Parallel Architectures and Compilation Techniques},
-  pages={193--204},
-  year={2010},
+@article{mathieu2013fast,
+  title={Fast training of convolutional networks through FFTs},
+  author={Mathieu, Michael and Henaff, Mikael and LeCun, Yann},
+  journal={arXiv preprint arXiv:1312.5851},
+     volume =       "",
+  year={2013}
+}
+
+@inproceedings{lavin2016fast,
+  title={Fast algorithms for convolutional neural networks},
+  author={Lavin, Andrew and Gray, Scott},
+  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+  pages={4013--4021},
+  year={2016}
+}
+
+@article{aydonat2017opencl,
+  title={An OpenCL (TM) Deep Learning Accelerator on Arria 10},
+  author={Aydonat, Utku and O'Connell, Shane and Capalija, Davor and Ling, Andrew C and Chiu, Gordon R},
+  journal={arXiv preprint arXiv:1701.03534},
+  year={2017}
+}
+
+@article{rastegari2016xnor,
+  title={XNOR-Net: ImageNet Classification Using Binary Convolutional Neural Networks},
+  author={Rastegari, Mohammad and Ordonez, Vicente and Redmon, Joseph and Farhadi, Ali},
+  journal={arXiv preprint arXiv:1603.05279},
+     volume =       "",
+  year={2016}
+}
+
+@inproceedings{courbariaux2015binaryconnect,
+  title={Binaryconnect: Training deep neural networks with binary weights during propagations},
+  author={Courbariaux, Matthieu and Bengio, Yoshua and David, Jean-Pierre},
+  booktitle={Advances in Neural Information Processing Systems},
+  pages={3123--3131},
+  year={2015}
+}
+
+@article{courbariaux2016binarized,
+  title={Binarized neural networks: Training deep neural networks with weights and activations constrained to+ 1 or-1},
+  author={Courbariaux, Matthieu and Hubara, Itay and Soudry, Daniel and El-Yaniv, Ran and Bengio, Yoshua},
+  journal={arXiv preprint arXiv:1602.02830},
+  year={2016}
+}
+
+@article{krizhevsky2014one,
+  title={One weird trick for parallelizing convolutional neural networks},
+  author={Krizhevsky, Alex},
+  journal={arXiv preprint arXiv:1404.5997},
+  year={2014}
+}
+
+@inproceedings{awan2017s,
+  title={S-Caffe: Co-designing MPI Runtimes and Caffe for Scalable Deep Learning on Modern GPU Clusters},
+  author={Awan, Ammar Ahmad and Hamidouche, Khaled and Hashmi, Jahanzeb Maqbool and Panda, Dhabaleswar K},
+  booktitle={Proceedings of the 22nd ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming},
+  pages={193--205},
+  year={2017},
   organization={ACM}
 }
 
-@misc{oclppt,
-	author = {Tim Mattson and Udeepta Bordoloi},
-	year =         {2011},
-	title =        {{OpenCL: an Introduction for HPC Programmers}},
-	url =          {https://indico.cern.ch/event/138427/sessions/11397/attachments/116552/165428/OpenCL-intro-ISC11.pdf}
+
+@inproceedings{krizhevsky2012imagenet,
+  title={Imagenet classification with deep convolutional neural networks},
+  author={Krizhevsky, Alex and Sutskever, Ilya and Hinton, Geoffrey E},
+  booktitle={Advances in neural information processing systems},
+  pages={1097--1105},
+  year={2012}
 }
 
-@inproceedings{lkoptflow,
-author = {Lucas, B D and Kanade, T},
-booktitle = {Proceedings of the International Joint Conference on Artificial Intelligence},
-keywords = {Image Registration},
-pages = {674--679},
-title = {{An Iterative Image Registration Technique with an Application to Stereo Vision}},
-volume = {2},
-year = {1981}
-}
-
-@inproceedings{lkoptflow2,
-author = {Shi, Jianbo and Tomasi, Carlo},
-booktitle = {Proceedings of  the IEEE Computer Society Conference on Computer Vision and Pattern Recognition},
-pages = {593--600},
-title = {{Good Features to Track}},
-year = {1994}
-}
-
-@article{ncc,
-author = {Lewis, J},
-journal = {Vision Interface},
-pages = {120--123},
-title = {{Fast Normalized Cross-Correlation}},
-volume = {10},
-year = {1995}
-}
-
-@inproceedings{fern,
-abstract = {While feature point recognition is a key component of modern approaches to object detection, existing approaches require computationally expensive patch preprocessing to handle perspective distortion. In this paper, we show that formulating the problem in a Naive Bayesian classification framework makes such preprocessing unnecessary and pro-duces an algorithm that is simple, efficient, and robust. Fur-thermore, it scales well to handle large number of classes. To recognize the patches surrounding keypoints, our classifier uses hundreds of simple binary features and mod-els class posterior probabilities. We make the problem com-putationally tractable by assuming independence between arbitrary sets of features. Even though this is not strictly true, we demonstrate that our classifier nevertheless per-forms remarkably well on image datasets containing very significant perspective changes.},
-archivePrefix = {arXiv},
-arxivId = {arXiv:1407.5736v1},
-author = {{\"{O}}zuysal, Mustafa and Fua, Pascal and Lepetit, Vincent},
-booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
-doi = {10.1109/CVPR.2007.383123},
-eprint = {arXiv:1407.5736v1},
-isbn = {1424411807},
-issn = {10636919},
-pmid = {21736739},
-title = {{Fast Keypoint Recognition in Ten Lines of Code}},
-year = {2007}
-}
-
-@misc{opentld,
-	author = {Zdenek Kalal},
-	year =         {2011},
-	title =        {{OpenTLD}},
-	url =          {https://github.com/zk00006/OpenTLD}
-}
-
-@article{htld,
-abstract = {{\textcopyright} 2015 Springer-Verlag Berlin HeidelbergThe recently proposed tracking–learning–detection (TLD) method has become a popular visual tracking algorithm as it was shown to provide promising long-term tracking results. On the other hand, the high computational cost of the algorithm prevents it being used at higher resolutions and frame rates. In this paper, we describe the design and implementation of a heterogeneous CPU–GPU TLD (H-TLD) solution using OpenMP and CUDA. Leveraging the advantages of the heterogeneous architecture, serial parts are run asynchronously on the CPU while the most computationally costly parts are parallelized and run on the GPU. Design of the solution ensures keeping data transfers between CPU and GPU at a minimum and applying stream compaction and overlapping data transfer with computation whenever such transfers are necessary. The workload is balanced for a uniform work distribution across the GPU multiprocessors. Results show that 10.25 times speed-up is achieved at 1920 (Formula presented.) 1080 resolution compared to the baseline TLD. The source code has been made publicly available to download from the following address: http://gpuresearch.ii.metu.edu.tr/codes/.},
-author = {Gurcan, Ilker and Temizel, Alptekin},
-doi = {10.1007/s11554-015-0538-y},
-issn = {18618200},
-journal = {Journal of Real-Time Image Processing},
-keywords = {CUDA,Heterogeneous CPU???GPU implementations,Object tracking,Real time},
-pages = {1--15},
-title = {{Heterogeneous CPU-GPU Tracking-Learning-Detection (H-TLD) for Real-Time Object Tracking}},
-year = {2015}
-}
-
-@inproceedings{Pengyu2013,
-author = {Pengyu, GUO and Xin, LI and Shaowen, DING and Zunhua, TIAN and Xiaohu, ZHANG},
-booktitle = {International Symposium on Photoelectronic Detection and Imaging},
-doi = {10.1117/12.2034977},
-title = {{Adaptive and Accelerated Tracking-Learning-Detection}},
-year = {2013}
+@inproceedings{szegedy2015going,
+  title={Going deeper with convolutions},
+  author={Szegedy, Christian and Liu, Wei and Jia, Yangqing and Sermanet, Pierre and Reed, Scott and Anguelov, Dragomir and Erhan, Dumitru and Vanhoucke, Vincent and Rabinovich, Andrew},
+  booktitle={Proceedings of the IEEE conference on computer vision and pattern recognition},
+  pages={1--9},
+  year={2015}
 }
 
 
-@misc{opencv,
-abstract = {Open Source Computer Vision is a library of programming functions for real time computer vision},
-organization = {Intel Corporation, Willow Garage, Itseez},
-title = {{OpenCV Library}},
-url = {http://opencv.org/},
-year = {2016}
+@inproceedings{he2016deep,
+  title={Deep residual learning for image recognition},
+  author={He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian},
+  booktitle={Proceedings of the IEEE conference on computer vision and pattern recognition},
+  pages={770--778},
+  year={2016}
 }
 
-@misc{intelocl,
-organization = {Intel Corporation},
-title = {{OpenCL Drivers and Runtimes for Intel Architecture}},
-url = {https://software.intel.com/en-us/articles/opencl-drivers},
-year = {2016}
+@article{DBLP:journals/corr/SimonyanZ14a,
+  added-at = {2016-11-19T13:14:27.000+0100},
+  author = {Simonyan, Karen and Zisserman, Andrew},
+  bibsource = {dblp computer science bibliography, http://dblp.org},
+  biburl = {https://www.bibsonomy.org/bibtex/20ee0434e0a70b329d5518f43f1742f7a/albinzehe},
+  interhash = {4e6fa56cb7cf99400d5701543ee228de},
+  intrahash = {0ee0434e0a70b329d5518f43f1742f7a},
+  journal = {CoRR},
+  keywords = {cnn ma-zehe neuralnet},
+  timestamp = {2016-11-19T13:14:27.000+0100},
+  title = {Very Deep Convolutional Networks for Large-Scale Image Recognition},
+  url = {http://arxiv.org/abs/1409.1556},
+  volume = {abs/1409.1556},
+  year = 2014
 }
 
-@techreport{mic,
-organization = {Intel Corporation},
-number = {328209 004EN},
-title = {{Intel Xeon Phi Coprocessor x100 Product Family}},
-year = {2015}
+
+@inproceedings{xiang2016objectnet3d,
+  title={ObjectNet3D: A Large Scale Database for 3D Object Recognition},
+  author={Xiang, Yu and Kim, Wonhui and Chen, Wei and Ji, Jingwei and Choy, Christopher and Su, Hao and Mottaghi, Roozbeh and Guibas, Leonidas and Savarese, Silvio},
+  booktitle={European Conference on Computer Vision},
+  pages={160--176},
+  year={2016},
+   volume =       "",
+  organization={Springer}
 }
 
-
-
-@inproceedings{affineloop,
-  title={A Compiler Framework for Optimization of Affine Loop Nests for {GPGPUs}},
-  author={M. M. Baskaran and U. Bondhugula and S. Krishnamoorthy and J. Ramanujam and A. Rountev and P. Sadayappan},
-  booktitle={Proceedings of the 22nd annual international conference on Supercomputing},
-  pages={225--234},
-  year={2008},
-  organization={ACM}
+@article{chang2015shapenet,
+  added-at = {2016-01-02T00:00:00.000+0100},
+  author = {Chang, Angel X. and Funkhouser, Thomas A. and Guibas, Leonidas J. and Hanrahan, Pat and Huang, Qi-Xing and Li, Zimo and Savarese, Silvio and Savva, Manolis and Song, Shuran and Su, Hao and Xiao, Jianxiong and Yi, Li and Yu, Fisher},
+  biburl = {https://www.bibsonomy.org/bibtex/2b893dde27856b640920c63b42bb403b1/dblp},
+  ee = {http://arxiv.org/abs/1512.03012},
+  interhash = {44fc945ba9bb97661d706e2afb0a9c4d},
+  intrahash = {b893dde27856b640920c63b42bb403b1},
+  journal = {CoRR},
+  keywords = {dblp},
+  timestamp = {2016-01-05T11:38:05.000+0100},
+  title = {ShapeNet: An Information-Rich 3D Model Repository.},
+  volume = {abs/1512.03012},
+  year = 2015
 }
 
-@techreport{TReporthIllinois,
-  title={Performance Portability in Accelerated Parallel Kernels},
-  author={J. A. Stratton and H. Kim and T. B. Jablin and W. M. W. Hwu},
-  journal={Center for Reliable and High-Performance Computing},
-  institution = {University of Illinois at Urbana-Champaign},
-  year={2013},
-  number = {IMPACT-13-01},
-}
-
-@article{OclPP1,
-  title={{An} Investigation of the Performance Portability of {OpenCL}},
-  author={S. J. Pennycook and S. D. Hammond and S. A. Wright and J. A. Herdman and I. Miller and S. A. Jarvis},
-  journal={Journal of Parallel and Distributed Computing},
-  volume={73},
-  number={11},
-  pages={1439--1450},
-  year={2013},
-  publisher={Elsevier}
-}
-
-@inproceedings{OclPP2,
-  title={An Experimental Study on Performance Portability of {OpenCL} Kernels},
-  author={S. Rul and H. Vandierendonck and J. D'Haene and K. De Bosschere},
-  booktitle={Proceedings of the 2010 Symposium on Application Accelerators in High Performance Computing},
-  year={2010}
-  location     = {Knoxville, TN, USA},
-}
-
-@inproceedings{OclPP3,
-  title={Cross-Platform {OpenCL} Code and Performance Portability for {CPU} and {GPU} Architectures Investigated with a Climate and Weather Physics Model},
-  author={H. Dong and D. Ghosh and F. Zafar and S. Zhou},
-  booktitle={Proceedings of the 41st International Conference on Parallel Processing Workshops},
-  pages={126--134},
-  year={2012},
+@inproceedings{maturana2015voxnet,
+  title={Voxnet: A 3d convolutional neural network for real-time object recognition},
+  author={Maturana, Daniel and Scherer, Sebastian},
+  booktitle={Intelligent Robots and Systems (IROS), 2015 IEEE/RSJ International Conference on},
+  pages={922--928},
+  year={2015},
+  volume =       "",
   organization={IEEE}
-  address = {Pittsburgh, PA, USA},
 }
 
-@inproceedings{cell,
-  title={An {OpenCL} Framework for Heterogeneous Multicores with Local Memory},
-  author={J. Lee and J. Kim and S. Seo and S. Kim and J. Park and H. Kim and T. T. Dao and Y. Cho and S. J. Seo and S. H. Lee and others},
-  booktitle={Proceedings of the 19th International Conference on Parallel Architectures and Compilation Techniques},
-  pages={193--204},
-  year={2010},
-  organization={ACM}
-  address = {Vienna, Austria},
-}
-
-@inproceedings{mcuda,
-  title={{MCUDA}: An Effective Implementation of {CUDA} Kernels for Multi-Core {CPUs}},
-  author={J. A. Stratton and S. S. Stone and W. M. W. Hwu},
-  booktitle={Proceedings of the 21st International Workshop on Languages and Compilers for Parallel Computing},
-  pages={16--30},
-  year={2008},
-  publisher={Springer}
-}
-
-@inproceedings{efficient,
-  title={Efficient Compilation of Fine-Grained {SPMD} Threaded Programs for Multicore {CPUs}},
-  author={J. A. Stratton and V. Grover and J. Marathe and B. Aarts and M. Murphy and Z. Hu and W. M. W. Hwu},
-  booktitle={Proceedings of the 8th annual IEEE/ACM International Symposium on Code Generation and Optimization},
-  pages={111--119},
-  year={2010},
-  organization={ACM}
-  address = {Toronto, Ontario, Canada},
-}
-
-@inproceedings{twinpeaks,
-  title={Twin Peaks: a Software Platform for Heterogeneous Computing on General-Purpose and Graphics Processors},
-  author={J. Gummaraju and L. Morichetti and M. Houston and B. Sander and B. R. Gaster and B. Zheng},
-  booktitle={Proceedings of the 19th International Conference on Parallel Architectures and Compilation Techniques},
-  pages={205--216},
-  year={2010},
-  organization={ACM}
-}
-
-
-@misc{inteloclguide,
-  author =       {{Intel Corporation}},
-  organization = {Intel Corporation},
-  lab = {Intel Corporation},
-  year =         {2013},
-  title =        {Intel {SDK} for {OpenCL} Applications {XE} 2013 Optimization Guide},
-}
-
-@misc{intelsdk,
-  author =       {{Intel Corporation}},
-  organization = {Intel Corporation},
-  lab = {Intel Corporation},
-  year =         {2013},
-  title =        {{Intel SDK for OpenCL Applications}},
-  url = {https://software.intel.com/en-us/intel-opencl}
-}
-
-@misc{dryad,
-  author =       {{Christophe Poulain}},
-  organization = {{Microsoft Research}},
-  year =         {2004},
-  title =        {{Dryad}},
-  url = {https://www.microsoft.com/en-us/research/project/dryad/}
-}
-
-@misc{streamc,
-  author =       {{William J. Dally and Abhishek Das and Ben Serebrin and Jin Namkoong and Ujval Kapasi}},
-  organization = {{Stanford University}},
-  year =         {2010},
-  title =        {{Imagine Stream Programming}},
-  url = {http://cva.stanford.edu/projects/imagine/project/imagine_stream_programming.html}
-}
-
-@techreport{mpi,
-  author =       {{Blaise Barney}},
-  organization = {{Lawrence Livermore National Laboratory}},
-  institution = {{Lawrence Livermore National Laboratory}},
-  number = {UCRL-MI-133316},
-  year =         {2012},
-  title =        {{Message Passing Interface (MPI)}},
-  url = {https://computing.llnl.gov/tutorials/mpi/}
-}
-
-
-@article{autotuning1,
-  title={{From} {CUDA} to {OpenCL}: Towards a Performance-Portable Solution for Multi-Platform {GPU} Programming},
-  author={P. Du and R. Weber and P. Luszczek and S. Tomov and G. Peterson and J. Dongarra},
-  journal={Parallel Computing},
-  volume={38},
-  number={8},
-  pages={391--407},
-  year={2012},
-  publisher={Elsevier}
-}
-
-
-@inproceedings{asplos,
-  title={Portable Performance on Heterogeneous Architectures},
-  author={P. M. Phothilimthana and J. Ansel and J. Ragan-Kelley and S. Amarasinghe},
-  booktitle={Proceedings of the 18th International Conference on Architechtural Support for Programming Languages and Operating Systems},
-  volume={48},
-  number={4},
-  pages={431--444},
+@article{ji20133d,
+  title={3D convolutional neural networks for human action recognition},
+  author={Ji, Shuiwang and Xu, Wei and Yang, Ming and Yu, Kai},
+  journal={IEEE transactions on pattern analysis and machine intelligence},
+  volume={35},
+  number={1},
+  pages={221--231},
   year={2013},
-  organization={ACM}
-  address = {Houston, Texas, USA},
-}
-
-@article{shen,
-  title={{An} Empirical Study of {Fortran} Programs for Parallelizing Compilers},
-  author={Z. Shen and Z. Li and P. Yew},
-  journal={IEEE Transactions on Parallel and Distributed Systems},
-  volume={1},
-  number={3},
-  pages={356--364},
-  year={1990},
   publisher={IEEE}
 }
 
-@article{paek,
-  title={{Efficient} and Precise Array Access Analysis},
-  author={Y. Paek and J. Hoeflinger and D. Padua},
-  journal={ACM Transactions on Programming Languages and Systems},
-  volume={24},
-  number={1},
-  pages={65--109},
-  year={2002},
-  publisher={ACM}
+@book{winograd1980arithmetic,
+  title={Arithmetic complexity of computations},
+  author={Winograd, Shmuel},
+  volume={33},
+  year={1980},
+  publisher={Siam}
 }
 
-@inproceedings{triolet,
-  title={Direct Parallelization of Call Statements},
-  author={R. Triolet and F. Irigoin and P. Feautrier},
-  booktitle={ACM SIGPLAN Notices},
-  volume={21},
-  number={7},
-  pages={176--185},
-  year={1986},
+@article{lin2013network,
+  title={Network in network},
+  author={Lin, Min and Chen, Qiang and Yan, Shuicheng},
+  journal={arXiv preprint arXiv:1312.4400},
+  year={2013}
+}
+
+
+@article{journals/corr/IandolaMAHDK16,
+  added-at = {2016-03-01T00:00:00.000+0100},
+  author = {Iandola, Forrest N. and Moskewicz, Matthew W. and Ashraf, Khalid and Han, Song and Dally, William J. and Keutzer, Kurt},
+  biburl = {https://www.bibsonomy.org/bibtex/2e9e5c5e41a63dcbb75dca18f5f63a181/dblp},
+  ee = {http://arxiv.org/abs/1602.07360},
+  interhash = {2c08c6b7b806745351fa9c97814bbc4a},
+  intrahash = {e9e5c5e41a63dcbb75dca18f5f63a181},
+  journal = {CoRR},
+  keywords = {dblp},
+  timestamp = {2016-03-02T11:35:56.000+0100},
+  title = {SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and <1MB model size.},
+  url = {http://dblp.uni-trier.de/db/journals/corr/corr1602.html#IandolaMAHDK16},
+  volume = {abs/1602.07360},
+  year = 2016
+}
+
+@inproceedings{jia2014caffe,
+  title={Caffe: Convolutional architecture for fast feature embedding},
+  author={Jia, Yangqing and Shelhamer, Evan and Donahue, Jeff and Karayev, Sergey and Long, Jonathan and Girshick, Ross and Guadarrama, Sergio and Darrell, Trevor},
+  booktitle={Proceedings of the 22nd ACM international conference on Multimedia},
+  pages={675--678},
+  year={2014},
   organization={ACM}
 }
 
-@inproceedings{bala,
-  title={A Technique for Summarizing Data Access and its Use in Parallelism Enhancing Transformations},
-  author={V. Balasundaram and K. Kennedy},
-  volume={24},
-  number={7},
-  year={1989},
-  publisher={ACM},
-  booktitle = {Proceedings of the {ACM SIGPLAN} 1989 Conference on Programming Language Design and Implementation},
-  pages = {41--53}
+@article{DBLP:journals/corr/AbadiABBCCCDDDG16,
+  author    = {Mart{\'{\i}}n Abadi and
+               Ashish Agarwal and
+               Paul Barham and
+               Eugene Brevdo and
+               Zhifeng Chen and
+               Craig Citro and
+               Gregory S. Corrado and
+               Andy Davis and
+               Jeffrey Dean and
+               Matthieu Devin and
+               Sanjay Ghemawat and
+               Ian J. Goodfellow and
+               Andrew Harp and
+               Geoffrey Irving and
+               Michael Isard and
+               Yangqing Jia and
+               Rafal J{\'{o}}zefowicz and
+               Lukasz Kaiser and
+               Manjunath Kudlur and
+               Josh Levenberg and
+               Dan Man{\'{e}} and
+               Rajat Monga and
+               Sherry Moore and
+               Derek Gordon Murray and
+               Chris Olah and
+               Mike Schuster and
+               Jonathon Shlens and
+               Benoit Steiner and
+               Ilya Sutskever and
+               Kunal Talwar and
+               Paul A. Tucker and
+               Vincent Vanhoucke and
+               Vijay Vasudevan and
+               Fernanda B. Vi{\'{e}}gas and
+               Oriol Vinyals and
+               Pete Warden and
+               Martin Wattenberg and
+               Martin Wicke and
+               Yuan Yu and
+               Xiaoqiang Zheng},
+  title     = {TensorFlow: Large-Scale Machine Learning on Heterogeneous Distributed
+               Systems},
+  journal   = {CoRR},
+  volume    = {abs/1603.04467},
+  year      = {2016},
+  url       = {http://arxiv.org/abs/1603.04467},
+  timestamp = {Wed, 07 Jun 2017 14:40:20 +0200},
+  biburl    = {http://dblp.uni-trier.de/rec/bib/journals/corr/AbadiABBCCCDDDG16},
+  bibsource = {dblp computer science bibliography, http://dblp.org}
 }
 
-@inproceedings{pmodel,
-  title={Code Generation in the Polyhedral Model is Easier than You Think},
-  author={C. Bastoul},
-  booktitle={Proceedings of the 13th International Conference on Parallel Architectures and Compilation Techniques},
-  pages={7--16},
-  year={2004},
-  organization={IEEE Computer Society}
+@article{DBLP:journals/corr/abs-1211-5590,
+  author    = {Fr{\'{e}}d{\'{e}}ric Bastien and
+               Pascal Lamblin and
+               Razvan Pascanu and
+               James Bergstra and
+               Ian J. Goodfellow and
+               Arnaud Bergeron and
+               Nicolas Bouchard and
+               David Warde{-}Farley and
+               Yoshua Bengio},
+  title     = {Theano: new features and speed improvements},
+  journal   = {CoRR},
+  volume    = {abs/1211.5590},
+  year      = {2012},
+  url       = {http://arxiv.org/abs/1211.5590},
+  timestamp = {Wed, 07 Jun 2017 14:40:20 +0200},
+  biburl    = {http://dblp.uni-trier.de/rec/bib/journals/corr/abs-1211-5590},
+  bibsource = {dblp computer science bibliography, http://dblp.org}
+}
+
+@article{ChenLLLWWXXZZ15,
+  author    = {Tianqi Chen and
+               Mu Li and
+               Yutian Li and
+               Min Lin and
+               Naiyan Wang and
+               Minjie Wang and
+               Tianjun Xiao and
+               Bing Xu and
+               Chiyuan Zhang and
+               Zheng Zhang},
+  title     = {MXNet: {A} Flexible and Efficient Machine Learning Library for Heterogeneous
+               Distributed Systems},
+  journal   = {CoRR},
+  volume    = {abs/1512.01274},
+  year      = {2015},
+  url       = {http://arxiv.org/abs/1512.01274},
+  timestamp = {Wed, 07 Jun 2017 14:40:48 +0200},
+  biburl    = {http://dblp.uni-trier.de/rec/bib/journals/corr/ChenLLLWWXXZZ15},
+  bibsource = {dblp computer science bibliography, http://dblp.org}
+}
+
+@article{ChetlurWVCTCS14,
+  author    = {Sharan Chetlur and
+               Cliff Woolley and
+               Philippe Vandermersch and
+               Jonathan Cohen and
+               John Tran and
+               Bryan Catanzaro and
+               Evan Shelhamer},
+  title     = {cuDNN: Efficient Primitives for Deep Learning},
+  journal   = {CoRR},
+  volume    = {abs/1410.0759},
+  year      = {2014},
+  url       = {http://arxiv.org/abs/1410.0759},
+  timestamp = {Wed, 07 Jun 2017 14:40:09 +0200},
+  biburl    = {http://dblp.uni-trier.de/rec/bib/journals/corr/ChetlurWVCTCS14},
+  bibsource = {dblp computer science bibliography, http://dblp.org}
+}
+
+@inproceedings{coates2013deep,
+  title={Deep learning with COTS HPC systems},
+  author={Coates, Adam and Huval, Brody and Wang, Tao and Wu, David and Catanzaro, Bryan and Andrew, Ng},
+  booktitle={International Conference on Machine Learning},
+  pages={1337--1345},
+  year={2013}
+}s
+
+@inproceedings{zinkevich2010parallelized,
+  title={Parallelized stochastic gradient descent},
+  author={Zinkevich, Martin and Weimer, Markus and Li, Lihong and Smola, Alex J},
+  booktitle={Advances in neural information processing systems},
+  pages={2595--2603},
+  year={2010}
+}
+
+@inproceedings{dean2012large,
+  title={Large scale distributed deep networks},
+  author={Dean, Jeffrey and Corrado, Greg and Monga, Rajat and Chen, Kai and Devin, Matthieu and Mao, Mark and Senior, Andrew and Tucker, Paul and Yang, Ke and Le, Quoc V and others},
+  booktitle={Advances in neural information processing systems},
+  pages={1223--1231},
+  year={2012}
 }
 
 
+@article{bottou1991stochastic,
+  title={Stochastic gradient learning in neural networks},
+  author={Bottou, L{\'e}on},
+  journal={Proceedings of Neuro-N{\i}mes},
+  volume={91},
+  number={8},
+  year={1991}
+}
 
-
-@misc{oclprogrammingguide,
-  author={{Nvidia Corporation}},
-  organization={Nvidia Corporation},
-  lab={Nvidia Corporation},
+@article{wang2011mvapich2,
+  title={MVAPICH2-GPU: optimized GPU to GPU communication for InfiniBand clusters},
+  author={Wang, Hao and Potluri, Sreeram and Luo, Miao and Singh, Ashish Kumar and Sur, Sayantan and Panda, Dhabaleswar K},
+  journal={Computer Science-Research and Development},
+  volume={26},
+  number={3-4},
+  pages={257},
   year={2011},
-  title={{OpenCL} Programming Guide for the {CUDA} Architecture},
-}
-
-@misc{oclbestpractice,
-	author={{Nvidia Corporation}},
-	organization={Nvidia Corporation},
-	lab={Nvidia Corporation},
-	year={2011},
-	title={{OpenCL} Best Practices Guide},
-}
-
-@book{compilerbook,
-  title={Optimizing Compilers for Modern Architectures: A Dependence-Based Approach},
-  author={R. Allen and K. Kennedy},
-  year={2002},
-  publisher={Morgan Kaufmann San Francisco}
-}
-
-@book{compilerbook2,
-  title={Advanced Compiler Design and Implementation},
-  author={S. M. Steven},
-  year={1997},
-  publisher={Morgan Kaufmann}
-}
-
-
-@misc{intelvectorguide,
-  author = {{Intel Corporation}},
-  organization = {Intel Corporation},
-  lab = {Intel Corporation},
-  year =         {2012},
-  title =        {A Guide to Vectorization with {Intel} {C++} Compilers},
-}
-
-
-
-@misc{clang,
-  title={Clang: A {C} Language Family Frontend for {LLVM}},
-  author={{LLVM Team and others}},
-  lab = {LLVM Team and others},
-  organization={LLVM Team and others},
-  year={2012},
-  url={http://clang.llvm.org/},
-}
-
-@inbook{llvm,
-  title={The {LLVM} Compiler Framework and Infrastructure Tutorial},
-  author={C. Lattner and V. Adve},
-  booktitle={Languages and Compilers for High Performance Computing},
-  pages={15--16},
-  year={2005},
-  volume={},
-  number={},
   publisher={Springer}
 }
 
-
-@misc{intelintrin,
-  author = {Intel},
-  lab = {Intel Corporation},
-  organization = {Intel Corporation},
-  title = {{Intel} {C++} Intrinsic Reference},
-  year = {2013},
-}
-
-
-@misc{freeocl,
-  lab = {{FreeOCL}},
-  author = {{FreeOCL}},
-  organization = {{FreeOCL}},
-  year =         {2012},
-  title =        {{FreeOCL}: Multi-Platform Implementation of {OpenCL} 1.2 Targeting {CPUs}},
-  url =          {https://code.google.com/p/freeocl},
-}
-
-
-@inproceedings{shoc,
-  title={The Scalable HeterOgeneous Computing ({SHOC}) Benchmark Suite},
-  author={A. Danalis and G. Marin and C. McCurdy and J. S. Meredith and P. C. Roth and K. Spafford and V. Tipparaju and J. S. Vetter},
-  booktitle={Proceedings of the 3rd Workshop on General-Purpose Computation on Graphics Processing Units},
-  pages={63--74},
-  year={2010},
-  organization={ACM}
-  address = {Pittsburgh, PA, USA},
-}
-
-@inproceedings{burke86,
-  title={Interprocedural Dependence Analysis and Parallelization},
-  author={M. Burke and R. Cytron},
-  booktitle={ACM Sigplan Notices},
-  volume={21},
-  number={7},
-  pages={162--175},
-  year={1986},
-  organization={ACM},
-}
-
-@article{aristotle,
-	title={{Aristotle: A Performance Impact Indicator for the OpenCL Kernels using Local Memory}},
-	author={J. Fang and H. Sips and A. L. Varbanescu},
-	journal={Scientific Programming},
-	volume={22},
-	number={3},
-	pages={239--257},
-	year={2014},
-	publisher={Hindawi}
-}
-
-@inproceedings{europar14,
-	title={Automated Transformation of {GPU}-Specific {OpenCL} Kernels Targeting Performance Portability on Multi-Core/Many-Core {CPU}s},
-	author={D. Huang and M. Wen and C. Xun and D. Chen and X. Cai and Y. Qiao and N. Wu and C. Zhang},
-	booktitle={Proceedings of Euro-Par 2014 \& Lecture Notes in Computer Science},
-	volume={8632},
-	pages={210--221},
-	year={2014},
-}
-
-@inproceedings{groover,
-	title={Grover: Looking for Performance Improvement by Disabling Local Memory Usage in {OpenCL} Kernels},
-	author={J. Fang and H. Sips and P. Jaaskelainen and A. L. Varbanescu},
-	booktitle={Proceedings of the 43rd International Conference on Parallel Processing},
-	pages={162--171},
-	year={2014},
-	address = {Minneapolis, USA},
-}
-
-@article{itpds11,
-	title={{Exploiting} Memory Access Patterns to Improve Memory Performance in Data-Parallel Architectures},
-	author={B. Jang and Schaa, D. and Mistry, P. and Kaeli, D.},
-	journal={ IEEE Transactions on Parallel and Distributed Systems},
-	volume={22},
-	number={1},
-	pages={105--118},
-	year={2011},
-	publisher={IEEE}
-}
-
-@techreport{cean,
-author = {{Intel Corporation}},
-title = {{CEAN Language Extension and Programming Model}},
-url = {https://software.intel.com/sites/default/files/fd/c5/CEAN\_Model.docx}
-}
-
-@inproceedings{petabricks,
-abstract = {It is often impossible to obtain a one-size-fits-all solution for high performance algorithms when considering different choices for data distributions, parallelism, transformations, and blocking. The best solution to these choices is often tightly coupled to different architectures, problem sizes, data, and available system resources. In some cases, completely different algorithms may provide the best performance. Current compiler and programming language techniques are able to change some of these parameters, but today there is no simple way for the programmer to express or the compiler to choose different algorithms to handle different parts of the data. Existing solutions normally can handle only coarse- grained, library level selections or hand coded cutoffs between base cases and recursive cases. We present PetaBricks, a new implicitly parallel language and compiler where having multiple implementations of multiple algorithms to solve a problem is the natural way of programming. We make algorithmic choice a first class construct of the language. Choices are provided in a way that also allows our compiler to tune at a finer granularity. The PetaBricks compiler autotunes programs by making both fine-grained as well as algorithmic choices. Choices also include different automatic parallelization techniques, data distributions, algorithmic parameters, transformations, and blocking. Additionally, we introduce novel techniques to autotune algorithms for different convergence criteria. When choosing between various direct and iterative methods, the PetaBricks compiler is able to tune a program in such a way that delivers near optimal efficiency for any desired level of accuracy. The compiler has the flexibility of utilizing different convergence criteria for the various components within a single algorithm, providing the user with accuracy choice alongside algorithmic choice.},
-author = {Ansel, Jason and Chan, Cy and Wong, Yee Lok and Olszewski, Marek and Zhao, Qin and Edelman, Alan and Amarasinghe, Saman},
-booktitle = {Proceedings of the 30th ACM SIGPLAN Conference on Programming Language Design and Implementation},
-doi = {10.1145/1543135.1542481},
-isbn = {978-1-60558-392-1},
-issn = {03621340},
-keywords = {C++,autotuning,parallel architecture,parallel benchmarks,petabricks},
-number = {6},
-pages = {38--49},
-title = {{PetaBricks: A Language and Compiler for Algorithmic Choice}},
-url = {http://portal.acm.org/citation.cfm?doid=1543135.1542481\%5Cncode.google.com/p/petabricks/},
-volume = {44},
-year = {2009}
-}
-
-
-@misc{nvidiasdk,
-  author = {{NVIDIA Corporation}},
-  lab = {NVIDIA Corporation},
-  organization = {NVIDIA Corporation},
-  title = {{NVIDIA GPU Computing SDK 4.2}},
-  year = {2013},
-  url = {http://developer.nvidia.com/gpu-computing-sdk}
-}
-
-
-
-@techreport{klt2,
-abstract = {The factorization method described in this series of reports requires an algorithm to track the motion of features in an image stream. Given the small inter-frame displacement made possible by the factorization approach, the best tracking method turns out to be the one proposed by Lucas and Kanade in 1981. The method defines the measure of match between fixed-size feature windows in the past and current frame as the sum of squared intensity differences over the windows. The displacement is then defined as the one that minimizes this sum. For small motions, a linearization of the image intensities leads to a Newton-Raphson style minimization. In this report, after rederiving the method in a physically intuitive way, we answer the crucial question of how to choose the feature windows that are best suited for tracking. Our selection criterion is based directly on the definition of the tracking algorithm, and expresses how well a feature can be tracked. As a result, the criterion is optimal by construction. We show by experiment that the performance of both the selection and the tracking algorithm are adequate for our factorization method, and we address the issue of how to detect occlusions. In the conclusion, we point out specific open questions for future research.},
-author = {Tomasi, Carlo and T. Kanade},
-booktitle = {School of Computer Science, Carnegie Mellon University},
-doi = {10.1016/S0031-3203(03)00234-6},
-isbn = {078038234X},
-issn = {00313203},
-pages = {1--22},
-title = {{Detection and Tracking of Point Features}},
-url = {http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.131.5899\&rep=rep1\&type=pdf},
-volume = {91},
-year = {1991},
-institution = {School of Computer Science, Carnegie Mellon University},
-number = {CMU-CS-91-132}
-}
-
-@inproceedings{deepimage,
-author = {Wang, Naiyan and D. Y. Yeung},
-booktitle = {Annual Conference on Neural Information Processing System},
-pages = {809--817},
-title = {{Learning a Deep Compact Image Representation for Visual Tracking}},
-year = {2013}
-}
-
-@inproceedings{deeptrack,
-abstract = {Defining hand-crafted feature representations needs expert knowledge, requires time-$\backslash$nconsuming manual adjustments, and besides, it is arguably one of the limiting factors of$\backslash$nobject tracking.$\backslash$n$\backslash$nIn this paper, we propose a novel solution to automatically relearn the most useful$\backslash$nfeature representations during the tracking process in order to accurately adapt appear-$\backslash$nance changes, pose and scale variations while preventing from drift and tracking failures.$\backslash$nWe employ a candidate pool of multiple Convolutional Neural Networks (CNNs) as a$\backslash$ndata-driven model of different instances of the target object. Individually, each CNN$\backslash$nmaintains a specific set of kernels that favourably discriminate object patches from their$\backslash$nsurrounding background using all available low-level cues. These kernels are updated$\backslash$nin an online manner at each frame after being trained with just one instance at the ini-$\backslash$ntialization of the corresponding CNN. Given a frame, the most promising CNNs in the$\backslash$npool are selected to evaluate the hypothesises for the target object. The hypothesis with$\backslash$nthe highest score is assigned as the current detection window and the selected models are$\backslash$nretrained using a warm-start back-propagation which optimizes a structural loss function.$\backslash$nIn addition to the model-free tracker, we introduce a class-specific version of the pro-$\backslash$nposed method that is tailored for tracking of a particular object class such as human faces.$\backslash$nOur experiments on a large selection of videos from the recent benchmarks demonstrate$\backslash$nthat our method outperforms the existing state-of-the-art algorithms and rarely loses the$\backslash$ntrack of the target object.$\backslash$n},
-archivePrefix = {arXiv},
-arxivId = {1503.0072},
-author = {Li, Hanxi and Li, Yi and Porikli, Fatih},
-booktitle = {British Machine Vision Conference},
-doi = {10.1109/TIP.2015.2510583},
-eprint = {1503.0072},
-issn = {1057-7149},
-pages = {1--12},
-title = {{DeepTrack: Learning Discriminative Feature Representations by Convolutional Neural Networks for Visual Tracking}},
-year = {2014}
-}
-
-@article{survey51,
-abstract = {citation: 1540 (2014/07/05)},
-author = {Baker, Simon and Matthews, Iain},
-doi = {10.1023/B:VISI.0000011205.11775.fd},
-isbn = {0920-5691},
-issn = {09205691},
-journal = {International Journal of Computer Vision},
-keywords = {A unifying framework,Additive vs. compositional algorithms,Efficiency,Forwards vs. inverse algorithms,Gauss-Newton,Image alignment,Levenberg-Marquardt,Lucas-Kanade,Newton,Steepest descent,The inverse compositional algorithm},
-number = {3},
-pages = {221--255},
-title = {{Lucas-Kanade 20 Years on: A Unifying Framework}},
-volume = {56},
-year = {2004}
-}
-
-@article{colornaminguse1,
-abstract = {In this article we investigate the problem of human action recognition in static images. By action recognition we intend a class of problems which includes both action classification and action detection (i.e. simultaneous localization and classification). Bag-of-words image representations yield promising results for action classification, and deformable part models perform very well object detection. The representations for action recognition typically use only shape cues and ignore color information. Inspired by the recent success of color in image classification and object detection, we investigate the potential of color for action classification and detection in static images. We perform a comprehensive evaluation of color descriptors and fusion approaches for action recognition. Experiments were conducted on the three datasets most used for benchmarking action recognition in still images: Willow, PASCAL VOC 2010 and Stanford-40. Our experiments demonstrate that incorporating color information considerably improves recognition performance, and that a descriptor based on color names outperforms pure color descriptors. Our experiments demonstrate that late fusion of color and shape information outperforms other approaches on action recognition. Finally, we show that the different color–shape fusion approaches result in complementary information and combining them yields state-of-the-art performance for action classification.},
-author = {Khan, Fahad Shahbaz and Rao, Muhammad Anwer and {Van De Weijer}, Joost and Bagdanov, Andrew D. and Lopez, Antonio M. and Felsberg, Michael},
-doi = {10.1007/s11263-013-0633-0},
-issn = {09205691},
-journal = {International Journal of Computer Vision},
-keywords = {Action recognition,Color features,Image representation},
-number = {3},
-pages = {205--221},
-title = {{Coloring Action Recognition in Still Images}},
-volume = {105},
-year = {2013}
-}
-
-@inproceedings{colornaminguse2,
-abstract = {State-of-the-art object detectors typically use shape$\backslash$ninformation as a low level feature representation to capture the$\backslash$nlocal structure of an object. This paper shows that early fusion$\backslash$nof shape and color, as is popular in image classification, leads$\backslash$nto a significant drop in performance for object detection.$\backslash$nMoreover, such approaches also yields suboptimal results for$\backslash$nobject categories with varying importance of color and shape. In$\backslash$nthis paper we propose the use of color attributes as an explicit$\backslash$ncolor representation for object detection. Color attributes are$\backslash$ncompact, computationally efficient, and when combined with$\backslash$ntraditional shape features provide state-of-the-art results for$\backslash$nobject detection. Our method is tested on the PASCAL VOC 2007$\backslash$nand 2009 datasets and results clearly show that our method$\backslash$nimproves over state-of-the-art techniques despite its$\backslash$nsimplicity. We also introduce a new dataset consisting of$\backslash$ncartoon character images in which color plays a pivotal role. On$\backslash$nthis dataset, our approach yields a significant gain of 14{\%} in$\backslash$nmean AP over conventional state-of-the-art methods.},
-author = {Khan, Fahad Shahbaz and Anwer, Rao Muhammad and {Van De Weijer}, Joost and Bagdanov, Andrew D. and Vanrell, Maria and Lopez, Antonio M.},
-booktitle = {IEEE Computer Society Conference on Computer Vision and Pattern Recognition},
-doi = {10.1109/CVPR.2012.6248068},
-isbn = {9781467312264},
-issn = {10636919},
-pages = {3306--3313},
-title = {{Color Attributes for Object Detection}},
-year = {2012}
-}
-
-
-@misc{otbweb,
-	author = {Yi Wu and Jongwoo Lim and Ming-Hsuan Yang},
-	year =         {2015},
-	title =        {{Visual Tracker Benchmark v1.0}},
-	url =          {http://cvlab.hanyang.ac.kr/tracker_benchmark/benchmark_v10.html}
-}
-
-@article{Smeulders2014,
-author = {Smeulders, Arnold W M and Member, Senior Student and Chu, Dung M and Member, Senior Student and Cucchiara, Rita and Calderara, Simone and Member, Senior Student and Calderara, Simone and Member, Senior Student},
-doi = {10.1109/TPAMI.2013.230},
-issn = {0162-8828},
-journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
-number = {7},
-pages = {1442--1468},
-title = {{Visual Tracking: An Experimental Survey}},
-url = {http://ieeexplore.ieee.org/lpdocs/epic03/wrapper.htm?arnumber=6671560},
-volume = {36},
-year = {2014}
-}
-
-
-@inproceedings{cfsurvey,
-abstract = {Abstract—Over these years, Correlation Filter-based Trackers (CFTs) have aroused increasing interests in the field of visual object tracking, and have achieved extremely compelling results in different competitions and benchmarks. In this paper, our goal is to review the developments of CFTs with extensive experimental results. 11 trackers are surveyed in our work, based on which a general framework is summarized. Furthermore, we investigate different training schemes for correlation filters, and also discuss various effective improvements that have been made recently. Comprehensive experiments have been conducted to evaluate the effectiveness and efficiency of the surveyed CFTs, and comparisons have been made with other competing trackers. The experimental results have shown that state-of- art performence, in terms of robustness, speed and accuracy, can be achieved by several recent CFTs, such as MUSTer and SAMF. We find that further improvements for correlation filter- based tracking can be made on estimating scales, applying part- based tracking strategy and cooperating with long-term tracking methods.},
-archivePrefix = {arXiv},
-arxivId = {arXiv:1509.05520v1},
-author = {Chen, Zhe and Hong, Zhibin and Tao, Dacheng},
-booktitle = {arXiv},
-eprint = {arXiv:1509.05520v1},
-keywords = {Visual object tracking,computer vision,correlation filters,ing evaluation,track-},
-pages = {1--13},
-title = {{An Experimental Survey on Correlation Filter-Based Tracking}},
-year = {2014},
-url = {https://arxiv.org/abs/1509.05520}
+@inproceedings{li2014communication,
+  title={Communication efficient distributed machine learning with the parameter server},
+  author={Li, Mu and Andersen, David G and Smola, Alexander J and Yu, Kai},
+  booktitle={Advances in Neural Information Processing Systems},
+  pages={19--27},
+  year={2014}
 }
 
 
 
 
-@article{slidingdetect1,
- author = {Papageorgiou, Constantine and Poggio, Tomaso},
- title = {A Trainable System for Object Detection},
- journal = {International Journal of Computer Vision},
- issue_date = {June 2000},
- volume = {38},
- number = {1},
- month = jun,
- year = {2000},
- issn = {0920-5691},
- pages = {15--33},
- numpages = {19},
- url = {http://dx.doi.org/10.1023/A:1008162616689},
- doi = {10.1023/A:1008162616689},
- acmid = {355341},
- publisher = {Kluwer Academic Publishers},
- address = {Hingham, MA, USA},
- keywords = {computer vision, ear detection, face detection, machine learning, pattern recognition, people detection}
-} 
-
-@article{slidingdetect2,
-author = {Viola, P and Jones, M},
-journal = {International Journal of Computer Vision},
-keywords = {face detection},
-pages = {137--154},
-title = {{Robust Real-Time Face Detection}},
-volume = {57},
-year = {2004}
-}
-
-@inproceedings{coco,
-abstract = {We present a new dataset with the goal of advancing the state-of-the-art in object recognition by placing the question of object recognition in the context of the broader question of scene understanding. This is achieved by gathering images of complex everyday scenes containing common objects in their natural context. Objects are labeled using per-instance segmentations to aid in precise object localization. Our dataset contains photos of 91 objects types that would be easily recognizable by a 4 year old. With a total of 2.5 million labeled instances in 328k images, the creation of our dataset drew upon extensive crowd worker involvement via novel user interfaces for category detection, instance spotting and instance segmentation. We present a detailed statistical analysis of the dataset in comparison to PASCAL, ImageNet, and SUN. Finally, we provide baseline performance analysis for bounding box and segmentation detection results using a Deformable Parts Model.},
-archivePrefix = {arXiv},
-arxivId = {arXiv:1405.0312v1},
-author = {Lin, Tsung Yi and Maire, Michael and Belongie, Serge and Hays, James and Perona, Pietro and Ramanan, Deva and Doll{\'{a}}r, Piotr and Zitnick, C. Lawrence},
-booktitle = {European Conference on Computer Vision},
-doi = {10.1007/978-3-319-10602-1_48},
-eprint = {arXiv:1405.0312v1},
-isbn = {978-3-319-10601-4},
-issn = {16113349},
-number = {PART 5},
-pages = {740--755},
-title = {{Microsoft COCO: Common Objects in Context}},
-year = {2014}
-}
-
-@inproceedings{dpsurvey2,
-abstract = {Current top performing Pascal VOC object detectors employ detection proposals to guide the search for objects thereby avoiding exhaustive sliding window search across images. Despite the popularity of detection proposals, it is unclear which trade-offs are made when using them during object detection. We provide an in depth analysis of ten object proposal methods along with four baselines regarding ground truth annotation recall (on Pascal VOC 2007 and ImageNet 2013), repeatability, and impact on DPM detector performance. Our findings show common weaknesses of existing methods, and provide insights to choose the most adequate method for different settings.},
-archivePrefix = {arXiv},
-arxivId = {1406.6962},
-author = {Hosang, Jan and Benenson, Rodrigo and Schiele, Bernt},
-booktitle = {British Machine Vision Conference},
-doi = {10.5244/C.28.24},
-eprint = {1406.6962},
-isbn = {1-901725-52-9},
-pages = {1--25},
-title = {{How Good are Detection Proposals, Really?}},
-url = {http://arxiv.org/abs/1406.6962},
-year = {2014}
-}
-
-@inproceedings{imagenet,
-abstract = {The explosion of image data on the Internet has the potential to foster more sophisticated and robust models and algorithms to index, retrieve, organize and interact with images and multimedia data. But exactly how such data can be harnessed and organized remains a critical problem. We introduce here a new database called ldquoImageNetrdquo, a large-scale ontology of images built upon the backbone of the WordNet structure. ImageNet aims to populate the majority of the 80,000 synsets of WordNet with an average of 500-1000 clean and full resolution images. This will result in tens of millions of annotated images organized by the semantic hierarchy of WordNet. This paper offers a detailed analysis of ImageNet in its current state: 12 subtrees with 5247 synsets and 3.2 million images in total. We show that ImageNet is much larger in scale and diversity and much more accurate than the current image datasets. Constructing such a large-scale database is a challenging task. We describe the data collection scheme with Amazon Mechanical Turk. Lastly, we illustrate the usefulness of ImageNet through three simple applications in object recognition, image classification and automatic object clustering. We hope that the scale, accuracy, diversity and hierarchical structure of ImageNet can offer unparalleled opportunities to researchers in the computer vision community and beyond.},
-author = {Deng, Jia and Dong, Wei and Socher, R. and Li, Li-Jia and Li, Kai and Fei-Fei, Li},
-booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
-doi = {10.1109/CVPR.2009.5206848},
-isbn = {978-1-4244-3992-8},
-issn = {1063-6919},
-pages = {2--9},
-pmid = {21914436},
-title = {{ImageNet: A Large-Scale Hierarchical Image Database}},
-year = {2009}
-}
-
-@article{kcfdpt,
-author = {Huang, Dafei and Luo, Lei and Chen, Zhaoyun and Wen, Mei and Zhang, Chunyuan},
-journal = {International Journal of Computer Vision},
-number = {3},
-pages = {524--541},
-title = {{Applying Detection Proposals to Visual Tracking for Scale and Aspect Ratio Adaptability}},
-volume = {122},
-year = {2017}
-}
 
 
-@article{detector1,
-abstract = {Generic object detection is confronted by dealing with different degrees of variations in distinct object classes with tractable computations. This demands for descriptive and flexible object representations that are also efficient to evaluate for many locations.We propose to model an object class by a cascaded boosting classifier which integrates various types of features from competing local regions, named as regionlets. A regionlet is a base feature extraction region defined proportionally to a detection window at an arbitrary resolution (i.e., size and aspect ratio). These regionlets are organized in small groups with stable relative positions to delineate fine-grained spatial layouts inside objects. Their features are aggregated to a one-dimensional feature within one group so as to tolerate deformations. Then we evaluate the object bounding box proposals generated from segmentation cues, limiting the evaluation locations to thousands. Our approach achieves very competitive performance on popular multi-class detection benchmark datasets with a single method, without any contexts. It achieves the detection mean average precision of 41.7{\%} on the PASCAL VOC 2007 dataset, 39.7{\%} on the VOC 2010 for 20 object categories. We further develop support pixel integral images to efficiently augment regionlet features with the responses learned by deep convolutional neural networks. Our regionlet based method achieved 20.9{\%} mean average precision on 200 object categories in the ImageNet Large Scale Visual Object Recognition Challenge (ILSVRC 2013).},
-archivePrefix = {arXiv},
-arxivId = {1111.6189v1},
-author = {Wang, Xiaoyu and Yang, Ming and Zhu, Shenghuo and Lin, Yuanqing},
-doi = {10.1109/TPAMI.2015.2389830},
-eprint = {1111.6189v1},
-isbn = {9781479928392},
-issn = {01628828},
-journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
-keywords = {Boosting,Deep Convolutional Neural Network,Object Detection,Object Proposals,Regionlet,Selective Search},
-number = {10},
-pages = {2071--2084},
-pmid = {26353185},
-title = {{Regionlets for Generic Object Detection}},
-volume = {37},
-year = {2015}
-}
 
 
-@article{detector2,
-abstract = {Existing deep convolutional neural networks (CNNs) require a fixed-size (e.g. 224x224) input image. This requirement is "artificial" and may hurt the recognition accuracy for the images or sub-images of an arbitrary size/scale. In this work, we equip the networks with a more principled pooling strategy, "spatial pyramid pooling", to eliminate the above requirement. The new network structure, called SPP-net, can generate a fixed-length representation regardless of image size/scale. By removing the fixed-size limitation, we can improve all CNN-based image classification methods in general. Our SPP-net achieves state-of-the-art accuracy on the datasets of ImageNet 2012, Pascal VOC 2007, and Caltech101. The power of SPP-net is more significant in object detection. Using SPP-net, we compute the feature maps from the entire image only once, and then pool features in arbitrary regions (sub-images) to generate fixed-length representations for training the detectors. This method avoids repeatedly computing the convolutional features. In processing test images, our method computes convolutional features 30-170x faster than the recent leading method R-CNN (and 24-64x faster overall), while achieving better or comparable accuracy on Pascal VOC 2007.},
-archivePrefix = {arXiv},
-arxivId = {1406.4729},
-author = {He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian},
-doi = {10.1109/TPAMI.2015.2389824},
-eprint = {1406.4729},
-isbn = {9783319105772},
-issn = {01628828},
-journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
-keywords = {Convolutional Neural Networks,Image Classification,Object Detection,Spatial Pyramid Pooling},
-number = {9},
-pages = {1904--1916},
-pmid = {26353135},
-title = {{Spatial Pyramid Pooling in Deep Convolutional Networks for Visual Recognition}},
-volume = {37},
-year = {2015}
-}
 
 
-@inproceedings{detector3,
-abstract = {We present an object detection system based on the Fisher vector (FV) $\backslash$nimage representation computed over SIFT and color descriptors. For computational $\backslash$nand storage efficiency, we use a recent segmentation-based method to generate $\backslash$nclass-independent object detection hypotheses, in combination with data $\backslash$ncompression techniques. Our main contribution is a method to produce tentative $\backslash$nobject segmentation masks to suppress background clutter in the features. $\backslash$nRe-weighting the local image features based on these masks is shown to improve $\backslash$nobject detection significantly. We also exploit contextual features in the form $\backslash$nof a full-image FV descriptor, and an inter-category rescoring mechanism. Our $\backslash$nexperiments on the VOC 2007 and 2010 datasets show that our detector improves $\backslash$nover the current state-of-the-art detection results.},
-author = {Cinbis, Ramazan Gokberk and Verbeek, Jakob and Schmid, Cordelia},
-booktitle = {IEEE International Conference on Computer Vision},
-doi = {10.1109/ICCV.2013.369},
-isbn = {978-1-4799-2840-8},
-issn = {1550-5499},
-pages = {2968--2975},
-title = {{Segmentation Driven Object Detection with Fisher Vectors}},
-url = {http://ieeexplore.ieee.org/lpdocs/epic03/wrapper.htm?arnumber=6751480},
-year = {2013}
-}
 
-@article{interestpoint1,
-abstract = {In this survey, we give an overview of invariant interest point detectors, how they evolved over time, how they work, and what their respective strengths and weaknesses are. We begin with defining the properties of the ideal local feature detector. This is followed by an overview of the literature over the past four decades organized in different categories of feature extraction methods. We then provide a more detailed analysis of a selection of methods which had a particularly significant impact on the research field. We conclude with a summary and promising future research directions.},
-author = {Tuytelaars, Tinne and Mikolajczyk, Krystian},
-doi = {10.1561/0600000017},
-isbn = {1601981384},
-issn = {1572-2740},
-journal = {Computer Graphics and Vision},
-number = {3},
-pages = {177--280},
-title = {{Local Invariant Feature Detectors: A Survey}},
-volume = {3},
-year = {2008}
-}
 
-@article{interestpoint2,
-abstract = {The paper gives a snapshot of the state of the art in affine covariant region detectors, and$\backslash$r$\backslash$ncompares their performance on a set of test images under varying imaging conditions. Six$\backslash$r$\backslash$ntypes of detectors are included: detectors based on affine normalization around Harris [24,$\backslash$r$\backslash$n34] and Hessian points [24], as proposed by Mikolajczyk and Schmid and by Schaffalitzky$\backslash$r$\backslash$nand Zisserman; a detector of ‘maximally stable extremal regions', proposed by Matas et$\backslash$r$\backslash$nal. [21]; an edge-based region detector [45] and a detector based on intensity extrema [47],$\backslash$r$\backslash$nproposed by Tuytelaars and Van Gool; and a detector of ‘salient regions', proposed by Kadir,$\backslash$r$\backslash$nZisserman and Brady [12]. The performance is measured against changes in viewpoint, scale,$\backslash$r$\backslash$nillumination, defocus and image compression.$\backslash$r$\backslash$nThe objective of this paper is also to establish a reference test set of images and performance$\backslash$r$\backslash$nsoftware, so that future detectors can be evaluated in the same framework.},
-archivePrefix = {arXiv},
-arxivId = {arXiv:1011.1669v3},
-author = {Mikolajczyk, K. and Tuytelaars, T. and Schmid, C. and Zisserman, A. and Matas, J. and Schaffalitzky, F. and Kadir, T. and {Van Gool}, L.},
-doi = {10.1007/s11263-005-3848-x},
-eprint = {arXiv:1011.1669v3},
-isbn = {0920-5691},
-issn = {09205691},
-journal = {International Journal of Computer Vision},
-keywords = {Affine region detectors,Invariant image description,Local features,Performance evaluation},
-number = {1-2},
-pages = {43--72},
-pmid = {1000199072},
-title = {{A Comparison of Affine Region Detectors}},
-volume = {65},
-year = {2005}
-}
 
-@article{saliency1,
-abstract = {We present a novel unified framework for both static and space-time saliency detection. Our method is a bottom-up approach and computes so-called local regression kernels (i.e., local descriptors) from the given image (or a video), which measure the likeness of a pixel (or voxel) to its surroundings. Visual saliency is then computed using the said "self-resemblance" measure. The framework results in a saliency map where each pixel (or voxel) indicates the statistical likelihood of saliency of a feature matrix given its surrounding feature matrices. As a similarity measure, matrix cosine similarity (a generalization of cosine similarity) is employed. State of the art performance is demonstrated on commonly used human eye fixation data (static scenes (N. Bruce {\&} J. Tsotsos, 2006) and dynamic scenes (L. Itti {\&} P. Baldi, 2006)) and some psychological patterns.},
-author = {Seo, Hae Jong and Milanfar, Peyman},
-doi = {10.1167/9.12.15.Introduction},
-isbn = {1534-7362 (Electronic)$\backslash$n1534-7362 (Linking)},
-issn = {15347362},
-journal = {Journal of Vision},
-keywords = {1,10,1167,12,15,2009,27,9,attention,citation,computational modeling,doi,eye movements,h,http,j,journal,journalofvision,milanfar,org,p,saliency,saliency detection self resemblance,seo,static space time visual,vision},
-number = {12},
-pages = {1--27},
-pmid = {20053106},
-title = {{Static and Space-Time Visual Saliency Detection by Self-Resemblance}},
-url = {http://www.journalofvision.org/content/9/12/15.short},
-volume = {9},
-year = {2009}
-}
 
-@inproceedings{saliency2,
-abstract = {The ability of human visual system to detect visual$\backslash$nsaliency is extraordinarily fast and$\backslash$nreliable. However, com- putational modeling of this$\backslash$nbasic intelligent behavior still remains a$\backslash$nchallenge. This paper presents a simple method for$\backslash$nthe visual saliency detection. Our model is$\backslash$nindependent of features, categories, or other forms$\backslash$nof prior knowledge of the objects. By analyz- ing$\backslash$nthe log-spectrum of an input image, we extract the$\backslash$nspec- tral residual of an image in spectral domain,$\backslash$nand propose a fast method to construct the$\backslash$ncorresponding saliency map in spatial domain. We$\backslash$ntest this model on both natural pictures and$\backslash$nartificial images such as psychological$\backslash$npatterns. The result indicate fast and robust$\backslash$nsaliency detection of our method},
-author = {Hou, Xiaodi and Zhang, Liqing},
-booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
-doi = {10.1109/CVPR.2007.383267},
-isbn = {1424411807},
-issn = {10636919},
-pmid = {1000198722},
-title = {{Saliency Detection: A Spectral Residual Approach}},
-year = {2007}
-}
 
-@inproceedings{adaptivesvm,
-author = {Yang, Jun and Yan, Rong and Hauptmann, Alexander G.},
-booktitle = {IEEE International Conference on Data Mining Workshops},
-doi = {10.1109/ICDMW.2007.37},
-isbn = {0769530192},
-issn = {15504786},
-pages = {69--74},
-title = {{Adapting SVM Classifiers to Data with Shifted Distributions}},
-year = {2007}
-}
 
-@inproceedings{crackingbing,
-abstract = {Objectness proposal is an emerging field which aims to reduce candidate object windows without missing the real ones. Under the evaluation framework of DR-{\#}WIN, lots of methods report good performance in recent years, and the best is BING in CVPR 2014. BING provides good detection rates and surprising high efficiencies. But what can we benefit from it from the angle of computer vision research? In this paper, we show that the success of BING is rather in geometry than in computer vision research. The secret lies in the Achilles' heel of the DR-{\#}WIN evaluation framework: the 0.5-INT-UNION criterion. We proposed a method to construct a rather small window set to ""cover"" all legal rectangles. On images no larger than 512x512, supposing all object rectangles are not smaller than 16x16, nearly 19K windows are sufficient to cover all possible rectangles. The amount is far less than that of all sliding windows. It can be reduced further by exploiting the prior distribution of the locations and sizes of true object windows in a greedy way. We also proposed a hybrid scheme blending both greedy and stochastic results. On the VOC2007 test set, it recalls 95.68{\%} objects with 1000 proposal windows. The detection rates on the first ten windows are 13.99{\%}{\~{}}40.29{\%} higher than earlier methods in average.},
-author = {Q. Zhao and Z. Liu and B. Yin},
-booktitle = {British Machine Vision Conference},
-isbn = {9780471588900},
-issn = {9780471588900},
-pages = {1--10},
-title = {{Cracking BING and Beyond}},
-year = {2014}
-}
 
-@article{endres,
-abstract = {We propose a category-independent method to produce a bag of regions and rank them, such that top-ranked regions are likely to be good segmentations of different objects. Our key objectives are completeness and diversity: Every object should have at least one good proposed region, and a diverse set should be top-ranked. Our approach is to generate a set of segmentations by performing graph cuts based on a seed region and a learned affinity function. Then, the regions are ranked using structured learning based on various cues. Our experiments on the Berkeley Segmentation Data Set and Pascal VOC 2011 demonstrate our ability to find most objects within a small bag of proposed regions.},
-author = {Endres, Ian and Hoiem, Derek},
-doi = {10.1109/TPAMI.2013.122},
-isbn = {0162-8828 VO  - 36},
-issn = {01628828},
-journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
-keywords = {Object segmentation,object recognition},
-number = {2},
-pages = {222--234},
-pmid = {24356345},
-title = {{Category-Independent Object Proposals with Diverse Ranking}},
-volume = {36},
-year = {2014}
-}
 
-@inproceedings{rahtu,
-abstract = {Cascades are a popular framework to speed up object detection systems. Here we focus on the first layers of a category independent object detection cascade in which we sample a large number of windows from an objectness prior, and then discriminatively learn to filter these candidate windows by an order of magnitude. We make a number of contributions to cascade design that substantially improve over the state of the art: (i) our novel objectness prior gives much higher recall than competing methods, (ii) we propose objectness features that give high performance with very low computational cost, and (iii) we make use of a structured output ranking approach to learn highly effective, but inexpensive linear feature combinations by directly optimizing cascade performance. Thorough evaluation on the PASCAL VOC data set shows consistent improvement over the current state of the art, and over alternative discriminative learning strategies.},
-author = {Rahtu, Esa and Kannala, Juho and Blaschko, Matthew},
-booktitle = {IEEE International Conference on Computer Vision},
-doi = {10.1109/ICCV.2011.6126351},
-isbn = {9781457711015},
-issn = {1550-5499},
-pages = {1052--1059},
-title = {{Learning a Category Independent Object Detection Cascade}},
-year = {2011}
-}
 
-@inproceedings{randomizedprim,
-abstract = {Generic object detection is the challenging task of proposing windows $\backslash$nthat localize all the objects in an image, regardless of their classes. Such $\backslash$ndetectors have recently been shown to benefit many applications such as $\backslash$nspeeding-up class-specific object detection, weakly supervised learning of $\backslash$nobject detectors and object discovery. In this paper, we introduce a novel and $\backslash$nvery efficient method for generic object detection based on a randomized version $\backslash$nof Prim's algorithm. Using the connectivity graph of an image's super pixels, $\backslash$nwith weights modelling the probability that neighbouring super pixels belong to $\backslash$nthe same object, the algorithm generates random partial spanning trees with $\backslash$nlarge expected sum of edge weights. Object localizations are proposed as $\backslash$nbounding-boxes of those partial trees. Our method has several benefits compared $\backslash$nto the state-of-the-art. Thanks to the efficiency of Prim's algorithm, it $\backslash$nsamples proposals very quickly: 1000 proposals are obtained in about 0.7s. With $\backslash$nproposals bound to super pixel boundaries yet diversified by randomization, it $\backslash$nyields very high detection rates and windows that tightly fit objects. In $\backslash$nextensive experiments on the challenging PASCAL VOC 2007 and 2012 and SUN2012 $\backslash$nbenchmark datasets, we show that our method improves over state-of-the-art $\backslash$ncompetitors for a wide range of evaluation scenarios.},
-author = {Manen, Santiago and Guillaumin, Matthieu and Gool, Luc Van},
-booktitle = {IEEE International Conference on Computer Vision},
-doi = {10.1109/ICCV.2013.315},
-isbn = {9781479928392},
-issn = {1550-5499},
-keywords = {Object Detection,Object Proposal},
-pages = {2536--2543},
-title = {{Prime Object Proposals with Randomized Prim's Algorithm}},
-year = {2013}
-}
 
-@inproceedings{rantalankila,
-abstract = {Abstract We present a method for generating object segmentation proposals from groups of superpixels. The goal is to propose accurate segmentations for all objects of an image. The proposed object hypotheses can be used as input to object detection systems and thereby ... $\backslash$n},
-author = {Rantalankila, P and Kannala, J and Rahtu, E},
-booktitle = {IEEE Conference on Computer Vision and Pattern Recognition},
-doi = {10.1109/CVPR.2014.310},
-isbn = {978-1-4799-5118-5},
-keywords = {Wsos},
-pages = {2417--2424},
-title = {{Generating Object Segmentation Proposals Using Global and Local Search}},
-url = {http://www.ee.oulu.fi/~jkannala/publications/cvpr2014.pdf%5Cnpapers3://publication/uuid/F2B0E5A1-F4FB-43A5-BABE-6889B921B8F9},
-year = {2014}
-}
 
-@inproceedings{rigor,
-author = {A. Humayun  and F. Li  and J. M. Rehg },
-title = {{Rigor: Recycling Inference in Graph Cuts for Generating Object Regions}},
-year = {2014},
-booktitle = {IEEE Conference on Computer Vision and Pattern Recognition}
-}
 
-@book{Marr1982,
-abstract = {Foreword by Shimon Ullman Afterword by Tomaso Poggio David Marr's posthumously published Vision (1982) influenced a generation of brain and cognitive scientists, inspiring many to enter the field. In Vision, Marr describes a general framework for understanding visual perception and touches on broader questions about how the brain and its functions can be studied and understood. Researchers from a range of brain and cognitive sciences have long valued Marr's creativity, intellectual power, and ability to integrate insights and data from neuroscience, psychology, and computation. This MIT Press edition makes Marr's influential work available to a new generation of students and scientists. In Marr's framework, the process of vision constructs a set of representations, starting from a description of the input image and culminating with a description of three-dimensional objects in the surrounding environment. A central theme, and one that has had far-reaching influence in both neuroscience and cognitive science, is the notion of different levels of analysisin Marr's framework, the computational level, the algorithmic level, and the hardware implementation level. Now, thirty years later, the main problems that occupied Marr remain fundamental open problems in the study of perception. Vision provides inspiration for the continuing efforts to integrate knowledge from cognition and computation to understand vision and the brain.},
-address = {New York, NY, USA},
-author = {Marr, David},
-booktitle = {New York},
-doi = {10.2307/2185011},
-isbn = {0716715678},
-issn = {00318108},
-pages = {397},
-pmid = {3260955},
-publisher = {Henry Holt and Co.},
-title = {{Vision: A Computational Investigation into the Human Representation and Processing of Visual Information}},
-url = {http://mitpress.mit.edu/9780262514620},
-year = {1982}
-}
 
-@article{AlperYilmaz2006,
-author = {{Alper Yilmaz} and Javed, Omar and Shah, Mubarak},
-journal = {ACM Computing Surveys},
-number = {4},
-pages = {Article 13},
-title = {{Object Tracking: A Survey}},
-volume = {38},
-year = {2006}
-}
+
+
+
+
+
+
+
+
+
+
