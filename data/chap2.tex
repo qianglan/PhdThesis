@@ -1,6 +1,68 @@
 %*********************第二章******************
-\chapter{心脏组织模拟在大规模异构节点下的并行优化}
-\label{chapbmvc}
+\chapter{基于大规模多核CPU系统的心脏组织的３D精细模拟}
+\label{ICA3PP}
+
+\section{引言}
+细胞内钙离子处理功能异常被认为是几个心脏病理（比如心脏衰竭\upcite{marks2013calcium,kubalova2005abnormal}，心脏肥大\upcite{berridge2006remodelling}，心肌病\upcite{pieske1995alterations}以及肌浆网内钙离子释放处理紊乱\upcite{liu2006arrhythmogenesis,priori2011inherited}）的极有可能的诱因。上述心脏疾病中的大多都是源于亚细胞内微米级和纳米级上钙离子释放处理功能不正常造成的，表现为由t-型管畸形\upcite{louch2004reduced,louch2006t,van2011disrupted}和单兰尼碱受体功能紊乱\upcite{liu2006arrhythmogenesis,jiang2005enhanced}造成心脏的病理。
+
+在过去的几年里，数值方法和计算技术的进步使得心脏细胞的电生理学和钙离子处理模型得到了快速发展，这些模型也开始考虑亚细胞中的随机钙离子释放过程\upcite{restrepo2008calsequestrin,gaur2011multiscale,nivala2012computational,williams2011dynamics}的离散特性。新一代的钙离子处理和动作电位模型在研究心律失常的机制和预防具有非常重要的价值，心律失常主要因为细胞内纳米级钙离子释放通道和dyadic单元功能的紊乱进而影响亚细胞级的膜电位的不正常而造成的，膜电位的异常通常表现为去极化延迟、过早地去极化\upcite{song2015calcium}以及心脏电交替变化\upcite{restrepo2008calsequestrin,nivala2012calcium,nivala2015t}。虽然这些发展能让我们从不同尺度的动作电位对心律失常进行理解，这些尺度可以从单通道到整个细胞，然而我们仍然面临很多挑战。
+
+
+
+\section{相关研究}
+%\subsection{心脏组织模拟的数学模型}
+%\subsection{心脏组织模拟的并行实现}
+
+
+\section{心脏组织３D模拟的数学建模}
+
+\subsection{组织级的数学模型}
+
+\subsection{细胞级的数学模型}
+
+
+\section{基于多核CPU系统的心脏组织3D模拟的实现}
+
+ \subsection{多级并行}
+ 
+ \subsection{单个细胞内的数值计算实现}
+
+
+
+
+\section{实验结果与分析}
+\subsection{实验设置}
+
+\subsubsection{性能优化实验}
+
+\subsection{扩展性实验}
+
+\subsection{细胞内离子活动实验}
+
+\subsection{心脏组织内异常活动模拟}
+
+\section{小结}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\chapter{基于大规模异构集群系统的心脏组织模拟的并行优化}
+\label{chapbmvc1}
 
 \section{引言}
 
@@ -40,4 +102,3 @@
 \subsection{心脏组织模拟的多节点性能}
 
 \section{小结}
-
