@@ -7,9 +7,11 @@
 
 在过去的几年里，数值方法和计算技术的进步使得心脏细胞的电生理学和钙离子处理模型得到了快速发展，这些模型也开始考虑亚细胞中的随机钙离子释放过程\upcite{restrepo2008calsequestrin,gaur2011multiscale,nivala2012computational,williams2011dynamics}的离散特性。新一代的钙离子处理和动作电位模型在研究心律失常的机制和预防具有非常重要的价值，心律失常主要因为细胞内纳米级钙离子释放通道和dyadic单元功能的紊乱进而影响亚细胞级的膜电位的不正常而造成的，膜电位的异常通常表现为去极化延迟、过早地去极化\upcite{song2015calcium}以及心脏电交替变化\upcite{restrepo2008calsequestrin,nivala2012calcium,nivala2015t}。虽然这些发展能让我们从不同尺度的动作电位对心律失常进行理解，这些尺度可以从单通道到整个细胞，然而我们仍然面临很多挑战。
 
+首先，心律失常发生在心脏组织级和器官级。从细胞这一层级的研究对心脏组织和器官的心律失常进行理解推断往往不是特别清楚，有时反而不利于进行研究。其次，从心脏组织这个层次进行研究已经被证明对计算有极大的需求。一个典型的人类心脏大概有$2 \times 10^9 $个细胞\upcite{adler1974cell}，每个细胞内大概有$10^6$个RyRs和约$10^5$个L型通道，这些通道的功能就是对膜电位和细胞内各个单元里的钙离子浓度进行随机的作出响应\upcite{cheng1993calcium}。在心脏组织级这个层次的真实模拟不仅需要大量的并行计算节点，也需要复杂的算法设计，才能在合理的时间内对心脏的生理过程进行模拟。并且，到目前为止，还没有在心脏组织级这个层次采用精细的钙离子处理细胞模型对心律失常的机制进行研究。
 
+本章主要介绍了在心脏组织中的电活动和钙离子处理的3D并行模拟器，所谓的并行模拟器就是对模拟过程在大规模的多核CPU系统中进行并行加速。本章首先会介绍关于心脏组织模拟的背景以及相关工作；然后将具体介绍本课题研究中所采用的数学模型，包括心脏组织级的数学模型和细胞内的数学模型；第三部分将介绍心脏组织模拟在多核CPU集群上的实现过程，包括节点内和节点间的并行实现以及单个细胞内的模拟过程的实现；最后是对心脏组织内各个单元的电位变化以及钙离子浓度变化的模拟，实验结果表明，本课题提出的精细的细胞模型能够很好地对心脏组织内的活动进行模拟。
 
-\section{相关研究}
+%\section{相关研究}
 %\subsection{心脏组织模拟的数学模型}
 %\subsection{心脏组织模拟的并行实现}
 
@@ -17,8 +19,42 @@
 \section{心脏组织３D模拟的数学建模}
 
 \subsection{组织级的数学模型}
+心脏组织级模拟是通过公式 \ref{tissuevoltage}来描述的，该模型也叫单域模型。
+
+\begin{equation}
+\frac{\partial V_{m}}{\partial t}=\frac{-I_\mathrm{ion}}{C_{m}} + D_{x}\frac{\partial^{2}V_{m}}{\partial x^{2}}+D_{y}\frac{\partial^{2}V_{m}}{\partial  y^{2}}+D_{z}\frac{\partial^{2}V_{m}}{\partial z^{2}},
+\label{tissuevoltage}
+\end{equation}
+
+公式\ref{tissuevoltage}中$V_{m}$为膜电位，$I_\mathrm{ion}$为组织模拟中主要涉及的离子流动产生的电流，$C_{m}=1\mu F cm^{-2}$ 是细胞内膜间电容，$D_{x}=D_y=D_z=0.2 $ $mm^{2}/ms$是电压在三维空间上各个坐标方向的扩散系数。心脏3D组织级模型中，3D组织是由众多心脏细胞构成的，而心脏细胞的模型是采用\ref{cellmodel}中描述的模型。
+
+有限差分法结合算子分裂方法\upcite{qu1999advanced}被用来对公式\ref{tissuevoltage}进行离散化。这意味着扩散项与离子的电流项$I_\mathrm{ion}$分别进行处理。电流项需要通过求解每个细胞的精细模型方程而得到。细胞内的精细模型将在\ref{cellmodel}进行介绍。
 
 \subsection{细胞级的数学模型}
+\label{cellmodel}
+
+ 本课题借鉴了文献\upcite{gaur2011multiscale}在心肌细胞内采用随机钙离子处理的多尺度模型。为了模拟人类心脏组织细胞，本课题使用O'Hara-Rudy (ORd)的心脏电位公式\upcite{o2011simulation}替换了文献\upcite{gaur2011multiscale}中的电生理电流公式，ORd模型是针对健康人类的心脏细胞的模拟，而文献\upcite{gaur2011multiscale}中描述的是豚鼠的模型。
+ 
+ \begin{figure}[ht]
+\center
+\includegraphics[scale=0.5]{figs/state.pdf}
+\caption{The eight possible transitions between four states of a RyR, where the labels on the arrows indicate the
+probabilities of the transitions.}
+\label{ryrstates}
+\end{figure}
+
+In each cell, $10000$ calcium release units or dyads
+are assumed to form an internal $100\times 10\times 10$ grid. Each dyad consists of five calcium compartments: (1)~myoplasm, (2)~submembrane space, (3)~network sarcoplasmic reticulum, (4)~junctional sarcoplasmic reticulum, and (5)~dyadic space.
+See~\cite{gaur2011multiscale} for the detailed
+equations and parameters. The
+dyadic space, in particular, contains 15 L-type calcium channels and $100$ RyRs
+that operate stochastically. At any given time, each RyR can be in one
+of four states, denoted as  C1,~C2,~C3,~and O1.
+Figure~\ref{ryrstates} shows the possible transitions between
+them, which occur stochastically with probabilities that are related
+to the local calcium concentrations. The number of open RyRs,
+i.e.~those having state O1, is closely connected to the
+calcium influx that affects a cell's interior voltage. 
 
 
 \section{基于多核CPU系统的心脏组织3D模拟的实现}
@@ -33,7 +69,7 @@
 \section{实验结果与分析}
 \subsection{实验设置}
 
-\subsubsection{性能优化实验}
+\subsection{性能优化实验}
 
 \subsection{扩展性实验}
 
