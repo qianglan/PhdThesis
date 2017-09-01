@@ -95,14 +95,67 @@ Global initialization
 \end{lstlisting}
 \end{table}
 
-
 \section{基于多核CPU系统的心脏组织3D模拟的实现}
 
  \subsection{多级并行}
+
+在介绍大规模心脏组织模拟的实现之前，先介绍实现所面向的目标平台以及相应的编程模型。本课题面向的是多核CPU集群系统，集群中节点间通过以太网或者光纤高速互联，节点间通信可以通过MPI实现，在单节点内也可以创建多个MPI进程进行通信。本课题采用了MPI进行编程，每个MPI进程控制一个计算节点，节点间通过MPI进程进行通信，这种编程方式可移植性好，方便程序员显式控制通信。对于单节点内部来说，每个节点都是由多核CPU构成的，为了充分利用多核CPU的计算资源，本课题采用OpenMP的编程方法，为每一个CPU核分配相应的任务。对于其中的CPU核来说，由于CPU支持向量化执行，因此，还可以进一步利用硬件的并行计算资源。
+
+基于现有的目标平台以及编程模型，本课题采用了一种多级并行策略对大规模心脏组织的模拟进行加速。首先是将3D心脏组织网格划分成很多子网格，每一个网格中的所有细胞的模拟分配给一个计算节点完成，而对于网格中的所有细胞的模拟，由于各个细胞的模拟是相互独立的过程，因此可以采用OpenMP对细胞的模拟并行执行。MPI通信只发生在组织层，因为在计算扩散项\ref{tissuevoltage}时，当前细胞的电压与相邻的细胞的电压有关，这就会涉及到MPI通信了。然而主要的计算还是发生在细胞内， \label{cellImp}将重点介绍单个细胞内的计算的实现。
  
  \subsection{单个细胞内的数值计算实现}
  \label{cellImp}
+ 在细胞内的所有计算中，最耗时的计算部分是关于钙离子处理的那部分。因此，本节重点关注这部分计算，暂且将这部分计算命名为{\tt computeCalciumInDyad}，表\ref{cellfunction}中展示的是该部分计算的伪代码。
  
+ \begin{table}
+\caption{The function that implements calcium handling per cell.}
+\label{cellfunction}
+\begin{lstlisting}[language=C++, basicstyle=\ttfamily\footnotesize]
+void computeCalciumInDyad()
+    {
+        generateRandData();
+        for(int i=0;i<Ndyads;i++) {
+            computateLocalLtypeCurrent();
+            computeLocalSRCaRelease();
+            computeLocalCaConcentration();
+        }
+        computeCaConcentrationDiffusion();
+    }
+\end{lstlisting}
+\end{table}
+
+ 函数{\tt  computeCalciumInDyad}的计算复杂性直接与dyads的数目成正比，还可以看到函数{\tt  computeCalciumInDyad}中调用了五个函数，其中函数{\tt generateRandData}负责产生大量的随机数，每个时间迭代步中都需要重新产生新的随机数，这些随机数在细胞内L-通道的开和关的模拟中被使用到。函数{\tt  computeCaConcentrationDiffusion}是用来计算细胞内dyad间钙离子扩散中的浓度变化。另外三个函数将在一个{\tt for}循环中调用，特别的，函数{\tt computeLocalSRCaRelease}中的主要部分是计算每个dyad内$100$个RyRs状态间的随机转换过程。在接下来的内容中，将展现三个对并行模拟器性能产生影响的编程和数值技术。
+ 
+ \subsubsection{避免重复计算}
+在每个dyad的计算中，都需要计算大量的变量，有些变量在不同的dyad内值是不一样的，因此，对于这些变量，每一个dyad发生的计算中都应该包含这些变量的计算。然而，对于有些变量，其值对于所有的dyad都是相同的，由于dyad数量最多可以达到$10000$,，如果在进入对dyad的{\tt for}循环之前，预先将这些在每一次时间迭代步内不会改变的变量的值计算出来，可以大大减少计算的次数。这需要从这些复杂的公式中找出循环常量，根据实验的性能提升可以发现这些努力是值得的。
+
+\subsubsection{细胞内的dyad间扩散的向量化}
+细胞内的$10000$ 个dyads形成一个$100\times10\times10$的网格，钙离子由于浓度不同会在这些dyad间扩散。表\ref{diffusion}中的伪代码是这种3D扩散的计算实现过程，代码主要由三个{\tt for}循环构成，其中计算主要集中在最内的循环，最内的循环次数为$100$，因此可以考虑对该循环进一步优化。由于CPU核已经在细胞级采用OpenMP并行了，每个CPU核负责细胞内的计算，如果需要对细胞内的计算进一步并行，只能开发CPU核内的并行计算资源了。本课题采用的是Intel CPU，每个CPU核内具有256位的向量计算单元，所以对于64位双精度浮点计算来说，每个CPU一次可以处理4个双精度的浮点运算。由于dyad内的数据在$x$方向连续存储的，最内循环适合进行向量化。本课题通过添加编译指导语句，借助编译器对特定的循环进行向量化优化。理论上应该可以取得4倍的加速，但由于扩散中的计算是存储受限的计算，实际取得的性能提升将远低于理论上能取得的性能。
+
+ \begin{table}
+\caption{Pragma guided vectorization (in the $x$ direciton) of one of three diffusion computations between the dyads in function {\tt computeCaConcentrationDiffusion}.}
+\label{diffusion}
+\begin{lstlisting}[language=C++, basicstyle=\ttfamily\footnotesize]
+for(z=1;z<Nz_diff-1;z++)
+        for(y=1;y<Ny_diff-1;y++) {     
+           int x,c,n,s,b,t;         
+           x=0;
+           c=x+y*Nx_diff+z*Nx_diff*Ny_diff;
+           n=c-Nx_diff;            s=c+Nx_diff;
+           b=c-Nx_diff*Ny_diff;    t=c+Nx_diff*Ny_diff; 
+           
+           U[c]=u[c]+fx*(2*u[c+1]-2*u[c])+fy*(u[n]+u[s]-2*u[c])
+                    +fz*(u[b]+u[t]-2*u[c]);
+           #pragma ivdep
+           for(x=1;x<Nx_diff-1;x++) {
+              ++c; ++n; ++s; ++b; ++t;
+              U[c]=u[c]+fx*(u[c-1]+u[c+1]-2*u[c])+fy*(u[n]+u[s]-2*u[c])
+                       +fz*(u[b]+u[t]-2*u[c]);              
+           }
+           U[c]=u[c]+fx*(2*u[c-1]-2*u[c])+fy*(u[n]+u[s]-2*u[c])
+                                         +fz*(u[b]+u[t]-2*u[c]);
+        }   \end{lstlisting}
+\end{table}
 
 
 
