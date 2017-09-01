@@ -16,7 +16,7 @@
 %\subsection{心脏组织模拟的并行实现}
 
 
-\section{心脏组织３D模拟的数学建模}
+\section{心脏组织３D模拟的数学模型和数值方法}
 
 \subsection{组织级的数学模型}
 心脏组织级模拟是通过公式 \ref{tissuevoltage}来描述的，该模型也叫单域模型。
@@ -43,18 +43,57 @@ probabilities of the transitions.}
 \label{ryrstates}
 \end{figure}
 
-In each cell, $10000$ calcium release units or dyads
-are assumed to form an internal $100\times 10\times 10$ grid. Each dyad consists of five calcium compartments: (1)~myoplasm, (2)~submembrane space, (3)~network sarcoplasmic reticulum, (4)~junctional sarcoplasmic reticulum, and (5)~dyadic space.
-See~\cite{gaur2011multiscale} for the detailed
-equations and parameters. The
-dyadic space, in particular, contains 15 L-type calcium channels and $100$ RyRs
-that operate stochastically. At any given time, each RyR can be in one
-of four states, denoted as  C1,~C2,~C3,~and O1.
-Figure~\ref{ryrstates} shows the possible transitions between
-them, which occur stochastically with probabilities that are related
-to the local calcium concentrations. The number of open RyRs,
-i.e.~those having state O1, is closely connected to the
-calcium influx that affects a cell's interior voltage. 
+在每个细胞里，有约$10000$个钙离子释放单元也叫dyads，这些钙离子释放单元按照$100\times 10\times 10$的三维网格进行排列。每个dyad包含五个不同的小单元，钙离子会在这些小单元里停留，详细的公式和参数可以参考文献\upcite{gaur2011multiscale}。每个dyad空间里，包含15个L-型钙离子通道和$100$个RyRs，它们是随机地活动的。在任何时刻，每个RyR会处于四个状态中的一个，这四个状态用C1、~C2、~C3以及~O1表示。图\ref{ryrstates}中给出了各个状态间可能的转换关系，以及状态间转换的概率，图\ref{ryrstates}状态转换的概率参数是与每个RyR内的钙离子浓度相关的，除了其中从~O1到~C1以及从~C3到~C2的转换概率为常数。处于打开状态(即处于~O1状态)的RyR的个数直接影响到钙离子的流量，进而影响每个细胞内的电压。
+
+dyad中的钙离子浓度可以通过公式\ref{eq:1}至公式\ref{eq:10}来求解。
+
+{
+\allowdisplaybreaks
+ \begin{eqnarray}
+  ca_{\mathrm{ds}}& = & (J_{\mathrm{rel}} + J_{\mathrm{lca}} + ca_{\mathrm{ss}} / \tau_{\mathrm{efflux}})\times \tau_{\mathrm{efflux}}\label{eq:1}\\
+  \frac{d\, ca_{\mathrm{ss}}}{dt}& = & \overline{B_{\mathrm{ss}}}\left(  J_{\mathrm{NCX}} + J_{\mathrm{diff\_myo\_ss}} + J_{\mathrm{diff\_ds\_ss}}\right) \label{eq:2}\\
+  \frac{d\,ca_{\mathrm{JSR}}}{dt}& = & \overline{B_{\mathrm{JSR}}}\left(J_{\mathrm{rel}} + J_{\mathrm{diff\_NSR\_JSR}}\right) \label{eq:3}\\
+  \frac{d\,ca_{\mathrm{NSR}}}{dt}& = & J_{\mathrm{up}} - J_{\mathrm{leak}} - J_{\mathrm{diff\_NSR\_JSR}}  \label{eq:4}\\ 
+  \frac{d\,ca_{\mathrm{myo}}}{dt}& = & \overline{B_{\mathrm{myo}}}\left(J_{\mathrm{cab}} + J_{\mathrm{pca}} + J_{\mathrm{NCX}} - J_{\mathrm{up}} + J_{\mathrm{leak}} - J_{\mathrm{diff\_myo\_ss}}\right) \label{eq:5}\\
+  Ca_{\mathrm{ds}}& = & (J_{\mathrm{rel}} + J_{\mathrm{lca}} + Ca_{\mathrm{ss}} / \tau_{\mathrm{efflux}})\times \tau_{\mathrm{efflux}}\label{eq:6}\\  
+  \frac{\partial Ca_{\mathrm{ss}}}{\partial t}& = & \overline{B_{\mathrm{ss}}} \left(J_{\mathrm{NCX}} + J_{\mathrm{diff\_myo\_ss}} + J_{\mathrm{diff\_ds\_ss}}
++ D_{Ca}\nabla^2Ca_{\mathrm{ss}}\right) \label{eq:7}\\
+  \frac{d\,Ca_{\mathrm{JSR}}}{dt}& = & \overline{B_{\mathrm{JSR}}}\left(J_{\mathrm{rel}} + J_{\mathrm{diff\_NSR\_JSR}}\right) \label{eq:8}\\
+  \frac{\partial Ca_{\mathrm{NSR}}}{\partial t}& = & J_{\mathrm{up}} - J_{\mathrm{leak}} - J_{\mathrm{diff\_NSR\_JSR}}  +  D_{\mathrm{SR}}\nabla^2 Ca_{\mathrm{NSR}}\label{eq:9}\\					
+  \frac{\partial Ca_{\mathrm{myo}}}{\partial t}& = &
+                                                     \overline{B_\mathrm{myo}}\left(J_\mathrm{cab} + J_\mathrm{pca} + J_\mathrm{NCX} - J_\mathrm{up} + J_\mathrm{leak} - J_\mathrm{diff\_myo\_ss}\right.\nonumber\\
+&&+ \left. D_{Ca}\nabla^2Ca_{\mathrm{myo}}\right)
+\label{eq:10}
+  \end{eqnarray}
+}
+%
+%\noindent
+
+公式中，$J_{\mathrm{rel}}$是从RyRs到dyad单元间的钙离子流通量，$J_{\mathrm{lca}}$是从L-型钙离子通道到dyad间的钙离子流通量，$\tau_{\mathrm{efflux}}$是dyad空间和膜下空间之间的扩散系数，$J_{\mathrm{NCX}}$是钠离子和钙离子交换在膜下空间产生的电流通量，$J_{\mathrm{diff\_myo\_ss}}$是肌质与膜下空间之间的扩撒流通量，$J_{\mathrm{diff\_ds\_ss}}$是dyad与膜下空间之间的扩撒流通量。$J_{\mathrm{diff\_NSR\_JSR}}$是NSR和JSR间的扩撒流通量，SR泵可以将钙离子从NSR抽到SR中，产生的流通量用$J_{\mathrm{leak}}$来表示。$J_{\mathrm{pca}}$是流过胞质膜的钙离子流通量，膜下空间会被SR和SL瞬间缓冲，瞬间缓冲系数是通过$\overline{B_{\mathrm{ss}}}$来表示的。$\overline{B_{\mathrm{JSR}}}$是CSQN到JSR间的瞬间缓冲系数，$\overline{B_{\mathrm{myo}}}$是从CMDN和TRPN到胞质膜的瞬间缓冲系数。更加详细的关于各个参数和变量的信息可以参考文献\upcite{gaur2011multiscale}。
+
+\subsection{数值策略}
+本课题采用随机的方法对L-型钙离子通道和RyRs进行随机模拟，详细的介绍将在\ref{cellImp}中介绍。显式时间积分法被用来求解所有的微分方程(\ref{tissuevoltage}）-（\ref{eq:10})。涉及的扩撒项采用中心有限差分的方法进行离散化。而对于单域方程(\ref{tissuevoltage})，使用的是算子分裂方法\upcite{qu1999advanced}。这意味着扩撒项与离子产生的电流项$I_\mathrm{ion}$是分开处理的，后者是通过求解Ord模型中的所有常微分方程得到所有的离子电流，并将所有的离子电流累加起来而得到。
+
+所有的计算流程是发生在一个时间循环内，循环中是每个时间步需要完成的工作，具体包括对所有细胞内的模拟，然后是根据公式\ref{tissuevoltage}对细胞间电压扩撒过程进行计算。每个细胞内的计算包括对所有的dyads进行计算，然后对dyad间的扩撒过程进行计算。具体过程如表\ref{overview}中的伪代码所示，对其中的计算进行高效实现变得非常重要。
+
+\begin{table}
+\caption{3D组织模拟计算的伪代码实现}
+\label{overview}
+\begin{lstlisting}[language=C++, basicstyle=\ttfamily\footnotesize]
+Global initialization
+  for (int t = 0; t < time steps; t++) {	
+    for (int k = 1; k <= cells; k++) {
+      Cell computation
+      for (int j = 1; j <= dyads; j++) {
+        L-type probability calculation
+        L-type opening	
+        RyR probability calculation
+        RyR opening
+        Ca concentration computation }
+      Dyad diffusion }
+    Cell difusion }
+\end{lstlisting}
+\end{table}
 
 
 \section{基于多核CPU系统的心脏组织3D模拟的实现}
@@ -62,7 +101,8 @@ calcium influx that affects a cell's interior voltage.
  \subsection{多级并行}
  
  \subsection{单个细胞内的数值计算实现}
-
+ \label{cellImp}
+ 
 
 
 
