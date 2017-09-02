@@ -272,26 +272,11 @@ x_i = x_i - \sum_{j}x_{ij}+\sum_{j}x_{ji}.
 \end{figure}
 
 \section{小结}
-本章介绍了3D组织模拟的精细模型，主要模拟心脏组织细胞
+本章介绍了3D组织模拟的精细模型，采用了细胞内多尺度钙离子处理模型对心脏组织细胞的电活动和钙离子处理过程进行模拟。以往针对3D心脏组织的许多研究都是利用全细胞钙离子处理模型，而多尺度的钙离子处理模型并没有在组织模拟中广泛使用，其中的原因一方面是因为多尺度模型模拟对计算需求巨大；另一方面是当今缺少针对这些计算的有效的数值方法和算法。而本课题提出了一个多尺度模拟的模型，并在大规模的集群系统实现了。在实现过程中，本课题采用了多种优化方法，首先是减少了心脏组织细胞的模型中的很多变量的重复计算，其次是根据硬件平台的并行计算资源对3D心脏组织进行了多级并行，最后对心脏组织模拟的核心模拟过程采用了二项分布的方法。这些优化方法使得模拟的时间减少了一半。对性能提升效果最明显的是二项分布方法的引入，二项分布方法减少了对随机数的使用，可以节省大量用于产生随机数的时间。
 
-In summary, in this paper we report detailed 3D tissue simulations of electrical activity and calcium handling in a human cardiac ventricle using a multiscale model of calcium handling in a cell. Many previous 3D tissue simulation studies have employed whole-cell calcium handling models. To date multiscale calcium handling cell models have not been used for tissue simulations. This is both due to the immense computational power required to handle such simulations and limitations of current numerical and algorithmic approaches for these computations. Here, we have used optimizations such as avoiding redundant computations, vectorization and binomial distribution to reduce the computation time of 3D tissue simulations. Overall, the computation time was reduced by half. The most significant performance gain was due to using binomial distribution and the subsequent reduction in the random number generations required for the stochastic simulations that compute the SR Ca release flux and the L-type Ca flux. 
-The weak scaling test indicates a near-constant compute time under varying tissue size. The strong scaling test indicates a near-linear decrease in compute time as a function of the number of compute nodes used. These results indicate a promising possibility of porting the tissue simulation to a massive compute cluster. Finally, we show the fidelity of our tissue simulations by demonstrating that calcium handling in a cell is consistent with the published human cell model \cite{o2011simulation}. We also show the ability to simulate reentrant arrhythmias in the 3D tissue. \\
+弱扩展测试针对不同的组织规模，在不同数目的计算节点上基本保持了相同的计算时间。而强扩展试验中，随着计算节点数目的增加，计算时间基本保持了一个线性下降的关系。这些结果表明了将更大规模的心脏组织模拟映射到更大规模的集群系统中进行模拟成为可能。最后通过试验证明了本课题研究针对心脏组织细胞内的钙离子处理模拟与已经发表的工作\upcite{o2011simulation}的结论是一致的。试验也证明了本课题研究的模型能够模拟3D心脏组织的心率失常等问题。
 
-To conclude, we have developed a detailed 3D tissue simulator of electrical activity and calcium handling in a human cardiac ventricle using algorithmic optimizations. The promising scalability suggests that whole-heart simulations are potentially within reach of the largest supercomputers available today. In future work, we intend to further improve the performance of our simulator and port it to hardware accelerator architectures. This will eventually open up the possibility of understanding the multiscale mechanisms of reentrant cardiac arrhythmias originating from calcium handling dysfunction.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+总结本章工作，本章提出了一个精细的3D心脏组织模拟模型，这个模型能够模拟人类心脏组织细胞内的电活动和钙离子处理过程，通过采用多个优化方法，最后将模型在大规模多核系统高效地实现了。试验中的扩展性结果表明全心脏的模拟在当前最快的超级计算上进行模拟也是可能的。在下一章中，本课题将进一步提高3D组织模拟器的性能，并且将已有的实现移植到更快的硬件加速器系统中。这将逐渐从多个尺度增加研究人员对心脏病理的机制的理解。
 
 
 
