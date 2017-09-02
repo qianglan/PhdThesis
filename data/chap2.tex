@@ -158,19 +158,126 @@ for(z=1;z<Nz_diff-1;z++)
 \end{table}
 
 
+\subsubsection{采用二项分布}
+\label{binom}
+%
+前面的章节中已经介绍了每个dyad内包含$100$ RyRs，每个RyR在任何时刻会处于四种状态中的一种状态，在\ref{cellmodel}已经介绍了这四种状态，以及这四种状态间的转变关系，状态间的转变是按照一定的概率随机转变的。现在的目标是计算RyR中处于打开状态（O1）的数目，因为打开状态的RyR能够决定钙离子流量而影响细胞内电压，一种直接的方法是对每个RyR独立地进行模拟。这样每个dyad内需要消耗100个随机数对这100个RyRs的状态转变进行模拟。每个RyR根据当前状态以及相关的转变概率转变到另一个状态中，这种模拟的方法需要消耗大量的计算，一方面是因为需要消耗大量的随机数，随机数在每个时间步中都需要重新产生；另一方面，这种模拟实现中，代码含有大量的{\tt if}测试语句。
 
+因此，如果能将dyad内的100个RyRs看作一个整体，直接计算出处于开放状态的RyR的数目，将有效降低计算量。因此，本课题将原本100次独立的随机试验替换为在一个二项分布中进行八次随机抽样的实验，对图\ref{ryrstates}中的每一次转变进行一次抽样试验。在二项分布中，$n$次试验中成功$k$次的概率为$p$，则$p$可以用公式\ref{eq:cumulative}计算。
+
+\begin{equation}
+F(k,n,p)=Pr({X}\leq{k})=\sum_{i=0}^{k}\binom{n}{i}p^i(1-p)^{n-i},
+\label{eq:cumulative}
+\end{equation}
+式中$$\binom{n}{i}=\frac{n!}{i!(n-i)!}$$为二项系数。由于处于各个状态的RyRs的数目是从$0$ 到$100$间变化，可以预先计算好所有的二项系数，这也能显著提高计算性能。
+
+使用服从$[0,1]$的均匀分布的随机数，对二项分布进行采样找出最小的$k$，使得$r \leq F(k,n,p)$。然而标准的二项分布实现对计算需求比较大，本课题采用了一个高效的实现，如表\ref{fig:binom}中代码所示。因为二项分布的系数预先已经计算出来了，只需要在每一轮试验中将$p/(1-p)$与基概率$(1-p)^n$相乘，并与二项系数相乘然后保存结果。
+
+ \begin{table}
+\caption{Implementation of Binomial Distribution Method. Function {\tt constant\_p\_binomial} simply finds $k$ by using the precomputed lookup table. In function {\tt binomial},
+we first test if the computation can be skipped, using the threshold $p_t$ and the precomputed value $F(0,n,p_t)$. If this is not the case, the distribution function $F(k,n,p)$ is computed iteratively by subtracting from {\tt randValue} using the precomputed binomial coefficients.}
+\label{fig:binom}
+\begin{lstlisting}[language=C++, basicstyle=\ttfamily\footnotesize]
+    int constant_p_binomial(n,randValue) {
+        k=0;
+        while(randValue>Table[n,k]) 
+            k++;
+        return k;
+    }
+
+    int binomial(n,p,randValue) {
+        	if n = 0
+		    return 0;
+        if p < Threshold AND randValue < Precomp[n]
+            return 0;
+        k = 0;
+        p_current =pow((1-p),n);
+        p_step = p/(1-p);
+        while(randValue > 0) {
+            k++;
+            randValue -= Binom[n,k]*p_current;
+            p_current *= p_step;
+        }
+        return k;
+    }  
+           \end{lstlisting}
+\end{table}
+
+为了表示方便，用$x_1$，$x_2$，$x_3$，$x_4$这四个变量代表RyR处在四种状态的数目，并用$x_{ij}$表示RyR从状态$i$到状态$j$间的数目，$x_{ij}$是通过上述描述的方法通过对二项分布采用计算出来的。因此，在下一个时间步，处于各个状态的RyR数目可以用公式\ref{transitNumber}计算。
+
+\begin{equation}
+\label{transitNumber}
+x_i = x_i - \sum_{j}x_{ij}+\sum_{j}x_{ji}.
+\end{equation}
+
+基于此，本课题根据细胞模型的特点增加了两个优化方法，在本课题中提出的细胞模型中，RyR中的状态中，从O1到C1和从C3到C2的转化概率为常数，即$p_c=0.5*dt$。因此，可以仿照预先计算二项系数的思路，也预先计算全部的累积概率函数$F(k,n,p_c)$。在这两种方法中，唯一的代价是需要存储$101*100/2=5050$个双精度浮点值，这增加了一些额外的存储开销。
+
+另外，本课题还利用了细胞模型中另一个特性，就是RyR中大部分时间都是处于C2状态的，并且状态间的转变概率除了上述所说的两个为常数概率，其它转变概率在大部分时间都是接近0的。这意味着通过从二项分布中采样计算出的转变的RyR的数目也接近0。本课题通过设置一个小的概率阈值记为 $p_t$，并且对于所有的$0 \leq n \leq 100$，预先计算出$F(0,n,p_t)$ 。如果$p \leq p_t$，只要检查随机数$r$，看是否满足$r \leq F(0,n,p_t)$，如果满足，则$k=0$，代表没有发生状态转变，就可以不用计算二项分布了。当然，如果转变前处在某个状态的RyR数为0，那么发生状态转变的RyR数也为0，详细的代码参见表\ref{fig:binom}.
+
+采用二项分布对RyR状态转变进行模拟的方法也在文献\upcite{restrepo2008calsequestrin}中被采用了，然而作者并没有去计算实际的二项分布，而是采用正态分布和泊松分布对其进行逼近，不过这会降低模拟的精度。
+   
+   
 \section{实验结果与分析}
 \subsection{实验设置}
 
+本课题的测试系统是在Abel\upcite{abel}机器上，这是一个由奥斯陆大学管理维护的一个超级计算机系统。在Abel机器上的每个计算节点由Intel Xeon E5-2670处理器构成，共有16个物理计算核心，每个计算核心的频率为2.6GHz，由FDR Infiniband互联（56 Gbps）。本课题最多使用了128个计算节点（即2048个CPU核）进行数值模拟试验。本课题采用Intel的\textit{icc} 15.1.0编译器，Intel MPI 5.0.2库进行通信。
+
+在所有的试验中，无论是组织层级还是细胞层级都采用大小为$0.05$ ms的固定的时间步。在组织层级模拟中，对于公式\ref{tissuevoltage}中扩散项的离散化，本课题选择了$0.5$ mm的固定的网格分辨率。
+
 \subsection{性能优化实验}
+第一个数值计算的试验是为了测试\ref{cellImp}中在函数{\tt compute\_cell}中介绍的那些优化方法的性能提升效果。为了测试这些优化方法的性能，对包含$10000$个dyad的细胞模拟$10000$个时间步，等价于模拟一次持续时间为$500$ ms的心脏跳动。模拟期间，在$t=50$时刻给细胞一次刺激。图\ref{fig:optimizations}给出了各个不同的优化方法的性能提升。通过避免重复计算可以显著提高各个函数的性能，其中函数{\tt computateLocalLtypeCurrent}的性能提升$37.5\%$，函数{\tt computeLocalSRCaRelease}的性能提升$24.4\%$，函数{\tt computeCaConcentrationDiffusion}的性能提升$12.4\%$。向量化能进一步加速扩散部分的计算，加速约$25\%$。最后是采用二项分布的方法对RyR通道的模拟的影响，从试验结果看，二项分布方法对性能影响最大，能过加速SRCaRelease约$70\%$，在随机数产生方面可以提升$79.9\%$，对于后者的影响完全是因为二项分布的方法可以有效减少对随机数的使用。最后，在所有的方法都使用后，总的时间减少了约$50.7\%$。
+
+\begin{figure}[htb]
+\center
+\includegraphics[width=\textwidth]{figs/optimization.pdf}
+\caption{Performance improvement of the individual functions in {\tt computeCalciumInDyad} due to the different optimization techniques. The three optimizations are applied cumulatively. Thus, the values for the Binominal method reflect the sum of all improvements.}
+\label{fig:optimizations}
+\end{figure} 
 
 \subsection{扩展性实验}
+本章对弱扩展和强扩展都进行了试验，试验中模拟时长为$1000$ ms，对于两个扩展试验，分别都做了两个模拟试验，一个是细胞内的dyad数量设置为$100$个，另一个是细胞内dyad数量设置为$10000$。
+
+在弱扩展试验中，本课题使用的计算节点的数目从$1$到$128$。当使用$100$个dyad时，为每个计算节点分配的心脏组织大小为$64\times64\times64$，$128$个计算节点上完成大小为$512\times256\times256$ 的心脏组织的模拟。对于$10000$个dyad来说，为每个计算节点分配的心脏组织大小为$16\times16\times16$，$128$个节点分配心脏组织大小为$128\times64\times64$。扩展性试验中，每秒钟能够完成的细胞计算量作为扩展性的衡量标准，一个细胞计算量是指一个时间步计算一个细胞。图\ref{scaling}给出了弱扩展试验的结果，其中纵坐标代表细胞计算量，横坐标是使用的计算节点数。从结果看出，试验表现出很好的弱扩展性。
+
+对于强扩展试验中细胞内dyad设置为$100$个时，心脏组织大小固定在$256\times256\times256$这个规模，而对于每个细胞内dyad数量为$10000$，心脏组织规模为$32\times32\times32$，由于存储的需求，强扩展试验中最少需要$8$ 个计算节点。与弱扩展试验中类似，仍然采用细胞计算量这个指标，图\ref{scaling}也展示了强扩展试验的结果。强扩展基本上取得了与弱扩展一样的性能。性能上细微的差别可以通过通信量来解释，强扩展试验中通信量会比弱扩展试验大些，而在现有的实现中，通信暂且未做优化。
+
+由于心脏细胞模拟是计算密集型的应用，因此，无论是在弱扩展，还是强扩展试验中，模拟试验都表现了很好的扩展性。通过每秒细胞计算量这个指标，可以对任何规模的心脏组织在给定计算资源的条件下需要模拟的时间进行预测。
+
+\begin{figure}[htb]
+\center
+\includegraphics[width=\textwidth]{figs/scaling.pdf}
+\label{scaling}
+\caption{Performance of weak and strong scaling tests of tissue simulations. The $Y$ axis shows performance measured via the number of cell computations (i.e.~time steps for a single cell) performed for each wall-clock second of simulation time used. }
+\end{figure} 
+
 
 \subsection{细胞内离子活动实验}
 
+\begin{figure}[htb]
+\includegraphics[width=\textwidth]{figs/calcium.pdf}
+\caption{Calcium handling in a cell in a human tissue during normal excitation. (A) Action Potential. (B) Number of open RyRs ($N_oRyR$) in the center dyad of the cell. (C) Dyadic space calcium ($Ca_{ds}$) (D) Submembrane space calcium ($Ca_{ss}$) (F) Simulated linescan image of intracellular Ca ($Ca_i$ (G) Whole-cell $Ca_i$ and (H) Whole-cell junctional sarcoplasmic reticulum (JSR). The 3D tissue was plane-stimulated at an edge at a cycle length(CL)=500 ms. Last two steady-state beats are shown.}
+\label{fig:calciumcell}
+\end{figure}
+
+在图\ref{fig:calciumcell}中，我们展示了人类心脏细胞内正常的心跳过程中钙离子处理变化过程。试验以不同的尺度展示了心脏组织的中心细胞内钙离子处理结果。图\ref{fig:calciumcell}中A部分显示了在两次连续的心脏中活动电势的变化；图\ref{fig:calciumcell}中B部分是位于细胞中心的dyad内处于打开状态的RyR的数目，这些数目是按照\ref{binom}通过二项分布的方法计算出来的。模拟结果表明，在活动电势变化期间，大部分RyR是出于打开状态的，随着这些通道的打开，在dyad内的$Ca_{ds}$浓度迅速上升到$500\mu$M，以及$Ca_{ss}$上升到$0.1$mM，具体变换过程可以从图\ref{fig:calciumcell}中的C和D观察到。对于亚细胞层级，对细胞内的Ca ($Ca_{i}$)进行模拟的线扫描影像表明，细胞内所有dyad内的钙离子释放是同步发生的（参考图\ref{fig:calciumcell}的F）。整个细胞内相关的$Ca_i$为图\ref{fig:calciumcell}中G所示，以及H未整个细胞的JSR。总之，这些结果描述了正常心脏跳动过程中的不同尺度的钙离子处理过程，包括dyad级、亚细胞级以及细胞级。
+
 \subsection{心脏组织内异常活动模拟}
 
+图\ref{arrhythmia}在3D心脏组织中的膜电位变化图，在时刻t = 0 ms，心脏组织的边缘受到一个刺激，经过一段时间的电压传播，在t = 600 ms时，心脏组织的一部分细胞受到新的刺激，在新刺激和之前的电压扩散的双重影响下，最后在心脏组织内部形成一个卷波。从心脏组织中的三个位置A、B、C的细胞进行采样，这三个位置的膜电位变化如图\ref{arrhythmia}中下半部分所示。在整个模拟过程中，卷波非常稳定，没有产生新的小波。这个模拟试验表明了本课题实现的这个组织模拟器能够模拟出在心脏组织的异常功能研究中非常有用的卷波。
+
+\begin{figure}[htbp]
+\includegraphics[width=\textwidth]{figs/voltage}
+\caption{Simulation of scroll waves in a 3D tissue. The top part shows voltage snapshots at different time points. The bottom section shows membrane potentials at three different locations in the tissue.}
+\label{arrhythmia}
+\end{figure}
+
 \section{小结}
+本章介绍了3D组织模拟的精细模型，主要模拟心脏组织细胞
+
+In summary, in this paper we report detailed 3D tissue simulations of electrical activity and calcium handling in a human cardiac ventricle using a multiscale model of calcium handling in a cell. Many previous 3D tissue simulation studies have employed whole-cell calcium handling models. To date multiscale calcium handling cell models have not been used for tissue simulations. This is both due to the immense computational power required to handle such simulations and limitations of current numerical and algorithmic approaches for these computations. Here, we have used optimizations such as avoiding redundant computations, vectorization and binomial distribution to reduce the computation time of 3D tissue simulations. Overall, the computation time was reduced by half. The most significant performance gain was due to using binomial distribution and the subsequent reduction in the random number generations required for the stochastic simulations that compute the SR Ca release flux and the L-type Ca flux. 
+The weak scaling test indicates a near-constant compute time under varying tissue size. The strong scaling test indicates a near-linear decrease in compute time as a function of the number of compute nodes used. These results indicate a promising possibility of porting the tissue simulation to a massive compute cluster. Finally, we show the fidelity of our tissue simulations by demonstrating that calcium handling in a cell is consistent with the published human cell model \cite{o2011simulation}. We also show the ability to simulate reentrant arrhythmias in the 3D tissue. \\
+
+To conclude, we have developed a detailed 3D tissue simulator of electrical activity and calcium handling in a human cardiac ventricle using algorithmic optimizations. The promising scalability suggests that whole-heart simulations are potentially within reach of the largest supercomputers available today. In future work, we intend to further improve the performance of our simulator and port it to hardware accelerator architectures. This will eventually open up the possibility of understanding the multiscale mechanisms of reentrant cardiac arrhythmias originating from calcium handling dysfunction.
 
 
 
