@@ -256,9 +256,8 @@ x_i = x_i - \sum_{j}x_{ij}+\sum_{j}x_{ji}.
 在图\ref{fig:calciumcell}中，我们展示了人类心脏细胞内正常的心跳过程中钙离子处理变化过程。试验以不同的尺度展示了心脏组织的中心细胞内钙离子处理结果。图\ref{fig:calciumcell}中A部分显示了在两次连续的心脏中活动电势的变化；图\ref{fig:calciumcell}中B部分是位于细胞中心的dyad内处于打开状态的RyR的数目，这些数目是按照\ref{binom}通过二项分布的方法计算出来的。模拟结果表明，在活动电势变化期间，大部分RyR是出于打开状态的，随着这些通道的打开，在dyad内的$Ca_{ds}$浓度迅速上升到$500\mu$M，以及$Ca_{ss}$上升到$0.1$mM，具体变换过程可以从图\ref{fig:calciumcell}中的C和D观察到。对于亚细胞层级，对细胞内的Ca ($Ca_{i}$)进行模拟的线扫描影像表明，细胞内所有dyad内的钙离子释放是同步发生的（参考图\ref{fig:calciumcell}的F）。整个细胞内相关的$Ca_i$为图\ref{fig:calciumcell}中G所示，以及H未整个细胞的JSR。总之，这些结果描述了正常心脏跳动过程中的不同尺度的钙离子处理过程，包括dyad级、亚细胞级以及细胞级。
 
 \begin{figure}[htb]
-%\includegraphics[width=\textwidth]{figs/calcium.pdf}
-
-\includegraphics[scale=0.8]{figs/calcium.pdf}
+\includegraphics[width=\textwidth]{figs/calcium.pdf}
+%\includegraphics[scale=0.8]{figs/calcium.pdf}
 \caption{Calcium handling in a cell in a human tissue during normal excitation. (A) Action Potential. (B) Number of open RyRs ($N_oRyR$) in the center dyad of the cell. (C) Dyadic space calcium ($Ca_{ds}$) (D) Submembrane space calcium ($Ca_{ss}$) (F) Simulated linescan image of intracellular Ca ($Ca_i$ (G) Whole-cell $Ca_i$ and (H) Whole-cell junctional sarcoplasmic reticulum (JSR). The 3D tissue was plane-stimulated at an edge at a cycle length(CL)=500 ms. Last two steady-state beats are shown.}
 \label{fig:calciumcell}
 \end{figure}
@@ -320,11 +319,9 @@ Xeon Phi的57个小核中，有一个小核是保留给操作系统使用的，�
 。。。。。。。。
 
 \subsection{心脏组织模拟的tissue-级并行}
-心脏组织模拟的全部计算任务具有多个层次的并行性，结合目标体系结构的特点，本课题对心脏组织模拟的计算任务进行分解，分解成多个层次。在最顶层分解中，心脏组织细胞以3D网格的方式结合在一起。每一个计算节点被分配到一定数量的细胞进行处理，这些细胞构成一个子域，子域的形状也是一个立方体。处于子域边界的细胞，它们的电压值在进行扩撒计算前需要与相邻的子域边界的细胞的电压值交换。
-The entire computational problem allows decompositions at multiple levels. Among these, the top level is the cardiac ventricle tissue that is represented as a 3D cartesian grid of cardiac cells. Each compute node is assigned a cuboid subdomain containing an equal number of cells. Cell voltage values $V_m$ are exchanged along the faces of the subdomains during every time step, via MPI messages \cite{MPI} between the host CPUs using a standard halo exchange approach. 
-We do not enforce a further geometric partitioning within each cuboid, because this induces unnecessary difficulties in balancing the load among the CPU host and the Phis. Instead, 
-each compute device is assigned a number of cells that is commensurate with its relative speed. This however necessitates exchanging all voltage values $V_m$ within a node. The transfer is performed using the Intel SCIF/COI interface, which has been shown to be an effective way of implementing CPU-Phi communication~\cite{SCIFCOI}. Thus, improved flexibility with respect to load balancing easily outweighs the cost of exchanging all voltage values within a node. 
-Figure \ref{nodeload} shows an example of such an intra-node decomposition of a subdomain.
+心脏组织模拟的全部计算任务具有多个层次的并行性，结合目标体系结构的特点，本课题对心脏组织模拟的计算任务进行分解，分解成多个层次。在最顶层分解中，心脏组织细胞以3D网格的方式结合在一起。每一个计算节点被分配到一定数量的细胞进行处理，这些细胞构成一个子域，子域的形状也是一个立方体。处于子域边界的细胞，它们的电压值在进行扩撒计算前需要与相邻的子域边界的细胞的电压值交换。细胞的电压值交换是通过CPU间的MPI通信实现的，采用了标准的halo交换方法。
+
+对于每个子域在节点内的CPU和Phis间的细胞划分，本课题没有对立方体构成的子域进行规则的划分，因为这会导致CPU与Phis间负载的不均衡，而是根据CPU和Phi的计算能力分配相应比例的细胞给CPU和Phi这两种计算设备。这种策略需要对CPU和Phis处理的所有的细胞的电压值进行交换，CPU和Phi间的通信采用Intel的SCIF/COI通信接口实现。虽然这种方法会增加节点内CPU和Phi间的通信，但付出的代价会比因为负载不均问题产生的额外开销小。图\ref{nodeload}是节点内对子域构成的立方体细胞划分的示意图，不同颜色的部分代表分配给不同的计算设备。
 
  \begin{figure}[bth]
 \center
