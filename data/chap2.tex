@@ -237,29 +237,31 @@ x_i = x_i - \sum_{j}x_{ij}+\sum_{j}x_{ji}.
 \subsection{扩展性实验}
 本章对弱扩展和强扩展都进行了试验，试验中模拟时长为$1000$ ms，对于两个扩展试验，分别都做了两个模拟试验，一个是细胞内的dyad数量设置为$100$个，另一个是细胞内dyad数量设置为$10000$。
 
-在弱扩展试验中，本课题使用的计算节点的数目从$1$到$128$。当使用$100$个dyad时，为每个计算节点分配的心脏组织大小为$64\times64\times64$，$128$个计算节点上完成大小为$512\times256\times256$ 的心脏组织的模拟。对于$10000$个dyad来说，为每个计算节点分配的心脏组织大小为$16\times16\times16$，$128$个节点分配心脏组织大小为$128\times64\times64$。扩展性试验中，每秒钟能够完成的细胞计算量作为扩展性的衡量标准，一个细胞计算量是指一个时间步计算一个细胞。图\ref{scaling}给出了弱扩展试验的结果，其中纵坐标代表细胞计算量，横坐标是使用的计算节点数。从结果看出，试验表现出很好的弱扩展性。
+在弱扩展试验中，本课题使用的计算节点的数目从$1$到$128$。当使用$100$个dyad时，为每个计算节点分配的心脏组织大小为$64\times64\times64$，$128$个计算节点上完成大小为$512\times256\times256$ 的心脏组织的模拟。对于$10000$个dyad来说，为每个计算节点分配的心脏组织大小为$16\times16\times16$，$128$个节点分配心脏组织大小为$128\times64\times64$。扩展性试验中，每秒钟能够完成的细胞计算量作为扩展性的衡量标准，一个细胞计算量是指一个时间步计算一个细胞。图\ref{scaling1}给出了弱扩展试验的结果，其中纵坐标代表细胞计算量，横坐标是使用的计算节点数。从结果看出，试验表现出很好的弱扩展性。
 
-对于强扩展试验中细胞内dyad设置为$100$个时，心脏组织大小固定在$256\times256\times256$这个规模，而对于每个细胞内dyad数量为$10000$，心脏组织规模为$32\times32\times32$，由于存储的需求，强扩展试验中最少需要$8$ 个计算节点。与弱扩展试验中类似，仍然采用细胞计算量这个指标，图\ref{scaling}也展示了强扩展试验的结果。强扩展基本上取得了与弱扩展一样的性能。性能上细微的差别可以通过通信量来解释，强扩展试验中通信量会比弱扩展试验大些，而在现有的实现中，通信暂且未做优化。
+对于强扩展试验中细胞内dyad设置为$100$个时，心脏组织大小固定在$256\times256\times256$这个规模，而对于每个细胞内dyad数量为$10000$，心脏组织规模为$32\times32\times32$，由于存储的需求，强扩展试验中最少需要$8$ 个计算节点。与弱扩展试验中类似，仍然采用细胞计算量这个指标，图\ref{scaling1}也展示了强扩展试验的结果。强扩展基本上取得了与弱扩展一样的性能。性能上细微的差别可以通过通信量来解释，强扩展试验中通信量会比弱扩展试验大些，而在现有的实现中，通信暂且未做优化。
 
 由于心脏细胞模拟是计算密集型的应用，因此，无论是在弱扩展，还是强扩展试验中，模拟试验都表现了很好的扩展性。通过每秒细胞计算量这个指标，可以对任何规模的心脏组织在给定计算资源的条件下需要模拟的时间进行预测。
 
 \begin{figure}[htb]
 \center
 \includegraphics[width=\textwidth]{figs/scaling.pdf}
-\label{scaling}
 \caption{Performance of weak and strong scaling tests of tissue simulations. The $Y$ axis shows performance measured via the number of cell computations (i.e.~time steps for a single cell) performed for each wall-clock second of simulation time used. }
+\label{scaling1}
 \end{figure} 
 
 
 \subsection{细胞内离子活动实验}
 
+在图\ref{fig:calciumcell}中，我们展示了人类心脏细胞内正常的心跳过程中钙离子处理变化过程。试验以不同的尺度展示了心脏组织的中心细胞内钙离子处理结果。图\ref{fig:calciumcell}中A部分显示了在两次连续的心脏中活动电势的变化；图\ref{fig:calciumcell}中B部分是位于细胞中心的dyad内处于打开状态的RyR的数目，这些数目是按照\ref{binom}通过二项分布的方法计算出来的。模拟结果表明，在活动电势变化期间，大部分RyR是出于打开状态的，随着这些通道的打开，在dyad内的$Ca_{ds}$浓度迅速上升到$500\mu$M，以及$Ca_{ss}$上升到$0.1$mM，具体变换过程可以从图\ref{fig:calciumcell}中的C和D观察到。对于亚细胞层级，对细胞内的Ca ($Ca_{i}$)进行模拟的线扫描影像表明，细胞内所有dyad内的钙离子释放是同步发生的（参考图\ref{fig:calciumcell}的F）。整个细胞内相关的$Ca_i$为图\ref{fig:calciumcell}中G所示，以及H未整个细胞的JSR。总之，这些结果描述了正常心脏跳动过程中的不同尺度的钙离子处理过程，包括dyad级、亚细胞级以及细胞级。
+
 \begin{figure}[htb]
-\includegraphics[width=\textwidth]{figs/calcium.pdf}
+%\includegraphics[width=\textwidth]{figs/calcium.pdf}
+
+\includegraphics[scale=0.8]{figs/calcium.pdf}
 \caption{Calcium handling in a cell in a human tissue during normal excitation. (A) Action Potential. (B) Number of open RyRs ($N_oRyR$) in the center dyad of the cell. (C) Dyadic space calcium ($Ca_{ds}$) (D) Submembrane space calcium ($Ca_{ss}$) (F) Simulated linescan image of intracellular Ca ($Ca_i$ (G) Whole-cell $Ca_i$ and (H) Whole-cell junctional sarcoplasmic reticulum (JSR). The 3D tissue was plane-stimulated at an edge at a cycle length(CL)=500 ms. Last two steady-state beats are shown.}
 \label{fig:calciumcell}
 \end{figure}
-
-在图\ref{fig:calciumcell}中，我们展示了人类心脏细胞内正常的心跳过程中钙离子处理变化过程。试验以不同的尺度展示了心脏组织的中心细胞内钙离子处理结果。图\ref{fig:calciumcell}中A部分显示了在两次连续的心脏中活动电势的变化；图\ref{fig:calciumcell}中B部分是位于细胞中心的dyad内处于打开状态的RyR的数目，这些数目是按照\ref{binom}通过二项分布的方法计算出来的。模拟结果表明，在活动电势变化期间，大部分RyR是出于打开状态的，随着这些通道的打开，在dyad内的$Ca_{ds}$浓度迅速上升到$500\mu$M，以及$Ca_{ss}$上升到$0.1$mM，具体变换过程可以从图\ref{fig:calciumcell}中的C和D观察到。对于亚细胞层级，对细胞内的Ca ($Ca_{i}$)进行模拟的线扫描影像表明，细胞内所有dyad内的钙离子释放是同步发生的（参考图\ref{fig:calciumcell}的F）。整个细胞内相关的$Ca_i$为图\ref{fig:calciumcell}中G所示，以及H未整个细胞的JSR。总之，这些结果描述了正常心脏跳动过程中的不同尺度的钙离子处理过程，包括dyad级、亚细胞级以及细胞级。
 
 \subsection{心脏组织内异常活动模拟}
 
@@ -302,14 +304,43 @@ x_i = x_i - \sum_{j}x_{ij}+\sum_{j}x_{ji}.
 
 \section{目标硬件体系结构}
 
-\section{心脏组织模拟的数学建模}
+天河2号超级计算系统包含16000个计算节点，每个计算节点有3个Intel Xeon Phi协处理器和2个Intel Xeon E5-2692v2 Ivy Bridge CPU处理器。因此，天河2号系统共有48000个Xeon Phi以及3200个Intel Xeon CPU。Xeon Phi的模型为31S1P（即Knigths Corner体系结构），每个Xeon Phi有57个核心，频率为1.1GHz，每个CPU有12和核心，频率为2.2GHz。
+
+Intel Xeon Phi协处理器是一个基于众核设计的硬件加速器，与传统的多核CPU不同的是，Phi协处理器是由大量的性能相对较弱的小核构成的，这些小核以环形的结构相连，每个小核支持512位宽的向量处理，具有64KB大小的L1 cache以及512KB大小的L2 cache，所有小核的cache支持一致性协议。Xeon Phi的这种设计使得它不适合处理串行程序，但非常适合处理并行程度高的程序。对于Xeon CPU来说，CPU中的每个小核具有64KB大小的L1 cache，256KB大小的L2 cache，并且Xeon CPU具有被12个小核共享的30MB大小的L3 cache。
+
+Xeon Phi的理论峰值双精度性能可以根据参数理论上计算出来，它的向量位宽为512位，所以每次可以处理8个双进度浮点运算或者16个单精度浮点运算，根据前面介绍的频率和小核的个数，可以计算出一个Xeon Phi的单精度浮点峰值性能可以达到$1001$ GFlop/s。然而，在实际中，一般不能取得这么高的性能，CPU的计算性能也不容忽略，峰值性能可以达到$211$ GFlop/s，实际中应该充分发挥Xeon CPU和Xeon Phi两种计算资源的性能。
+
+对于节点间的通信问题，天河2号系统采用了自己定制的名为TH Express-2的互联系统，这是一个胖树的拓扑结构。理论上说，Xeon Phi上是支持MPI通信的，单节点内Xeon Phi间采用MPI通信对性能不会有太大损失，但对于处于不同节点的Xeon Phi间的通信，采用MPI通信并不是很高效的方法。因此，本课题采用的策略是一个节点由一个MPI进程控制，然后在MPI进程内为每一个Xeon Phi创建一个线程，每个线程负责管理一个Xeon Phi，Xeon CPU和Xeon Phi间的通信采用Intel的SCIF/COI接口\upcite{SCIFCOI}进行通信。由于SCIF/COI接口较底层，编程会相对较复杂，但会取得很好的性能。
+
+Xeon Phi的57个小核中，有一个小核是保留给操作系统使用的，因此，真正能用于计算的小核个数只有56个。每个小核能同时运行4个物理线程，但对于给定的一个线程，它不会在连续的两个时钟周期都运行，意味一个Xeon Phi内只有有效的112个线程能以$1.1$ GHz的时钟周期运行。当运行224个线程时，每个线程是以系统的时钟周期的一半运行的。Xeon Phi协处理器的DDR5设备存储大小为8GB，小核访问设备全局存储的峰值带宽\upcite{xeon_phi_peak}为$320$ GB/s。然而，即使在理想情况下，对于很多应用来说，峰值带宽的一半还是可以达到的\upcite{testdrivingPhi}。
 
 
 \section{心脏组织模拟的高性能并行实现与优化}
 
- \subsection{心脏组织模拟的tissue-级并行}
+。。。。。。。。
+
+\subsection{心脏组织模拟的tissue-级并行}
+心脏组织模拟的全部计算任务具有多个层次的并行性，结合目标体系结构的特点，本课题对心脏组织模拟的计算任务进行分解，分解成多个层次。在最顶层分解中，心脏组织细胞以3D网格的方式结合在一起。每一个计算节点被分配到一定数量的细胞进行处理，这些细胞构成一个子域，子域的形状也是一个立方体。处于子域边界的细胞，它们的电压值在进行扩撒计算前需要与相邻的子域边界的细胞的电压值交换。
+The entire computational problem allows decompositions at multiple levels. Among these, the top level is the cardiac ventricle tissue that is represented as a 3D cartesian grid of cardiac cells. Each compute node is assigned a cuboid subdomain containing an equal number of cells. Cell voltage values $V_m$ are exchanged along the faces of the subdomains during every time step, via MPI messages \cite{MPI} between the host CPUs using a standard halo exchange approach. 
+We do not enforce a further geometric partitioning within each cuboid, because this induces unnecessary difficulties in balancing the load among the CPU host and the Phis. Instead, 
+each compute device is assigned a number of cells that is commensurate with its relative speed. This however necessitates exchanging all voltage values $V_m$ within a node. The transfer is performed using the Intel SCIF/COI interface, which has been shown to be an effective way of implementing CPU-Phi communication~\cite{SCIFCOI}. Thus, improved flexibility with respect to load balancing easily outweighs the cost of exchanging all voltage values within a node. 
+Figure \ref{nodeload} shows an example of such an intra-node decomposition of a subdomain.
+
+ \begin{figure}[bth]
+\center
+\includegraphics[scale=0.5]{figs/cube}
+\caption{Example of the intra-node decomposition of a subdomain. Cells allocated to the Phis are shown in \textcolor{blue}{blue}, \color{teal}{teal}, \textcolor{black}{and} \textcolor{cyan}{cyan}, \textcolor{black}{while the CPU cells are shown in} \textcolor{yellow}{yellow}.}
+\label{nodeload}
+\end{figure}
+
+In addition, the limited memory ($8$ GB) and the large number of concurrent threads ($224$) of the Xeon Phi mandate further constraints. Due to the large number of dyads, each cell 
+requires approximately $3$MB of memory, which limits the number of cells on each Phi to about $2500$. This in turn implies that each thread computes only a small number of cells (up to $12$) per time step, which makes the computation quite sensitive to unbalanced loads. Therefore, each Phi should be assigned a number of cells which is a multiple of $224$ for 
+optimum load balance within the device. 
+
+
+During preliminary experiments, we found that the relative computational speed between the host CPU (two sockets) and one Phi is about $1.5 : 1$. Together with the above restrictions, we found the optimal subdomain size to be $20\times20\times20$, with $8\times224=1792$ cells assigned to each Phi and the remaining $8000-3\times1792=2624$ cells assigned to the host CPU, which thus processes $32.8\%$ of the cells. Even though we do not always use them in our experiments, proportionally smaller or larger subdomains obeying the same ratios are also possible. Furthermore, we note that performance may vary slightly between the computations, which makes it impossible to have a strictly optimal load balance. 
  
- \subsection{心脏组织模拟的cell-级并行}
+\subsection{心脏组织模拟的cell-级并行}
 
 \subsection{心脏组织模拟的dyad-级并行}
 
