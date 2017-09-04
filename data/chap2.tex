@@ -319,6 +319,7 @@ Xeon Phi的57个小核中，有一个小核是保留给操作系统使用的，�
 。。。。。。。。
 
 \subsection{心脏组织模拟的tissue-级并行}
+\label{tissueParallel}
 心脏组织模拟的全部计算任务具有多个层次的并行性，结合目标体系结构的特点，本课题对心脏组织模拟的计算任务进行分解，分解成多个层次。在最顶层分解中，心脏组织细胞以3D网格的方式结合在一起。每一个计算节点被分配到一定数量的细胞进行处理，这些细胞构成一个子域，子域的形状也是一个立方体。处于子域边界的细胞，它们的电压值在进行扩撒计算前需要与相邻的子域边界的细胞的电压值交换。细胞的电压值交换是通过CPU间的MPI通信实现的，采用了标准的halo交换方法。
 
 对于每个子域在节点内的CPU和Phis间的细胞划分，本课题没有对立方体构成的子域进行规则的划分，因为这会导致CPU与Phis间负载的不均衡，而是根据CPU和Phi的计算能力分配相应比例的细胞给CPU和Phi这两种计算设备。这种策略需要对CPU和Phis处理的所有的细胞的电压值进行交换，CPU和Phi间的通信采用Intel的SCIF/COI通信接口实现。虽然这种方法会增加节点内CPU和Phi间的通信，但付出的代价会比因为负载不均问题产生的额外开销小。图\ref{nodeload}是节点内对子域构成的立方体细胞划分的示意图，不同颜色的部分代表分配给不同的计算设备。
@@ -330,16 +331,54 @@ Xeon Phi的57个小核中，有一个小核是保留给操作系统使用的，�
 \label{nodeload}
 \end{figure}
 
-In addition, the limited memory ($8$ GB) and the large number of concurrent threads ($224$) of the Xeon Phi mandate further constraints. Due to the large number of dyads, each cell 
-requires approximately $3$MB of memory, which limits the number of cells on each Phi to about $2500$. This in turn implies that each thread computes only a small number of cells (up to $12$) per time step, which makes the computation quite sensitive to unbalanced loads. Therefore, each Phi should be assigned a number of cells which is a multiple of $224$ for 
-optimum load balance within the device. 
+另外，因为每个细胞内含有大量的dyad单元，在代码实现中，每个细胞大约需消耗3MB的存储，受限于Phi设备的8GB的DDR存储以及Phi设备同时最多运行224个线程，导致每个Phi设备最多只能处理2500个细胞，这意味着每个线程每个时间步也只能计算少量的细胞，这使得整体性能对负载均衡非常敏感。因此，为每个Phi设备分配的细胞数最好是224的整数倍，这有利于设备内线程的负载均衡。
 
+在前期的试验结果发现天河2号的每个计算节点内，2个CPU的性能与单个Phi实测的性能比约为$1.5 : 1$。根据上述限制，本课题为每一个节点分配的细胞规模为$20\times20\times20$，$8\times224=1792$ 个细胞分配给一个Phi设备，剩下$8000-3\times1792=2624$个细胞分配给主机上的2个CPU进行计算。CPU处理的细胞数大约占单个节点内任务的$32.8\%$，同样的比例同样适用其它大小规模的子域。然而，实际测试中，针对不同的子域，CPU和Phi设备的性能还是存在细微的差异，因此，要做到完美的负载均衡是不太可能的。
 
-During preliminary experiments, we found that the relative computational speed between the host CPU (two sockets) and one Phi is about $1.5 : 1$. Together with the above restrictions, we found the optimal subdomain size to be $20\times20\times20$, with $8\times224=1792$ cells assigned to each Phi and the remaining $8000-3\times1792=2624$ cells assigned to the host CPU, which thus processes $32.8\%$ of the cells. Even though we do not always use them in our experiments, proportionally smaller or larger subdomains obeying the same ratios are also possible. Furthermore, we note that performance may vary slightly between the computations, which makes it impossible to have a strictly optimal load balance. 
  
 \subsection{心脏组织模拟的cell-级并行}
+正如\ref{tissueParallel}中提到的负载均衡问题，本课题采用了一种直接而静态的分配策略，即事先将细胞固定指定到相应的计算设备中执行，并且细胞内的所有计算自始自终都在同一个小核中完成的。与静态分配策略相对应的是动态分配策略，每个细胞内特别是所有dyad内的计算由所有的计算核心共同完成，这种方法可以更好地缓解负载均衡的问题。但由于部分计算必须串行执行，在计算过程中会导致重要的延迟。
 
-\subsection{心脏组织模拟的dyad-级并行}
+因此，在每个小核中，本课题采用SIMD向量单元并行处理4个（CPU）或者8个（Phi）细胞内钙离子释放单元的计算。向量化对模拟实现的性能具有重要的影响作用，由于模拟过程的复杂性，本课题采用混合并行化的方法，包括由Intel icc编译器完成的自动编译方法和利用Intel 向量化指令实现的手动向量化方法。为了实现混合并行化的方法，对源代码实现中的dyad循环分割成多个小的循环将变得很有必要。因为dyad内部的计算中，既有很规则的计算部分，记为\textit{arithmetic}段，也有部分含有大量控制语句的代码，记为\textit{conditional}段。对于循环中的规则计算，编译器可以很容易对其向量化，然而，对于大量控制语句的代码，编译器很难实现自动化。因此，在对dyad循环内部的计算分割成多个循环之后，规则的循环可以通过编译器自动向量化，而非规则的计算通过手动向量化，这可以大大简化并行优化的工作。
+
+上述说的\textit{arithmetic}段的计算包括决定L-型通道或者RyR状态转变概率、计算钙离子浓度以及计算dyad间的扩散。它们的计算都比较规则，只需要在循环外加上适当的编译指导语句，编译器就能对这些代码自动实现向量化。虽然，dyad间的扩散部分是存储受限并且只包含少量的计算，向量化同样适用，只是提升的性能不是那么显著。\textit{conditional}段包含的从二项分布中采样决定RyR中发生状态转变的数目，由于这部分计算需要{\it while}循环或者等价功能的代码，编译器对这部分代码不能自动实现向量化。
+
+将大循环分割成多个小循环技术的弱点在于降低了数据局域性，对于大循环来说，只需要存储最终的计算结果，因为循环能保证一次性将结果计算出来，而当大循环分割成很多小循环之后，最终的计算结果依赖中间各个阶段的计算结果，需要额外的数组存储这些中间结果，临时中间结果在前半部分被计算出来写到全局存储中，在后半部分计算又从全局存储中读出，这增加了存储带宽的压力。为了避免反复访存，可以考虑将部分循环合并，这就需要手动实现合并之后循环内所有的计算代码。
+
+\subsection{二项分布采样的向量化实现}
+对于\textit{conditional}中的代码，可以采用AVX-512指令进行手动向量化，向量化条件语句代码的关键就在于强大的\texttt{mask}指令。\texttt{mask}指令允许SIMD向量单元在执行向量指令时，只对部分元素按照指令执行，针对的元素取决于一个位掩码。AVX-512指令只能在Phi设备上执行，在Sandy Bridge结构的CPU上缺少相应的AVX指令，因此，在针对CPU的代码中，二项分布采样的实现中未进行手动向量化。
+
+AVX-512向量化的实现可以参考图\ref{Vecbinom}。该向量化代码是通过同时计算8个dyad的累积概率分布函数实现采样的，以{\tt N, P}和{\tt RANDVAL}两个向量作为输入，它们包含处在某状态的通道数、转化概率以及针每个dyad采样的一个随机数。采样的结果{\it K}，即改变状态的RyR的个数是通过将{\tt RANDVAL}减去二项分布采样的累积概率，直至结果变为负值，需要经过的循环次数$i$而得到。当{\tt RANDVAL}中的某个分量达到负值时，对应的{\tt MASK}将被设置成$0$，而{\tt K}中对应的分量将保持不变。RyR和L型通道转变的处理采用了相同的二项分布采样的方法，为了可读性的方便，这里只介绍了RyR的采样过程。
+
+\begin{figure}[hbt]
+\small\begin{verbatim}
+function VectorizedBinomial
+Input: Vectors N, P, RANDVAL
+Output: Vector K
+   Initialize K = 0
+   Initialize 1P = Vector_subtract(1,P);
+   Initialize PKNK = Vector_power(1P,N);
+   Initialize P1P = Vector_divide(P,1P);
+   for (int i = 0; i < max(N); i++) {	
+       BC = Vector_gather(BC_table,N,K);
+       SUB = Vector_multiply(BC,PKNK);
+       RANDVAL = Vector_subtract(RANDVAL,SUB);
+       PKNK = Vector_multiply(P1P,PKNK);
+       MASK = Vector_mask_compare(RANDVAL > 0);
+       K = Vector_mask_add(K,1,MASK); }
+\end{verbatim}
+\caption{The vectorized version of the binomial sampling computation. It can be derived from a scalar implementation via the use of MASK to increase the output value for some vector elements, instead of using a \texttt{while} loop. Vector intrinsics are renamed for clarity.}
+\label{Vecbinom}
+\end{figure}
+
+To save time, vector versions of the coefficients \texttt{PKNK} and \texttt{P1P} are computed in the initialization. Since the maximum value in {\tt N} will never be above $100$, we can compute the binomial coefficients prior to the actual simulation and store them in {\tt BC\_table}. While this is very helpful in the scalar case on the CPU, the fact that memory bandwidth per core is limited, while computational power is plenty on the Phi negated the performance advantage of this technique.
+
+The main problem with this approach is that the computation runs until the last sampling is finished. This means that the speedup depends on the ratio between the sampling results of the $8$ dyads within one vector. In case they all happen to be identical, we can obtain a perfect 
+eightfold speedup, but in practice this will rarely be the case. In addition, testing if the \texttt{MASK} value is $0$, i.e.~all samplings have completed to allow early termination is expensive, especially on the Xeon Phi. We settled for a compromise where we perform this test after every $8$ iterations of the for loop, and terminate the loop if all $8$ samplings are finished. 
+
+This means that the lower the higest value in {\tt K}, the less time the sampling takes, which is desirable since most transition probabilities and thus sampling results are low. In addition, if an entry of {\tt N} is $0$, the corresponding value of {\tt K} will always be $0$. In that case, we can immediately set the result and store the entry of {\tt RANDVAL} for later use. Furthermore, as shown in Figure \ref{ryrstates}, transitions from the O1 state to the C1 state, and those from the C3 state to the C2 state have a constant probability, which means that for these cases the cumulative distribution function can be precomputed. Doing so further cuts down the number of actual sampling function evaluations.
+
+Note that sampling from a binomial distribution is indeed not a method that is very amenable to vectorization, and a straightforward implementation that stochastically determines the number of open channels using a large number of Bernoulli experiments would vectorize better due to the \texttt{compare} intrinsics available on the Xeon Phi. However, the amount of random numbers required for doing so renders this approach prohibitively expensive. This is particularly problematic on the Xeon Phi where random number generation is disproportionately more expensive. 
 
 \subsection{心脏组织模拟中随机数生成}
 
