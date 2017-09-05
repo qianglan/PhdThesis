@@ -371,30 +371,114 @@ Output: Vector K
 \label{Vecbinom}
 \end{figure}
 
-To save time, vector versions of the coefficients \texttt{PKNK} and \texttt{P1P} are computed in the initialization. Since the maximum value in {\tt N} will never be above $100$, we can compute the binomial coefficients prior to the actual simulation and store them in {\tt BC\_table}. While this is very helpful in the scalar case on the CPU, the fact that memory bandwidth per core is limited, while computational power is plenty on the Phi negated the performance advantage of this technique.
+为了节省时间，向量\texttt{PKNK}和向量\texttt{P1P}在初始化会预先被计算出来。由于向量{\tt N}中的每个元素最大值不会超过$100$，二项分布系数的值可以在真正模拟之前预先计算出来并存储在{\tt BC\_table}。这种方法对于CPU这种只适合标量处理的处理器是有利的，但对于每个小核访存带宽受限，计算能力充足的Phi可以消除这项技术的优势。
 
-The main problem with this approach is that the computation runs until the last sampling is finished. This means that the speedup depends on the ratio between the sampling results of the $8$ dyads within one vector. In case they all happen to be identical, we can obtain a perfect 
-eightfold speedup, but in practice this will rarely be the case. In addition, testing if the \texttt{MASK} value is $0$, i.e.~all samplings have completed to allow early termination is expensive, especially on the Xeon Phi. We settled for a compromise where we perform this test after every $8$ iterations of the for loop, and terminate the loop if all $8$ samplings are finished. 
+向量化实现的方法中，最主要的问题就是计算一直持续到最后一次采样结束。这意味着向量化取得的加速效果取决于处在同一个向量中的8个dyad的采样结果差异，如果所有采样结果相差不大，则可以获得近8倍的加速效果，但实际中，这种情况很少出现。另外，测试掩码向量\texttt{MASK}的值是否为0，即所有的采样已经结束，这种条件检验尤其在Phi设备上代价是比较大的。为此，采用了一种折中的方案，即每隔8次循环进行一次条件判断，来决定是否完成采样过程。
 
-This means that the lower the higest value in {\tt K}, the less time the sampling takes, which is desirable since most transition probabilities and thus sampling results are low. In addition, if an entry of {\tt N} is $0$, the corresponding value of {\tt K} will always be $0$. In that case, we can immediately set the result and store the entry of {\tt RANDVAL} for later use. Furthermore, as shown in Figure \ref{ryrstates}, transitions from the O1 state to the C1 state, and those from the C3 state to the C2 state have a constant probability, which means that for these cases the cumulative distribution function can be precomputed. Doing so further cuts down the number of actual sampling function evaluations.
+这意味着向量{\tt K}中的最大元素越小，采样时间就越短，这种情况也是经常发生的，因为大都RyR状态间的转化概率是很小的，因此，采样结果一般都是比较小的。另外，向量{\tt N}中的某个元素为0，则向量{\tt K}中对应的元素也一般为0，如果是这种情形，则可以不需要计算就得出结果，随机数向量{\tt RANDVAL}可以在后面的采样使用，这可以节约随机数使用的数目。并且注意到，在图\ref{ryrstates}中的状态转化中，从O1状态到C1状态以及从C3状态到C2状态间的转化概率是常数，这意味着累积分布函数是可以预先计算出来的，这可以大大降低采样过程的计算量。
 
-Note that sampling from a binomial distribution is indeed not a method that is very amenable to vectorization, and a straightforward implementation that stochastically determines the number of open channels using a large number of Bernoulli experiments would vectorize better due to the \texttt{compare} intrinsics available on the Xeon Phi. However, the amount of random numbers required for doing so renders this approach prohibitively expensive. This is particularly problematic on the Xeon Phi where random number generation is disproportionately more expensive. 
+二项分布的采样过程确实不是特别适合向量化处理，采用大量的柏努利试验方法决定RyR通道处于打开状态的方法更有利于向量化的实现，这是由Phi上的\texttt{compare}指令的特点决定的。然而，这种直接的方法需要消耗大量的随机数，随机数生成在Phi设备上并不是特别的高效。因此，本课题并未采用柏努利试验的方法。
 
 \subsection{心脏组织模拟中随机数生成}
+为了产生二项分布采样所需的随机数，本课题使用了Intel MKL库中提供的函数\texttt{vdRngUniform}，并在每一次时间步迭代之前调用该函数。随机数产生过程在Phi设备上的性能相对CPU上的性能差很多，单核上的性能几乎相差$40$倍。另外，与CPU不同的是，在Phi设备上随机数生成在多核上的扩展性也非常差，这使得随机数生成成为Phi设备上计算的瓶颈之一。
 
+由于\texttt{vdRngUniform}是预先定义好的库函数，本课题并不能对其实现做进一步的优化。然而，正如上面所提到的，可以在使用随机数的时候做些优化，比如，对于通道数为0的各个初始状态转变的计算是可以跳过的，因此，就不需要消耗随机数了，减少了总的随机数的产生，从而减少了随机数产生的时间。为了实现这个方法，使用一个变量记录每次时间步内所使用的随机数的数目，使用了多少随机数，就在下一个时间步中产生多少随机数覆盖掉当前时间步中使用过的随机数，当前时间步未被使用的随机数将在下一个时间步中继续使用。对于每个dyad来说，RyR通道各个状态的数目计算最多需要消耗8个随机数，L型通道状态的计算最多消耗2个随机数，因此每个dyad最多需要消耗10个随机数，采用上述减少随机数的方法之后，平均能减少一半的随机数的使用，意味着随机数产生的时间可以降低一半。
 
 \subsection{代码优化}
+尽管x86 CPU和Xeon Phi在体系结构上具有很强的相似性，但在这两种设备上移植程序而都保持很高的性能并不是件简单的任务。在Xeon Phi设备上较低的串行程序性能，较长的向量单元以及很高的计算性能这些特点，与存储带宽上的性能的对比，使得在这种设备上编程时需要重点解决一些挑战。
 
+Xeon Phi加速器计算性能的发挥非常依赖于512位向量单元得到充分利用，完全的向量化实现能使Xeon Phi的双精度性能直接提升8倍，单精度性能提升16倍。对Xeon CPU来说则是，向量化能使双精度性能提升4倍，单精度性能提升8倍。在大部分情况下，可以在代码中插入编译指导语句使得编译器对相应代码实现自动向量化，而对于复杂的代码，则需考虑通过程序员采用向量化的指令手动向量化实现。
 
+对于Xeon CPU来说，AVX向量化不能对所有的双精度的计算类型都提高4倍，因为只有两个双精度除法的硬件单元可以同时执行，正如文献\upcite{notallflopsequal}中所讨论的。这是因为在CPU处理器中，除法几乎比乘法慢20倍，向量化的加速比最后就取决于在除法运算中获得的加速比了。而Xeon Phi中的每个小核能并行处理8个双精度除法运算，不过除法的开销也同样代价较大，因此无论是针对Xeon CPU还是Xeon Phi设备，都应该尽量减少对除法的使用，比如可以用乘法代替除法，不过，这都需要手动实现，因为编译器无法自动实现乘法操作对除法的替换工作。
+
+对于细胞内的dyad间的扩散计算，编译器也可以实现该部分计算的自动向量化，并且能够取得一定性能的提升。一种有效的模板计算的实现是避免使用条件分支语句，因为待执行的指令不是数据相关的。然而，由于这些操作都是访存受限的操作，期望获得的性能提升一般低于计算密集型指令取得的性能提升。
 
 \section{实验结果与分析}
 \subsection{实验设置}
+所有的试验都是在天河2号超级计算机上执行的，采用Intel icc 14.0.2编译器进行编译。节点间通信采用MPICH 3.1.1底层通信库，在使用MPI编程时，每个计算节点上分配一个MPI进程，MPI进程是由节点的CPU主机控制的。每个节点的MPI进程创建3个线程用来控制3个Phi设备，每个线程负责启动Phi设备计算以及控制CPU主机与Phi设备间的数据传输。Phi设备的启动以及CPU和Phi设备间的数据传输都是通过底层的SCIF/COI接口实现的。SCIF/COI编程相对比较复杂，但这能让程序员完全掌控CPU和Phi设备间的通信过程以及Phi设备的计算过程。采用SCIF/COI编程的方法也算是卸载模式的一种，虽然不是通过编译指导语句指定和控制相关在Phi设备上执行的代码。虽然通过编译指导语句的方式也能控制Phi设备的执行，但这种方式没有SCIF/COI编程方式控制起来高效。
+
+对于共享存储的所有小核，无论是对于Xeon CPU还是Xeon Phi，本课题采用经典的OpenMP编程，分别创建24个和224个线程进行计算。在天河2号系统中，对于Xeon CPU来说，超线程功能是关闭的，本课题在Sandy Bridge结构的16核CPU上采用超线程取得了$23\%$的性能提升，因此对于天河2号上Ivy Bridge CPU来说，超线程技术理论上应该可以带来同样的性能提升。
+
+由于处于不同socket的CPU共享存储，因此将双CPU看作单个设备来处理。通过\textit{scatter}方式创建分配线程。天河2号上的Phi设备的时钟频率大都是$1.1$~GHz，但也存在部分只有$0.8$~GHz的设备。由于权限的问题，本课题最多只能用到400个Phi设备。
+
+在所有的试验中，无论是组织级还是细胞级模拟的时间步大小都为$0.05$~ms。对于心脏组织级的模拟，采用分辨率为$0.5$~mm的空间网格对扩散项公式进行离散化。在具体的心脏模拟试验中，模拟一个心跳，即10000时间步（$500$ ms），对于大规模扩展试验中，只模拟$200$~ms。所有的试验中，对心脏细胞的外界刺激都发生在时刻$t=50$~ms。为了使得不同的模拟试验中的运行时间具有可比性，试验中采用每秒钟细胞计算数（CC/s）。
 
 \subsubsection{心脏组织模拟单设备性能}
+本节介绍了系列试验来研究心脏组织模拟器的性能。第一个实验测试了Xeon CPU和Xeon Phi两种处理器的单核性能，图\ref{fig:optimizations}是试验结果，从结果中可以看出，混合向量化成功地减少了\textit{arithmetic}段的计算时间。在Xeon Phi设备上，钙离子浓度的计算部分被加速了约8倍，这是SIMD方法能加速到的最大速度。L型通道的概率计算部分加速了约6倍，虽然这部分代码是纯粹的计算，但只包含少量的计算，并且涉及一些数据传输，这可能会导致一些延迟。细胞内的扩散部分的计算加速了约5倍，之所以不能达到理想的8倍加速，也是因为该部分计算是存储受限型的计算。最后就是关于RyR概率的计算加速了约4倍，主要的原因是计算中含有大量的指数函数，指数函数的开销是非常大的，而且向量化效果不是特别理想。
+
+对于\textit{conditional}段的计算，由于手动向量化的影响，L型通道转化的计算部分取得了6倍的加速。对于RyR通道转化的计算，手动向量化只使计算加速了约$20\%$，使得这部分计算称为细胞内计算占用时间最长的部分。另外，随机数产生的优化对Xeon Phi影响更加显著。显著的性能提升证明了针对Xeon Phi代码优化的重要性。需要注意的是\textit{conditional}段的代码因为缺少必要的向量指令，在Xeon CPU上并没有进行向量化。
+
+\begin{figure}[htb]
+%\begin{center}
+\includegraphics[width=\linewidth]{figs/perf1crop.pdf}
+%\end{center}
+\caption{Performance improvement of the individual functions in the dyad computations due vectorization. For the Xeon Phi, this also includes the conservation of random numbers.
+Note the change in scale due to the low single-core performance of the Xeon Phi. Performance is reported per time step, based on a measurement over 10,000 time steps.}
+\label{fig:optimizations}
+\end{figure}
+
+第二个实验是检验单个Xeon Phi设备上的扩展性，包括弱扩展和强扩展。由于存储的限制，弱扩展实验中让每个线程处理8个细胞，则224个线程最多处理$8\times224$个细胞，基本达到单个Xeon Phi设备的存储上限。在强扩展试验中，单个设备的处理的细胞数也为$8\times224$，考虑到执行时间长短的因素，强扩展试验至少使用的线程数为$16$。图\ref{fig:scaling}是强扩展和弱扩展试验中的使用不同线程数下模拟10000个时间步的执行时间，如果将执行时间转化为每秒钟细胞计算数这个指标，这个指标在强扩展和弱扩展中基本相同，所以强扩展和弱扩展的性能差别不大。从试验结果还可以发现，当使用到56个物理线程时，可以观察到非常好的扩展性，能达到$86\%$的效率。而在使用线程数超过56时，扩展性有所下降，这是由于小核的存储带宽竞争变激烈导致的。当使用到112个线程时，效率下降到$65\%$了。当线程数目超过了物理核数时，除了存储带宽方面的竞争，如果两个线程共享一个物理核，则每个线程的cache大小将减少，这也将影响性能的发挥。当设备中创建224个线程时，两个线程共享时钟周期，虽然没有使用更多的硬件资源，但可以观察到明显的性能提升。从线程使用的角度看，虽然效率下降了，但相对于资源使用的角度看，其实效率是相当高的。这些现象和数据表明，模拟性能很大程度上受限于延迟而不是吞吐量，因此超线程的使用能缓解这个问题。
+
+\begin{figure}[htb]
+%\begin{center}
+\includegraphics[width=\linewidth]{figs/weakstrongscalePHI.pdf}
+%\end{center}
+\caption{Weak and strong scaling on a single Xeon Phi, shown as running time over 10,000 time steps for $8$ cells per thread in weak and 1,792 cells in strong scaling.}
+\label{fig:scaling}
+\end{figure}
+
+在Ivy Bridge CPU上做了同样的强扩展和弱扩展试验，唯一不同的是模拟的规模，弱扩展试验中，每个小核负责8个细胞的计算，强扩展中需要完成$8\times24$个细胞的计算。在Ivy Bridge CPU上取得与Xeon Phi上相似的扩展性，除了Ivy Bridge CPU不支持超线程试验，因此被使用的物理核的数目与创建的线程数时钟保持一致。详细的试验结果可以参考图\ref{fig:scaling2}。扩展性因为存储带宽达到饱和而受限，即当每个socket中使用的物理核数超过两个时，性能没有与使用的物理小核数保持线性增长。
+
+\begin{figure}[htb]
+%\begin{center}
+\includegraphics[width=\linewidth]{figs/weakstrongscaleCPU.pdf}
+%\end{center}
+\caption{Weak and strong scaling on the CPU, shown as running time over 10,000 time steps for $8$ cells per thread in weak and 192 cells in strong scaling. Threads are distributed evenly over both sockets.}
+\label{fig:scaling2}
+\end{figure}
 
 \subsection{心脏组织模拟的单节点性能}
+第三个实验测试了单个节点在心脏组织模拟计算中的性能。节点的每个Xeon Phi设备被分配$8\times224$细胞，Xeon CPU上分配$2624$个细胞，共$20\times20\times20$个细胞，这些细胞构成一个三维的网格。表\ref{tbl:perf1}是试验结果，注意到，每次都是分配细胞给节点上的两个CPU主机，因此测试的是2个CPU的性能。显然，单节点内的Phi的性能是相对稳定的。然而，由于技术原因，节点内的各个Phi的时钟周期会有所差异，因此，在某些节点上负载均衡问题会比预期的差些，导致CPUs处于等待状态。
 
-\subsection{心脏组织模拟的多节点性能}
+\begin{table}
+\caption{Single and aggregate performance of the devices within a node. CC/s is the number of cell computations per second.}
+\label{tbl:perf1}
+\begin{center}
+\begin{tabular}{c|ccc}
+Device & Cells & Time (in sec.) & CC/s \\
+\hline
+2 CPUs	&	2,624	&	1,706	&	6,152	\\	
+1 PHI	&	1,792	&	1,859	&	3,856	\\	
+2 PHIs	&	3,584	&	1,860	&	7,708	\\	
+3 PHIs	&	5,376	&	1,861	&	11,555	\\	
+2 CPUs+3 PHIs	&	8,000	&	1,879	&	17,030	\\	
+\end{tabular}
+\end{center}
+\end{table}
+
+图\ref{loadbalance}表示的是负载均衡的情况。虽然节点内的通信占用了不是特别重要的时间，但不完美的负载均衡可以导致CPU等待约$10\%$的计算时间。可以看出异构计算对负载均衡问题是非常敏感的，实际上，如果CPU展示的性能比预期的还差，则因为Phi而导致等待的时间将变得更大。由于单个节点每次处理的细胞都是立方体的限制，一个完美的负载均衡是不可能达到的。
+
+\begin{figure}
+ \includegraphics[width=\linewidth]{figs/loadbalance.pdf}
+  \caption{Load balancing within the node. The communication overhead is insignificant, but the imperfect load balancing is noticeable. (Percentages which are not show consist of compute time for all devices.)}
+  \label{loadbalance}
+\end{figure}
+
+\subsection{心脏组织模拟在多节点上的扩展性试验}
+
+Based on the performance we achieved on one node, we tested our code on multiple nodes to assess the influence of MPI communication and load balance on scalability. Figure \ref{weak_scale} shows the weak scalability from 1 to 512 nodes. We achieve near-perfect scalabilty due to low MPI communication. In addition, load balancing between the nodes 
+has only a minor effect on performance in this experiment.   
+
+Each run uses the standard subdomains of $20\times20\times20$ cells arranged in a cuboid manner. For the 400 node run which simulates a flat slab of tissue containing 
+$400\times400\times20$ cells, the communication overhead was slightly lower at $1.76\%$ due to the 2D nature of the communication there. Note that due to machine limitations, communication time for the 512 node run was measured using only CPU computation and performance we extrapolated from the previous measurements.
+
+\begin{figure}
+ \includegraphics[width=\linewidth]{figs/weakscaling.pdf}
+  \caption{Weak scaling of the overall simulation. The communication overhead remains below $3\%$, allowing for near perfect scaling.}
+  \label{weak_scale}
+\end{figure}
+
+Based on the rate of increase, we estimate that when using all 16,000 nodes, communication will still amount to less than $6\%$ of the total running time, making this code well suited for extreme scale simulations.
 
 \subsection{心脏组织模拟试验}
 
