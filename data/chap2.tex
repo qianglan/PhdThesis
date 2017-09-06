@@ -465,12 +465,9 @@ Device & Cells & Time (in sec.) & CC/s \\
 \end{figure}
 
 \subsection{心脏组织模拟在多节点上的扩展性试验}
+基于单节点的性能，本课题进一步对大规模多节点上的性能也进行了测试评估，包括节点间的通信以及扩展性两方面。图\ref{weak_scale}展示的是从1到512个节点的弱扩展性结果，由于MPI通信开销小，取得了几乎完美的扩展性。另外，在本次试验中，节点间的负载均衡问题对性能影响非常小。
 
-Based on the performance we achieved on one node, we tested our code on multiple nodes to assess the influence of MPI communication and load balance on scalability. Figure \ref{weak_scale} shows the weak scalability from 1 to 512 nodes. We achieve near-perfect scalabilty due to low MPI communication. In addition, load balancing between the nodes 
-has only a minor effect on performance in this experiment.   
-
-Each run uses the standard subdomains of $20\times20\times20$ cells arranged in a cuboid manner. For the 400 node run which simulates a flat slab of tissue containing 
-$400\times400\times20$ cells, the communication overhead was slightly lower at $1.76\%$ due to the 2D nature of the communication there. Note that due to machine limitations, communication time for the 512 node run was measured using only CPU computation and performance we extrapolated from the previous measurements.
+每个试验中采用的子域规模为$20\times20\times20$，这些细胞构成一个立方体形状。则400个节点可以处理的心脏组织规模可以达到$400\times400\times20$，通信开销只占总时间的约$1.76\%$，需要说明的是，由于Phi节点使用数目的限制，通信测试基于的计算都是在CPU上的计算。但这对研究通信开销是没影响的，因为异构节点间的通信也是由CPU完成的。如果通信按照这种趋势发展的话，可以预测使用天河2号上所有的16000个节点计算的话，通信所占的比例也不会超过$6\%$，因此心脏组织模拟应用能够很好地扩展到更大规模的节点中运行。
 
 \begin{figure}
  \includegraphics[width=\linewidth]{figs/weakscaling.pdf}
@@ -478,8 +475,34 @@ $400\times400\times20$ cells, the communication overhead was slightly lower at $
   \label{weak_scale}
 \end{figure}
 
-Based on the rate of increase, we estimate that when using all 16,000 nodes, communication will still amount to less than $6\%$ of the total running time, making this code well suited for extreme scale simulations.
-
 \subsection{心脏组织模拟试验}
+本节试验中，展示了在正常情况下的心脏组织细胞模拟结果。
+
+在心脏心室中截取大小为2 mm$\times$32 mm$\times$32 mm的组织进行正常的活化试验，结果如图\ref{fig:activation}所示。试验中，组织的某个面的所有细胞在t = 0 ms受到一个人为的刺激，这种刺激主要是将这些的细胞的电压变高，模拟的过程中，可以看到电压将沿着直线向某个方向传播，整个组织的细胞经过约70 ms都被极化。因此，可以估算出传导的速度大约为45.7 cm/s，这个速度与文献\upcite{durrer1970total}中报告的速度46.4 cm/s是接近的。
+
+\begin{figure}
+ \includegraphics[width=\linewidth]{figs/tissue_activation.png}
+ \caption{Activation pattern in a 3D human ventricular tissue.}
+ \label{fig:activation}
+\end{figure}
+
+\begin{figure}
+ \includegraphics[width=\linewidth]{figs/cell_variables.png}
+ \caption{Action potentials (AP), electrophysiological currents and calcium concentration (Ca) values in a 3D tissue-center cell at steady-state. (A) Membrane voltage ($V_m$) (B) Fast Na current ($I_{Na}$) (C) L-type Ca current ($I_{CaL}$) (D) Slow component of delayed rectifier K current ($I_{Ks}$) (E) Rapid component of delayed rectifier K current ($I_{Kr}$) (F) Na-Ca exchange current ($I_{NaCa}$) (G) Ca in the dyadic space ($Ca_{dyad}$) (H) Intracellular Ca in the myoplasm ($Ca_i$) averaged over 10000 dyads (I) Simulated line-scan image of $Ca_i$ along the long-axis of the myocyte and (J) Junctional sarcoplasmic reticulum concentration (JSR) averaged over 10000 dyads.}
+ \label{fig:calcium}
+\end{figure}
+
+心脏组织模拟过程中，处在组织中央的细胞的动作电势、重要的电生理电流以及钙离子浓度变化如图\ref{fig:calcium}所示，模拟持续3个正常的心跳周期，每个周期为500 ms。图\ref{fig:calcium}的A部分是活动电势变化，而B、C、D、E以及F中显示的是各种离子电流变化，H和J是所有dyad的钙离子平均浓度变化，这些结果与ORd模型\upcite{o2011simulation}中的结果是一致的。相关的细胞内钙离子在肌质($Ca_i$)沿着肌细胞中轴线以及钙离子在dyadic空间($Ca_{dyad}$)的线扫描图分别为图\ref{fig:calcium}中I和G所示。这些结果证明了本课题开发的3D组织模拟器在模拟正常的心脏活动中的相关结果与现有已经发表的结论是一致的。
 
 \section{小结}
+在心脏组织层级以及器官级的异常活动研究在计算医学领域仍然是一个突出的课题。采用精细的细胞模型进行大规模的模拟能够帮助心脏病专家理解细胞内钙离子处理异常对心律失常机制的理解。
+
+本课题在天河2号这样的高性能计算系统上实现了心脏组织的模拟，支持大规模节点的模拟。虽然在节点内Xeon Phi上高度优化的代码的性能比节点中的2个Ivy Bridge CPU的性能低些，并且比Xeon Phi的峰值性能也低很多，但已经取得的性能与其它很多研究\upcite{CMPST13,VGGR14}所取得的性能接近，其它研究也说明了在开发Xeon Phi的潜在性能上的挑战与困难。并且Phi加速设备上能够提供的最大全局存储大小成为模拟规模的最主要限制。虽然理论上可以在CPU主机与Phi加速设备间交换数据，CPU上主存大小为$64$~GB，意味着Phi设备上模拟的规模最多只能扩大一倍，因为每个Phi设备原本全局存储为8GB，再加上对应CPU上需要12GB大小的存储，这就需要消耗CPU36GB的存储了。
+
+然而，未来的超级计算机系统比如NERSC Cori以及其它在CORAL\upcite{coral}的机器将使用新一代Xeon Phi体系结构（KNL），新一代的Xeon Phi加速器将拥有更大容量的全局存储。Cori系统的每个设备将具有$96+16$~GB的存储。虽然9300个这样的节点还不足于模拟整个心脏，但是，即将建好的Aurora超级计算机具有50000个节点，对于整个心脏的模拟是足够的。因此，我们的模拟器将在不久的将来可以对心脏器官进行模拟。
+
+在大量的优化工作中，除了算法上的改进，比如采用二项分布采样以及节约随机数的使用，对性能提升最大的是手动和自动向量化技术的使用。并且，对OpenMP并行化的正确使用对于在众核系统上获得高性能发挥着重要作用。对于Xeon Phi的代码的优化技术同样适应其它科学计算应用的代码，另外，本章的试验结果表明由于代码的复杂性，该应用属于延迟受限的应用，因此，超线程技术在不需要任何额外代价就能提高额外的性能。这对一般的简单计算kernel是不适应的。
+
+对于异构计算来说，本课题选择了一种层次化的领域分解方法，每个计算节点被分配一个子域任务的计算，分配到每个节点的子域又进一步在计算设备间切分。从编程的角度来看，除了在负载均衡方面能获得灵活性的好处，这种任务划分方式使得节点间通信和节点内的计算很好的分开，使得代码在其它超级计算机系统中具有很好的移植性。
+
+本课题在未来的工作中，还会继续尝试在其它加速设备上，比如GPU上，或者新一代的Xeon Phi加速器上进一步优化。
