@@ -1,13 +1,43 @@
 \begin{cabstract}
-异构平台已经在各个应用领域发挥重要作用，
+各种应用需求促使了大量的异构平台的涌现。典型的异构平台加速器包括数字信号处理器（DSP）、面向通用计算的图像处理器（GPU）、众核协处理器（MIC）以及硬件加速器（FPGA）等。
 
-然而异构平台的硬件资源
+针对异构平台的编程优化面临诸多挑战。由于各种异构平台体系结构的差异，所采用的编程方法以及并行优化方法都将不同。针对GPU这种含有大量并行计算单元并以SIMT方式执行的异构平台，编程实现中，需要特别注意避免条件分支语句的使用和优化。而对众核协处理器（MIC）这种异构平台，由于cache大小受限，因此在对应用实现中需要注意访存优化。异构平台中CPU和加速器间的协同和通信问题也是对异构平台性能发挥至关重要的因素。%，因此，也是编程优化需要解决的问题。其它异构平台也面临相似的问题。
+
+异构平台在科学计算和人工智能领域逐渐发挥越来越重要的作用。本课题分别从科学计算（心脏组织模拟）和人工智能领域（卷积神经网络）各选取一个典型应用在异构平台上进行映射。无论是心脏组织模拟应用还是卷积神经网络应用，对计算需求都非常大，其中包含的计算也有各自的特点，根据计算特点，本课题选取了两种典型的异构平台进行实现，一种是基于Intel Xeon Phi加速器的异构平台，一种是基于Nvidia GPU的异构平台。主要涉及的研究内容包括以下几方面：
+\begin{compactitem}
+\item[1.]心脏组织的3D模拟在大规模多核CPU系统上的映射。目前关于心脏模拟的研究都集中在2D规模，或者针对单个心脏细胞内的研究，本课题提出了一个精细的3D心脏组织模拟模型，这个模型能够模拟人类心脏组织细胞内的电活动和钙离子处理过程。%本课题最终是要将心脏组织的3D模拟映射到大规模异构系统中，具体的系统为天河2号系统，对于大规模异构集群系统来说，各节点的主机CPU的性能也不能忽略，因此
+本课题首先针对大规模集群的多核CPU系统进行并行优化。采用MPI并行编程方法将心脏组织划分成很多小网格并分配到每个计算节点中，在每个计算节点内部，面向多核CPU采用OpenMP并行编程技术将分配给每个计算节点的心脏组织细胞进行任务划分，最后单核CPU在对单个心脏细胞内的模拟中，采用SIMD技术进一步对细胞内的dyad单元实现并行计算。本课题采用多种并行技术高效地将心脏组织的3D模拟映射到了大规模多核CPU的集群系统中。
+
+\item[2.]心脏组织的3D模拟在天河2号超级计算系统上的映射。在大规模多核CPU系统上实现了心脏组织的3D模拟后，本课题将心脏组织的3D模拟扩展到天河2号超级计算系统上，天河2号系统中的每个计算节点是由多核CPU与3个Intel Xeon Phi加速器构成的，在天河2号系统的异构节点间的任务划分方法与在大规模多核CPU系统上划分方法类似，都是采用MPI方法进行任务划分，但在天河节点内的任务划分，本课题根据天河节点内多核CPU与Intel Xeon Phi在计算心脏细胞的实际性能进行任务划分，确保多核CPU与Xeon Phi间的负载均衡，在Xeon Phi加速器上的映射中，同样采用了OpenMP并行以及SIMD向量化技术。而对于CPU和Xeon Phi间的协同，本课题采用的是COI/SCIF底层编程接口，在CPU端通过调用COI接口实现对Xeon Phi的控制，而通过SCIF接口实现CPU与Xeon Phi间的数据通信。
+
+\item[3.]3D卷积神经网络在异构GPU平台上的高性能实现。2D卷积神经网络已经在很多应用中取得了很好的效果，但3D卷积神经网络目前并没有应用的很广泛，主要受限于3D卷积神经网络计算量大的因素。因此本课题针对目前3D卷积网络中卷积计算量大的问题，推导出了一种能够有效降低计算量的3D卷积算法，即3D Winograd算法。该算法的原理是通过对卷积层的输入和卷积核进行变换，将变换后的结果进行矩阵乘运算，然后将运算结果再反变换回最后的结果，通过引入几个变换来减少矩阵乘的规模。本课题从理论上证明了该算法能有效降低浮点运算量，并在GPU异构平台上高效地并行实现，主要是通过CUDA编程将该算法中涉及的几个变换过程映射到GPU中，映射过程中采用了对齐访问和减少访存次数两种优化技术提高变换过程在GPU的性能，而对3D Winograd算法中的矩阵乘部分则通过调用目前比较成熟的cublas库实现，最后取得了比当前流行的深度学习库更好的性能。
+
+\item[4.]面向卷积神经网络前向过程的低延迟实现。低延迟在很多应用场景中作为卷积神经网络前向过程的一个重要指标，为了降低计算时间，本课题在多GPU设备上对卷积神经网络采用模型并行进行加速。模型并行中，每一层卷积层的计算都被分割到多个设备中执行，每个设备负责计算卷积层的部分输出结果，各个设备计算出的部分输出结果需要合并作为下一层的输入，因此，模型并行需要解决设备间的通信问题，本课题设计了一个高效的通信模式，一方面降低通信时间，另一方面尽量隐藏通信时间。
+
+\end{compactitem}
+
+综上所述，本课题选取的两个典型应用都为计算密集型的应用，适合在异构平台下进行加速，而本课题根据心脏组织模拟与卷积神经网络计算中各自不同的特点分别将它们映射到不同类型的异构平台中。在具体的映射过程中，提出了一些算法的改进并对各种并行技术进行了研究与实现。
 
 \end{cabstract}
-\ckeywords{ 高性能实现; 并行编程模型}
+\ckeywords{ 异构平台；数字信号处理器；众核协处理器；科学计算；心脏组织模拟；卷积神经网络；3D Winograd；低延迟}
 
 \begin{eabstract}
-....
-\end{eabstract}
-\ekeywords{ High-Performance Implementation; Parallel Programming Model}
+The demand of applications makes heterogenous platform widespread. The accelerator-based heterogenous system means a computer system connected with different functional or performance computing device, one of the computing device called accelerator outperforms traditional general processor, the accelerator is used for accelerating the compute-intensive part of an application. Typical accelerator include digital signal processor(DSP), graph processor for general computing, many-core coprocessor(MIC) and hardware accelerator(FPGA) etc.
 
+Programming optimization for heterogenous platform meets lots of challenges. The difference of architecture between each heterogenous platform causes difference in programming methods and parallel optimization methods. For heterogenous platform like GPU which has lots of parallel compute units and execute in SIMT way, application developer should pay special attention to avoid using conditional branch statements in the implementations. However, for platform like many-core coprocessor(MIC), which is limited by its cache size, it is important to optimize memory accessing while programming. The coordination and communication between CPU and accelerator are also key to make full use of the heterogenous platform, which is also one problem to solve while programing optimization. Those problems also occur in other heterogenous platforms. 
+
+Heterogenous platform are becoming more and more important in scientific computing and artificial intelligence field. The research program choose cardiac tissue simulation and convolutional neural network as typical application representation in science computing and artificial intelligence field respectively, these two applications are implemented on heterogenous platform. Either cardiac simulation or convolutional neural network demands lots of computing resources, and has its own features in computing, the research program choose two different heterogenous platform to implement according their computing features, one is based on Intel Xeon Phi accelerator and the other is based on Nvidia GPU platform.  Main research work include following lists:
+\begin{compactitem}
+\item[1.]3D simulation of cardiac tissue on large scale multi-core CPU system. Most of research on cardiac simulation focus on 2D simulation, or single cell, our research program propose a detailed 3D cardiac tissue simulation model, which simulates the electrical activity and calcium handling at the tissue level. The research program aims to implement 3D cardiac tissue simulation on large scale heterogenous platforms like Tianhe-2 system. The performance of host CPU in heterogenous platform can not be ignored. The research program work on large scale multi-core CPU system first. MPI programming method is used to divide task among all the computing nodes, while OpenMP parallel programming technique is used to divide computing task among multi-cores on each computing node. Finally, SIMD vectorization is applied to parallel the computing task happened inside cardiac cells on each CPU core. Therefor, we adopted multiple parallelization techniques to implement the 3D cardiac tissue simulation on large scale multi-core CPU system.
+
+\item[2.]Implementation of 3D cardiac tissue simulation on Tianhe-2 super computing system. Based on the implementation of 3D cardiac tissue simulation on large scale multi-core system, we extend the work to Tianhe-2 super computer system, each node on Tianhe-2 system contains multi-core CPUs and 3 Intel Xeon Phi accelerators, the tasks dividing method among Tianhe-2 nodes is the same as among large scale CPU system, both of which adopt MPI method. However, for the task dividing method among node level, we divide task depending on the computing capacity of multi-core CPU and Xeon Phi to guarantee load balancing between CPU and Xeon Phi. And like on multi-core CPU, both OpenMP and SIMD methods are used on Xeon Phi device. For the coordination between CPU and Xeon Phi, we exploit COI/SCIF low level programming interface, we call COI interface on CPU side to control Xeon Phi device and call SCIF interface to implement the communication between CPU and Xeon Phi device.
+
+\item[3.]High performance implementation of 3D CNN(convolutional neural network) on GPU platform. 2D convolutional neural network play good role in many applications, however, we do not observe widespread use of 3D CNN, because of huge computation needed in 3D CNN. We derive a new algorithm called 3D Winograd to compute 3D convolution operation and the new algorithm can reduce computation obviously. The principle of 3D Winograd algorithm is transforming the input and filters of a convolutional layer, applying matrix multiplication to the transformed results and then transforming the result of matrix multiplication back. The transforming operation can increase some computation, however, the matrix multiplication reduce computation more obviously. We prove that 3D Winograd algorithm can reduce computation in theory. We implement the algorithm on GPU efficiently, we use CUDA programming method to implement those transforming tasks and adopt two optimization techniques which are memory align accessing and reducing the number of memory access to improve the performance on GPU, for the matrix multiplication in the 3D Winograd algorithm, we call cublas library to implement that, finally, we achieve better performance than some popular deep learning library.
+
+\item[4.]Low latency implementation for the inference phase of convolutional neural network. Low latency of the inference phase of convolutional neural network is one important factor in many applications, to reduce the computing time, we exploit model parallelization technique to accelerate CNN on multiple GPU devices. The computation task of Each convolutional layer is divided among multiple devices in model parallelization, each device is only responsible for computing part of the results, and these results are merged as the input of next layer, therefore, communication between devices are needed to solve during the model parallelization, we design a efficient communication mode which can reduce the communication time and also is convenient to overlap communication and computing. 
+
+\end{compactitem}
+
+In summary, these two typical applications chosen by the research program are both computing intensive application， according to the computing features of these two application, we implement them on different heterogenous platforms. During the implementations, we propose new algorithm and study many parallelization techniques. 
+\end{eabstract}
+\ekeywords{ Heterogenous Platform; Digital Signal Processor; Many-core Coprocessor; Scientific Computing; Cardiac Tissue Simulation; Convolutional Neural Network; 3D Winograd; Low Latency}

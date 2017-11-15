@@ -1,11 +1,11 @@
 %*********************第二章******************
-\chapter{基于大规模多核CPU系统的心脏组织的３D精细模拟}
+\chapter{基于大规模多核CPU系统的心脏组织的3D精细模拟}
 \label{ICA3PP}
 
 \section{引言}
 细胞内钙离子处理功能异常被认为是几个心脏病理（比如心脏衰竭\upcite{marks2013calcium,kubalova2005abnormal}，心脏肥大\upcite{berridge2006remodelling}，心肌病\upcite{pieske1995alterations}以及肌浆网内钙离子释放处理紊乱\upcite{liu2006arrhythmogenesis,priori2011inherited}）的极有可能的诱因。上述心脏疾病中的大多都是源于亚细胞内微米级和纳米级上钙离子释放处理功能不正常造成的，表现为由t-型管畸形\upcite{louch2004reduced,louch2006t,van2011disrupted}和单兰尼碱受体功能紊乱\upcite{liu2006arrhythmogenesis,jiang2005enhanced}造成心脏的病理。
 
-在过去的几年里，数值方法和计算技术的进步使得心脏细胞的电生理学和钙离子处理模型得到了快速发展，这些模型也开始考虑亚细胞中的随机钙离子释放过程\upcite{restrepo2008calsequestrin,gaur2011multiscale,nivala2012computational,williams2011dynamics}的离散特性。新一代的钙离子处理和动作电位模型在研究心律失常的机制和预防具有非常重要的价值，心律失常主要因为细胞内纳米级钙离子释放通道和dyadic单元功能的紊乱进而影响亚细胞级的膜电位的不正常而造成的，膜电位的异常通常表现为去极化延迟、过早地去极化\upcite{song2015calcium}以及心脏电交替变化\upcite{restrepo2008calsequestrin,nivala2012calcium,nivala2015t}。虽然这些发展能让我们从不同尺度的动作电位对心律失常进行理解，这些尺度可以从单通道到整个细胞，然而我们仍然面临很多挑战。
+在过去的几年里，数值方法和计算技术的进步使得心脏细胞的电生理学和钙离子处理模型得到了快速发展，这些模型也开始考虑亚细胞中的随机钙离子释放过程\upcite{restrepo2008calsequestrin,gaur2011multiscale,nivala2012computational,williams2011dynamics}的离散特性。新一代的钙离子处理和动作电位模型在研究心律失常的机制和预防具有非常重要的价值，心律失常主要因为细胞内纳米级钙离子释放通道和dyad单元功能的紊乱进而影响亚细胞级的膜电位的不正常而造成的，膜电位的异常通常表现为去极化延迟、过早地去极化\upcite{song2015calcium}以及心脏电交替变化\upcite{restrepo2008calsequestrin,nivala2012calcium,nivala2015t}。虽然这些发展能让我们从不同尺度的动作电位对心律失常进行理解，这些尺度可以从单通道到整个细胞，然而我们仍然面临很多挑战。
 
 首先，心律失常发生在心脏组织级和器官级。从细胞这一层级的研究对心脏组织和器官的心律失常进行理解推断往往不是特别清楚，有时反而不利于进行研究。其次，从心脏组织这个层次进行研究已经被证明对计算有极大的需求。一个典型的人类心脏大概有$2 \times 10^9 $个细胞\upcite{adler1974cell}，每个细胞内大概有$10^6$个RyRs和约$10^5$个L型通道，这些通道的功能就是对膜电位和细胞内各个单元里的钙离子浓度进行随机的作出响应\upcite{cheng1993calcium}。在心脏组织级这个层次的真实模拟不仅需要大量的并行计算节点，也需要复杂的算法设计，才能在合理的时间内对心脏的生理过程进行模拟。并且，到目前为止，还没有在心脏组织级这个层次采用精细的钙离子处理细胞模型对心律失常的机制进行研究。
 
@@ -34,19 +34,15 @@
 \label{cellmodel}
 
  本课题借鉴了文献\upcite{gaur2011multiscale}在心肌细胞内采用随机钙离子处理的多尺度模型。为了模拟人类心脏组织细胞，本课题使用O'Hara-Rudy (ORd)的心脏电位公式\upcite{o2011simulation}替换了文献\upcite{gaur2011multiscale}中的电生理电流公式，ORd模型是针对健康人类的心脏细胞的模拟，而文献\upcite{gaur2011multiscale}中描述的是豚鼠的模型。
- 
  \begin{figure}[ht]
 \center
-\includegraphics[scale=0.5]{figs/state.pdf}
-\caption{The eight possible transitions between four states of a RyR, where the labels on the arrows indicate the
-probabilities of the transitions.}
+\includegraphics[scale=0.6]{figs/state.pdf}
+\caption{RyR状态转化关系图，箭头中的数值代表状态间的转化概率}
 \label{ryrstates}
 \end{figure}
-
-在每个细胞里，有约$10000$个钙离子释放单元也叫dyads，这些钙离子释放单元按照$100\times 10\times 10$的三维网格进行排列。每个dyad包含五个不同的小单元，钙离子会在这些小单元里停留，详细的公式和参数可以参考文献\upcite{gaur2011multiscale}。每个dyad空间里，包含15个L-型钙离子通道和$100$个RyRs，它们是随机地活动的。在任何时刻，每个RyR会处于四个状态中的一个，这四个状态用C1、~C2、~C3以及~O1表示。图\ref{ryrstates}中给出了各个状态间可能的转换关系，以及状态间转换的概率，图\ref{ryrstates}状态转换的概率参数是与每个RyR内的钙离子浓度相关的，除了其中从~O1到~C1以及从~C3到~C2的转换概率为常数。处于打开状态(即处于~O1状态)的RyR的个数直接影响到钙离子的流量，进而影响每个细胞内的电压。
+在每个细胞里，有约$10000$个钙离子释放单元也叫dyad，这些钙离子释放单元按照$100\times 10\times 10$的三维网格进行排列。每个dyad包含五个不同的小单元，钙离子会在这些小单元里停留，详细的公式和参数可以参考文献\upcite{gaur2011multiscale}。每个dyad空间里，包含15个L-型钙离子通道和$100$个RyRs，它们是随机地活动的。在任何时刻，每个RyR会处于四个状态中的一个，这四个状态用C1、~C2、~C3以及~O1表示。图\ref{ryrstates}中给出了各个状态间可能的转换关系，以及状态间转换的概率，图\ref{ryrstates}状态转换的概率参数是与每个RyR内的钙离子浓度相关的，除了其中从~O1到~C1以及从~C3到~C2的转换概率为常数。处于打开状态(即处于~O1状态)的RyR的个数直接影响到钙离子的流量，进而影响每个细胞内的电压。
 
 dyad中的钙离子浓度可以通过公式\ref{eq:1}至公式\ref{eq:10}来求解。
-
 {
 \allowdisplaybreaks
  \begin{eqnarray}
@@ -68,30 +64,35 @@ dyad中的钙离子浓度可以通过公式\ref{eq:1}至公式\ref{eq:10}来求�
 }
 %
 %\noindent
-
 公式中，$J_{\mathrm{rel}}$是从RyRs到dyad单元间的钙离子流通量，$J_{\mathrm{lca}}$是从L-型钙离子通道到dyad间的钙离子流通量，$\tau_{\mathrm{efflux}}$是dyad空间和膜下空间之间的扩散系数，$J_{\mathrm{NCX}}$是钠离子和钙离子交换在膜下空间产生的电流通量，$J_{\mathrm{diff\_myo\_ss}}$是肌质与膜下空间之间的扩撒流通量，$J_{\mathrm{diff\_ds\_ss}}$是dyad与膜下空间之间的扩撒流通量。$J_{\mathrm{diff\_NSR\_JSR}}$是NSR和JSR间的扩撒流通量，SR泵可以将钙离子从NSR抽到SR中，产生的流通量用$J_{\mathrm{leak}}$来表示。$J_{\mathrm{pca}}$是流过胞质膜的钙离子流通量，膜下空间会被SR和SL瞬间缓冲，瞬间缓冲系数是通过$\overline{B_{\mathrm{ss}}}$来表示的。$\overline{B_{\mathrm{JSR}}}$是CSQN到JSR间的瞬间缓冲系数，$\overline{B_{\mathrm{myo}}}$是从CMDN和TRPN到胞质膜的瞬间缓冲系数。更加详细的关于各个参数和变量的信息可以参考文献\upcite{gaur2011multiscale}。
 
 \subsection{数值策略}
 本课题采用随机的方法对L-型钙离子通道和RyRs进行随机模拟，详细的介绍将在\ref{cellImp}中介绍。显式时间积分法被用来求解所有的微分方程(\ref{tissuevoltage}）-（\ref{eq:10})。涉及的扩撒项采用中心有限差分的方法进行离散化。而对于单域方程(\ref{tissuevoltage})，使用的是算子分裂方法\upcite{qu1999advanced}。这意味着扩撒项与离子产生的电流项$I_\mathrm{ion}$是分开处理的，后者是通过求解Ord模型中的所有常微分方程得到所有的离子电流，并将所有的离子电流累加起来而得到。
 
-所有的计算流程是发生在一个时间循环内，循环中是每个时间步需要完成的工作，具体包括对所有细胞内的模拟，然后是根据公式\ref{tissuevoltage}对细胞间电压扩撒过程进行计算。每个细胞内的计算包括对所有的dyads进行计算，然后对dyad间的扩撒过程进行计算。具体过程如表\ref{overview}中的伪代码所示，对其中的计算进行高效实现变得非常重要。
+所有的计算流程是发生在一个时间循环内，循环中是每个时间步需要完成的工作，具体包括对所有细胞内的模拟，然后是根据公式\ref{tissuevoltage}对细胞间电压扩撒过程进行计算。每个细胞内的计算包括对所有的dyads进行计算，然后对dyad间的扩散过程进行计算。具体过程如表\ref{overview}中的伪代码所示，对其中的计算进行高效实现变得非常重要。
 
 \begin{table}
 \caption{3D组织模拟计算的伪代码实现}
 \label{overview}
 \begin{lstlisting}[language=C++, basicstyle=\ttfamily\footnotesize]
 Global initialization
-  for (int t = 0; t < time steps; t++) {	
-    for (int k = 1; k <= cells; k++) {
-      Cell computation
-      for (int j = 1; j <= dyads; j++) {
-        L-type probability calculation
-        L-type opening	
-        RyR probability calculation
-        RyR opening
-        Ca concentration computation }
-      Dyad diffusion }
-    Cell difusion }
+for (int t = 0; t < time steps; t++) 
+{	
+ 	for (int k = 1; k <= cells; k++) 
+    	{
+      		Cell computation
+      		for (int j = 1; j <= dyads; j++) 
+      		{
+			L-type probability calculation
+			L-type opening	
+			RyR probability calculation
+			RyR opening
+			Ca concentration computation
+		}
+      		Dyad diffusion 
+      	}
+    	Cell difusion 
+}
 \end{lstlisting}
 \end{table}
 
@@ -108,19 +109,20 @@ Global initialization
  在细胞内的所有计算中，最耗时的计算部分是关于钙离子处理的那部分。因此，本节重点关注这部分计算，暂且将这部分计算命名为{\tt computeCalciumInDyad}，表\ref{cellfunction}中展示的是该部分计算的伪代码。
  
  \begin{table}
-\caption{The function that implements calcium handling per cell.}
+\caption{细胞内钙离子处理函数}
 \label{cellfunction}
 \begin{lstlisting}[language=C++, basicstyle=\ttfamily\footnotesize]
 void computeCalciumInDyad()
-    {
-        generateRandData();
-        for(int i=0;i<Ndyads;i++) {
-            computateLocalLtypeCurrent();
-            computeLocalSRCaRelease();
-            computeLocalCaConcentration();
-        }
-        computeCaConcentrationDiffusion();
-    }
+{
+	generateRandData();
+	for(int i=0;i<Ndyads;i++) 
+	{
+		computateLocalLtypeCurrent();
+		computeLocalSRCaRelease();
+		computeLocalCaConcentration();
+	}
+	computeCaConcentrationDiffusion();
+}
 \end{lstlisting}
 \end{table}
 
@@ -133,7 +135,7 @@ void computeCalciumInDyad()
 细胞内的$10000$ 个dyads形成一个$100\times10\times10$的网格，钙离子由于浓度不同会在这些dyad间扩散。表\ref{diffusion}中的伪代码是这种3D扩散的计算实现过程，代码主要由三个{\tt for}循环构成，其中计算主要集中在最内的循环，最内的循环次数为$100$，因此可以考虑对该循环进一步优化。由于CPU核已经在细胞级采用OpenMP并行了，每个CPU核负责细胞内的计算，如果需要对细胞内的计算进一步并行，只能开发CPU核内的并行计算资源了。本课题采用的是Intel CPU，每个CPU核内具有256位的向量计算单元，所以对于64位双精度浮点计算来说，每个CPU一次可以处理4个双精度的浮点运算。由于dyad内的数据在$x$方向连续存储的，最内循环适合进行向量化。本课题通过添加编译指导语句，借助编译器对特定的循环进行向量化优化。理论上应该可以取得4倍的加速，但由于扩散中的计算是存储受限的计算，实际取得的性能提升将远低于理论上能取得的性能。
 
  \begin{table}
-\caption{Pragma guided vectorization (in the $x$ direciton) of one of three diffusion computations between the dyads in function {\tt computeCaConcentrationDiffusion}.}
+\caption{{\tt computeCaConcentrationDiffusion}函数在x方向上进行扩散计算时采用编译指导语句的向量化实现}
 \label{diffusion}
 \begin{lstlisting}[language=C++, basicstyle=\ttfamily\footnotesize]
 for(z=1;z<Nz_diff-1;z++)
@@ -163,7 +165,7 @@ for(z=1;z<Nz_diff-1;z++)
 %
 前面的章节中已经介绍了每个dyad内包含$100$ RyRs，每个RyR在任何时刻会处于四种状态中的一种状态，在\ref{cellmodel}已经介绍了这四种状态，以及这四种状态间的转变关系，状态间的转变是按照一定的概率随机转变的。现在的目标是计算RyR中处于打开状态（O1）的数目，因为打开状态的RyR能够决定钙离子流量而影响细胞内电压，一种直接的方法是对每个RyR独立地进行模拟。这样每个dyad内需要消耗100个随机数对这100个RyRs的状态转变进行模拟。每个RyR根据当前状态以及相关的转变概率转变到另一个状态中，这种模拟的方法需要消耗大量的计算，一方面是因为需要消耗大量的随机数，随机数在每个时间步中都需要重新产生；另一方面，这种模拟实现中，代码含有大量的{\tt if}测试语句。
 
-因此，如果能将dyad内的100个RyRs看作一个整体，直接计算出处于开放状态的RyR的数目，将有效降低计算量。因此，本课题将原本100次独立的随机试验替换为在一个二项分布中进行八次随机抽样的实验，对图\ref{ryrstates}中的每一次转变进行一次抽样试验。在二项分布中，$n$次试验中成功$k$次的概率为$p$，则$p$可以用公式\ref{eq:cumulative}计算。
+因此，如果能将dyad内的100个RyRs看作一个整体，直接计算出处于开放状态的RyR的数目，将有效降低计算量。因此，本课题将原本100次独立的随机实验替换为在一个二项分布中进行八次随机抽样的实验，对图\ref{ryrstates}中的每一次转变进行一次抽样实验。在二项分布中，$n$次实验中成功$k$次的概率为$p$，则$p$可以用公式\ref{eq:cumulative}计算。
 
 \begin{equation}
 F(k,n,p)=Pr({X}\leq{k})=\sum_{i=0}^{k}\binom{n}{i}p^i(1-p)^{n-i},
@@ -171,11 +173,10 @@ F(k,n,p)=Pr({X}\leq{k})=\sum_{i=0}^{k}\binom{n}{i}p^i(1-p)^{n-i},
 \end{equation}
 式中$$\binom{n}{i}=\frac{n!}{i!(n-i)!}$$为二项系数。由于处于各个状态的RyRs的数目是从$0$ 到$100$间变化，可以预先计算好所有的二项系数，这也能显著提高计算性能。
 
-使用服从$[0,1]$的均匀分布的随机数，对二项分布进行采样找出最小的$k$，使得$r \leq F(k,n,p)$。然而标准的二项分布实现对计算需求比较大，本课题采用了一个高效的实现，如表\ref{fig:binom}中代码所示。因为二项分布的系数预先已经计算出来了，只需要在每一轮试验中将$p/(1-p)$与基概率$(1-p)^n$相乘，并与二项系数相乘然后保存结果。
+使用服从$[0,1]$的均匀分布的随机数，对二项分布进行采样找出最小的$k$，使得$r \leq F(k,n,p)$。然而标准的二项分布实现对计算需求比较大，本课题采用了一个高效的实现，如表\ref{fig:binom}中代码所示，函数{\tt constant\_p\_binomial}通过查询预先计算好的表来找到$k$的值，函数{\tt binomial}中，首先通过比较阈值与$F(0,n,p_t)$的值来测试涉及的计算是否可以跳过，如果不能跳过，则分布函数$F(k,n,p)$将被迭代计算直到满足跳出条件。因为二项分布的系数预先已经计算出来了，只需要在每一轮实验中将$p/(1-p)$与基概率$(1-p)^n$相乘，并与二项系数相乘然后保存结果。
 
  \begin{table}
-\caption{Implementation of Binomial Distribution Method. Function {\tt constant\_p\_binomial} simply finds $k$ by using the precomputed lookup table. In function {\tt binomial},
-we first test if the computation can be skipped, using the threshold $p_t$ and the precomputed value $F(0,n,p_t)$. If this is not the case, the distribution function $F(k,n,p)$ is computed iteratively by subtracting from {\tt randValue} using the precomputed binomial coefficients.}
+\caption{二项分布方法的实现。}
 \label{fig:binom}
 \begin{lstlisting}[language=C++, basicstyle=\ttfamily\footnotesize]
     int constant_p_binomial(n,randValue) {
@@ -203,7 +204,7 @@ we first test if the computation can be skipped, using the threshold $p_t$ and t
            \end{lstlisting}
 \end{table}
 
-为了表示方便，用$x_1$，$x_2$，$x_3$，$x_4$这四个变量代表RyR处在四种状态的数目，并用$x_{ij}$表示RyR从状态$i$到状态$j$间的数目，$x_{ij}$是通过上述描述的方法通过对二项分布采用计算出来的。因此，在下一个时间步，处于各个状态的RyR数目可以用公式\ref{transitNumber}计算。
+为了表示方便，用$x_1$，$x_2$，$x_3$，$x_4$这四个变量代表RyR处在四种状态的数目，并用$x_{ij}$表示RyR从状态$i$到状态$j$间的数目，$x_{ij}$是通过上述描述的方法通过对二项分布采样计算出来的。因此，在下一个时间步，处于各个状态的RyR数目可以用公式\ref{transitNumber}计算。
 
 \begin{equation}
 \label{transitNumber}
@@ -220,64 +221,64 @@ x_i = x_i - \sum_{j}x_{ij}+\sum_{j}x_{ji}.
 \section{实验结果与分析}
 \subsection{实验设置}
 
-本课题的测试系统是在Abel\upcite{abel}机器上，这是一个由奥斯陆大学管理维护的一个超级计算机系统。在Abel机器上的每个计算节点由Intel Xeon E5-2670处理器构成，共有16个物理计算核心，每个计算核心的频率为2.6GHz，由FDR Infiniband互联（56 Gbps）。本课题最多使用了128个计算节点（即2048个CPU核）进行数值模拟试验。本课题采用Intel的\textit{icc} 15.1.0编译器，Intel MPI 5.0.2库进行通信。
+本课题的测试系统是在Abel\upcite{abel}机器上，这是一个由奥斯陆大学管理维护的一个超级计算机系统。在Abel机器上的每个计算节点由Intel Xeon E5-2670处理器构成，共有16个物理计算核心，每个计算核心的频率为2.6GHz，由FDR Infiniband互联（56 Gbps）。本课题最多使用了128个计算节点（即2048个CPU核）进行数值模拟实验。本课题采用Intel的\textit{icc} 15.1.0编译器，Intel MPI 5.0.2库进行通信。
 
-在所有的试验中，无论是组织层级还是细胞层级都采用大小为$0.05$ ms的固定的时间步。在组织层级模拟中，对于公式\ref{tissuevoltage}中扩散项的离散化，本课题选择了$0.5$ mm的固定的网格分辨率。
+在所有的实验中，无论是组织层级还是细胞层级都采用大小为$0.05$ ms的固定的时间步。在组织层级模拟中，对于公式\ref{tissuevoltage}中扩散项的离散化，本课题选择了$0.5$ mm的固定的网格分辨率。
 
 \subsection{性能优化实验}
-第一个数值计算的试验是为了测试\ref{cellImp}中在函数{\tt compute\_cell}中介绍的那些优化方法的性能提升效果。为了测试这些优化方法的性能，对包含$10000$个dyad的细胞模拟$10000$个时间步，等价于模拟一次持续时间为$500$ ms的心脏跳动。模拟期间，在$t=50$时刻给细胞一次刺激。图\ref{fig:optimizations}给出了各个不同的优化方法的性能提升。通过避免重复计算可以显著提高各个函数的性能，其中函数{\tt computateLocalLtypeCurrent}的性能提升$37.5\%$，函数{\tt computeLocalSRCaRelease}的性能提升$24.4\%$，函数{\tt computeCaConcentrationDiffusion}的性能提升$12.4\%$。向量化能进一步加速扩散部分的计算，加速约$25\%$。最后是采用二项分布的方法对RyR通道的模拟的影响，从试验结果看，二项分布方法对性能影响最大，能过加速SRCaRelease约$70\%$，在随机数产生方面可以提升$79.9\%$，对于后者的影响完全是因为二项分布的方法可以有效减少对随机数的使用。最后，在所有的方法都使用后，总的时间减少了约$50.7\%$。
+第一个数值计算的实验是为了测试\ref{cellImp}中在函数{\tt compute\_cell}中介绍的那些优化方法的性能提升效果。为了测试这些优化方法的性能，对包含$10000$个dyad的细胞模拟$10000$个时间步，等价于模拟一次持续时间为$500$ ms的心脏跳动。模拟期间，在$t=50$ ms时刻给细胞一次刺激。图\ref{fig:optimizations}给出了各个不同的优化方法的性能提升。通过避免重复计算可以显著提高各个函数的性能，其中函数{ computateLocalLtypeCurrent}的性能提升$37.5\%$，函数{ computeLocalSRCaRelease}的性能提升$24.4\%$，函数{ computeCaConcentrationDiffusion}的性能提升$12.4\%$。向量化能进一步加速扩散部分的计算，加速约$25\%$。最后是采用二项分布的方法对RyR通道的模拟的影响，从实验结果看，二项分布方法对性能影响最大，能够加速SRCaRelease约$70\%$，在随机数产生方面可以提升$79.9\%$，对于后者的影响完全是因为二项分布的方法可以有效减少对随机数的使用。最后，在所有的方法都使用后，总的时间减少了约$50.7\%$。
 
 \begin{figure}[htb]
 \center
 \includegraphics[width=\textwidth]{figs/optimization.pdf}
-\caption{Performance improvement of the individual functions in {\tt computeCalciumInDyad} due to the different optimization techniques. The three optimizations are applied cumulatively. Thus, the values for the Binominal method reflect the sum of all improvements.}
+\caption{不同优化技术下，{\tt computeCalciumInDyad}中各个函数的性能提升。这些优化方法是叠加使用的，因此，二项分布计算出的值将影响所有改进的效果}
 \label{fig:optimizations}
 \end{figure} 
 
 \subsection{扩展性实验}
-本章对弱扩展和强扩展都进行了试验，试验中模拟时长为$1000$ ms，对于两个扩展试验，分别都做了两个模拟试验，一个是细胞内的dyad数量设置为$100$个，另一个是细胞内dyad数量设置为$10000$。
+本章对弱扩展和强扩展都进行了实验，实验中模拟时长为$1000$ ms，对于两个扩展实验，分别都做了两个模拟实验，一个是细胞内的dyad数量设置为$100$个，另一个是细胞内dyad数量设置为$10000$。
 
-在弱扩展试验中，本课题使用的计算节点的数目从$1$到$128$。当使用$100$个dyad时，为每个计算节点分配的心脏组织大小为$64\times64\times64$，$128$个计算节点上完成大小为$512\times256\times256$ 的心脏组织的模拟。对于$10000$个dyad来说，为每个计算节点分配的心脏组织大小为$16\times16\times16$，$128$个节点分配心脏组织大小为$128\times64\times64$。扩展性试验中，每秒钟能够完成的细胞计算量作为扩展性的衡量标准，一个细胞计算量是指一个时间步计算一个细胞。图\ref{scaling1}给出了弱扩展试验的结果，其中纵坐标代表细胞计算量，横坐标是使用的计算节点数。从结果看出，试验表现出很好的弱扩展性。
+在弱扩展实验中，本课题使用的计算节点的数目从$1$到$128$。当使用$100$个dyad时，为每个计算节点分配的心脏组织大小为$64\times64\times64$，$128$个计算节点上完成大小为$512\times256\times256$ 的心脏组织的模拟。对于$10000$个dyad来说，为每个计算节点分配的心脏组织大小为$16\times16\times16$，$128$个节点分配心脏组织大小为$128\times64\times64$。扩展性实验中，每秒钟能够完成的细胞计算量作为扩展性的衡量标准，一个细胞计算量是指一个时间步计算一个细胞。图\ref{scaling1}给出了弱扩展实验的结果，其中纵坐标代表细胞计算量，横坐标是使用的计算节点数。从结果看出，实验表现出很好的弱扩展性。
 
-对于强扩展试验中细胞内dyad设置为$100$个时，心脏组织大小固定在$256\times256\times256$这个规模，而对于每个细胞内dyad数量为$10000$，心脏组织规模为$32\times32\times32$，由于存储的需求，强扩展试验中最少需要$8$ 个计算节点。与弱扩展试验中类似，仍然采用细胞计算量这个指标，图\ref{scaling1}也展示了强扩展试验的结果。强扩展基本上取得了与弱扩展一样的性能。性能上细微的差别可以通过通信量来解释，强扩展试验中通信量会比弱扩展试验大些，而在现有的实现中，通信暂且未做优化。
+对于强扩展实验中细胞内dyad设置为$100$个时，心脏组织大小固定在$256\times256\times256$这个规模，而对于每个细胞内dyad数量为$10000$，心脏组织规模为$32\times32\times32$，由于存储的需求，强扩展实验中最少需要$8$ 个计算节点。与弱扩展实验中类似，仍然采用细胞计算量这个指标，图\ref{scaling1}也展示了强扩展实验的结果。强扩展基本上取得了与弱扩展一样的性能。性能上细微的差别可以通过通信量来解释，强扩展实验中通信量会比弱扩展实验大些，而在现有的实现中，通信暂且未做优化。
 
-由于心脏细胞模拟是计算密集型的应用，因此，无论是在弱扩展，还是强扩展试验中，模拟试验都表现了很好的扩展性。通过每秒细胞计算量这个指标，可以对任何规模的心脏组织在给定计算资源的条件下需要模拟的时间进行预测。
+由于心脏细胞模拟是计算密集型的应用，因此，无论是在弱扩展，还是强扩展实验中，模拟实验都表现了很好的扩展性。通过每秒细胞计算量这个指标，可以在给定计算资源的条件下对任何规模的心脏组织所需的模拟时间进行预测。
 
 \begin{figure}[htb]
 \center
 \includegraphics[width=\textwidth]{figs/scaling.pdf}
-\caption{Performance of weak and strong scaling tests of tissue simulations. The $Y$ axis shows performance measured via the number of cell computations (i.e.~time steps for a single cell) performed for each wall-clock second of simulation time used. }
+\caption{ 心脏组织模拟的弱扩展和强扩展实验。Y坐标表示每秒钟能够完成细胞的计算数}
 \label{scaling1}
 \end{figure} 
 
 
 \subsection{细胞内离子活动实验}
 
-在图\ref{fig:calciumcell}中，我们展示了人类心脏细胞内正常的心跳过程中钙离子处理变化过程。试验以不同的尺度展示了心脏组织的中心细胞内钙离子处理结果。图\ref{fig:calciumcell}中A部分显示了在两次连续的心脏中活动电势的变化；图\ref{fig:calciumcell}中B部分是位于细胞中心的dyad内处于打开状态的RyR的数目，这些数目是按照\ref{binom}通过二项分布的方法计算出来的。模拟结果表明，在活动电势变化期间，大部分RyR是出于打开状态的，随着这些通道的打开，在dyad内的$Ca_{ds}$浓度迅速上升到$500\mu$M，以及$Ca_{ss}$上升到$0.1$mM，具体变换过程可以从图\ref{fig:calciumcell}中的C和D观察到。对于亚细胞层级，对细胞内的Ca ($Ca_{i}$)进行模拟的线扫描影像表明，细胞内所有dyad内的钙离子释放是同步发生的（参考图\ref{fig:calciumcell}的F）。整个细胞内相关的$Ca_i$为图\ref{fig:calciumcell}中G所示，以及H未整个细胞的JSR。总之，这些结果描述了正常心脏跳动过程中的不同尺度的钙离子处理过程，包括dyad级、亚细胞级以及细胞级。
+在图\ref{fig:calciumcell}中，我们展示了人类心脏细胞内正常的心跳过程中钙离子处理变化过程。实验以不同的尺度展示了心脏组织的中心细胞内钙离子处理结果。图\ref{fig:calciumcell}中A部分显示了在两次连续的心脏中活动电势的变化；图\ref{fig:calciumcell}中B部分是位于细胞中心的dyad内处于打开状态的RyR的数目，这些数目是按照\ref{binom}通过二项分布的方法计算出来的。模拟结果表明，在活动电势变化期间，大部分RyR是处于打开状态的，随着这些通道的打开，在dyad内的$Ca_{ds}$浓度迅速上升到$500\mu$M，以及$Ca_{ss}$上升到$0.1$mM，具体变换过程可以从图\ref{fig:calciumcell}中的C和D观察到。对于亚细胞层级，对细胞内的Ca ($Ca_{i}$)进行模拟的线扫描影像表明，细胞内所有dyad内的钙离子释放是同步发生的（参考图\ref{fig:calciumcell}的F）。整个细胞内相关的$Ca_i$为图\ref{fig:calciumcell}中G所示，以及H为整个细胞的JSR。总之，这些结果描述了正常心脏跳动过程中的不同尺度的钙离子处理过程，包括dyad级、亚细胞级以及细胞级。
 
 \begin{figure}[htb]
 \includegraphics[width=\textwidth]{figs/calcium.pdf}
 %\includegraphics[scale=0.8]{figs/calcium.pdf}
-\caption{Calcium handling in a cell in a human tissue during normal excitation. (A) Action Potential. (B) Number of open RyRs ($N_oRyR$) in the center dyad of the cell. (C) Dyadic space calcium ($Ca_{ds}$) (D) Submembrane space calcium ($Ca_{ss}$) (F) Simulated linescan image of intracellular Ca ($Ca_i$ (G) Whole-cell $Ca_i$ and (H) Whole-cell junctional sarcoplasmic reticulum (JSR). The 3D tissue was plane-stimulated at an edge at a cycle length(CL)=500 ms. Last two steady-state beats are shown.}
+\caption{人类正常心脏跳动中，心脏细胞内的钙离子处理活动。（A）活动电势。（B）细胞内处于中心位置的dyad中处于开放状态的RyR数量($N_oRyR$)。（C）Daydic空间的钙离子浓度($Ca_{ds}$)。 （D）Submembrane空间中的钙离子浓度($Ca_{ss}$)。 （F）细胞间钙离子浓度的线扫描图像($Ca_i$)。（G）细胞内总的钙离子浓度$Ca_i$。（H）细胞JSR中钙离子浓度。实验中在500ms时刻心脏组织的边沿一个面被受到刺激，图中显示的都是最后两个稳定的心脏跳动期间的变化}
 \label{fig:calciumcell}
 \end{figure}
 
 \subsection{心脏组织内异常活动模拟}
 
-图\ref{arrhythmia}在3D心脏组织中的膜电位变化图，在时刻t = 0 ms，心脏组织的边缘受到一个刺激，经过一段时间的电压传播，在t = 600 ms时，心脏组织的一部分细胞受到新的刺激，在新刺激和之前的电压扩散的双重影响下，最后在心脏组织内部形成一个卷波。从心脏组织中的三个位置A、B、C的细胞进行采样，这三个位置的膜电位变化如图\ref{arrhythmia}中下半部分所示。在整个模拟过程中，卷波非常稳定，没有产生新的小波。这个模拟试验表明了本课题实现的这个组织模拟器能够模拟出在心脏组织的异常功能研究中非常有用的卷波。
+图\ref{arrhythmia}在3D心脏组织中的膜电位变化图，在时刻t = 0 ms，心脏组织的边缘受到一个刺激，经过一段时间的电压传播，在t = 600 ms时，心脏组织的一部分细胞受到新的刺激，在新刺激和之前的电压扩散的双重影响下，最后在心脏组织内部形成一个卷波。从心脏组织中的三个位置A、B、C的细胞进行采样，这三个位置的膜电位变化如图\ref{arrhythmia}中下半部分所示。在整个模拟过程中，卷波非常稳定，没有产生新的小波。这个模拟实验表明了本课题实现的这个组织模拟器能够模拟出在心脏组织的异常功能研究中非常有用的卷波。
 
 \begin{figure}[htbp]
 \includegraphics[width=\textwidth]{figs/voltage}
-\caption{Simulation of scroll waves in a 3D tissue. The top part shows voltage snapshots at different time points. The bottom section shows membrane potentials at three different locations in the tissue.}
+\caption{3D心脏组织中卷波的模拟。上半图展示的是不同时刻电压的变化，下半图显示的是心脏组织三个不同地方的膜电压值}
 \label{arrhythmia}
 \end{figure}
 
 \section{小结}
 本章介绍了3D组织模拟的精细模型，采用了细胞内多尺度钙离子处理模型对心脏组织细胞的电活动和钙离子处理过程进行模拟。以往针对3D心脏组织的许多研究都是利用全细胞钙离子处理模型，而多尺度的钙离子处理模型并没有在组织模拟中广泛使用，其中的原因一方面是因为多尺度模型模拟对计算需求巨大；另一方面是当今缺少针对这些计算的有效的数值方法和算法。而本课题提出了一个多尺度模拟的模型，并在大规模的集群系统实现了。在实现过程中，本课题采用了多种优化方法，首先是减少了心脏组织细胞的模型中的很多变量的重复计算，其次是根据硬件平台的并行计算资源对3D心脏组织进行了多级并行，最后对心脏组织模拟的核心模拟过程采用了二项分布的方法。这些优化方法使得模拟的时间减少了一半。对性能提升效果最明显的是二项分布方法的引入，二项分布方法减少了对随机数的使用，可以节省大量用于产生随机数的时间。
 
-弱扩展测试针对不同的组织规模，在不同数目的计算节点上基本保持了相同的计算时间。而强扩展试验中，随着计算节点数目的增加，计算时间基本保持了一个线性下降的关系。这些结果表明了将更大规模的心脏组织模拟映射到更大规模的集群系统中进行模拟成为可能。最后通过试验证明了本课题研究针对心脏组织细胞内的钙离子处理模拟与已经发表的工作\upcite{o2011simulation}的结论是一致的。试验也证明了本课题研究的模型能够模拟3D心脏组织的心率失常等问题。
+弱扩展测试针对不同的组织规模，在不同数目的计算节点上基本保持了相同的计算时间。而强扩展实验中，随着计算节点数目的增加，计算时间基本保持了一个线性下降的关系。这些结果表明了将更大规模的心脏组织模拟映射到更大规模的集群系统中进行模拟成为可能。最后通过实验证明了本课题研究针对心脏组织细胞内的钙离子处理模拟与已经发表的工作\upcite{o2011simulation}的结论是一致的。实验也证明了本课题研究的模型能够模拟3D心脏组织的心率失常等问题。
 
-总结本章工作，本章提出了一个精细的3D心脏组织模拟模型，这个模型能够模拟人类心脏组织细胞内的电活动和钙离子处理过程，通过采用多个优化方法，最后将模型在大规模多核系统高效地实现了。试验中的扩展性结果表明全心脏的模拟在当前最快的超级计算上进行模拟也是可能的。在下一章中，本课题将进一步提高3D组织模拟器的性能，并且将已有的实现移植到更快的硬件加速器系统中。这将逐渐从多个尺度增加研究人员对心脏病理的机制的理解。
+总结本章工作，本章提出了一个精细的3D心脏组织模拟模型，这个模型能够模拟人类心脏组织细胞内的电活动和钙离子处理过程，通过采用多个优化方法，最后将模型在大规模多核系统高效地实现了。实验中的扩展性结果表明全心脏的模拟在当前最快的超级计算上进行模拟也是可能的。在下一章中，本课题将进一步提高3D组织模拟器的性能，并且将已有的实现移植到更快的硬件加速器系统中。这将逐渐从多个尺度增加研究人员对心脏病理的机制的理解。
 
 
 
